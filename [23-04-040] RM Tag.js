@@ -29,25 +29,25 @@ define(['N/record'], function (record) {
 
     for (var line = 0; line < sublistLength; line++) {
       var item = printInventoryTransferDr.getSublistText({
-        sublistId: 'inventory',
-        fieldId: 'item',
-        line: line,
-      }),
-      quantity = printInventoryTransferDr.getSublistValue({
-        sublistId: 'inventory',
-        fieldId: 'adjustqtyby',
-        line: line,
-      }),
-      desc = printInventoryTransferDr.getSublistValue({
-        sublistId: 'inventory',
-        fieldId: 'description',
-        line: line,
-      }),
-      unit = printInventoryTransferDr.getSublistValue({
-        sublistId: 'inventory',
-        fieldId: 'units_display',
-        line: line,
-      });
+          sublistId: 'inventory',
+          fieldId: 'item',
+          line: line,
+        }),
+        quantity = printInventoryTransferDr.getSublistValue({
+          sublistId: 'inventory',
+          fieldId: 'adjustqtyby',
+          line: line,
+        }),
+        desc = printInventoryTransferDr.getSublistValue({
+          sublistId: 'inventory',
+          fieldId: 'description',
+          line: line,
+        }),
+        unit = printInventoryTransferDr.getSublistValue({
+          sublistId: 'inventory',
+          fieldId: 'units_display',
+          line: line,
+        });
 
       var pdfContent = generatePDFContent(item, quantity, desc, unit, customer, refnum, line, sublistLength);
 

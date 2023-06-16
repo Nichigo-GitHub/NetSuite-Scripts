@@ -12,7 +12,7 @@ define(['N/url'], function (url) {
         form = context.form,
         printRM = "printRM = window.open('" + url.resolveScript({
           scriptId: 'customscript_rm_tag_sl',
-          deploymentId: 'customdeploy1'
+          deploymentId: 'customdeploy_rm_tag_sl'
         }) + "&formtype=" + newType + "&internalId=" + newId + "&l=t', 'printRM', 'height=1056, width=755, resizable=yes, scrollbars=yes, toolbar=no'); printRM.focus();";
 
       form.addButton({
