@@ -32,18 +32,18 @@ define(['N/record'], function (record) {
         sublistId: 'inventory',
         fieldId: 'item',
         line: line,
-      });
-      var quantity = printInventoryTransferDr.getSublistValue({
+      }),
+      quantity = printInventoryTransferDr.getSublistValue({
         sublistId: 'inventory',
         fieldId: 'adjustqtyby',
         line: line,
-      });
-      var desc = printInventoryTransferDr.getSublistValue({
+      }),
+      desc = printInventoryTransferDr.getSublistValue({
         sublistId: 'inventory',
         fieldId: 'description',
         line: line,
-      });
-      var unit = printInventoryTransferDr.getSublistValue({
+      }),
+      unit = printInventoryTransferDr.getSublistValue({
         sublistId: 'inventory',
         fieldId: 'units_display',
         line: line,
@@ -71,9 +71,9 @@ define(['N/record'], function (record) {
       ".title1 { font-size: 45px; font-weight: bold; }" +
       ".border { border-style: solid; border-color: black; padding: 4px; }" +
       ".borderWidth { border-width: 0px 2px 2px 2px; }" +
-      ".title2 { height: 70px; border-width: 0px 2px 0px 2px; font-weight: bold; font-size: 30px; vertical-align: top; }" +
-      ".rawmats { height: 120px; font-weight: bold; font-size: 50px; vertical-align: top; text-align: center; }" +
-      ".rmDesc { height: 120px; font-weight: bold; font-size: 40px; vertical-align: top; text-align: center; }" +
+      ".title2 { border-width: 0px 2px 0px 2px; font-weight: bold; font-size: 30px; vertical-align: top; }" +
+      ".rawmats { height: 145px; font-weight: bold; font-size: 50px; vertical-align: middle; text-align: center; }" +
+      ".rmDesc { height: 145px; font-weight: bold; font-size: 40px; vertical-align: middle; text-align: center; }" +
       ".title3 { border-width: 0px 2px 0px 2px; font-weight: bold; font-size: 28px; }" +
       ".title4 { border-width: 0px 2px 0px 2px; font-weight: bold; font-size: 28px; vertical-align: top; }" +
       ".dateProcess { width: 195px; border-width: 0px 2px 0px 2px; font-weight: bold; font-size: 16px; vertical-align: top; }" +
