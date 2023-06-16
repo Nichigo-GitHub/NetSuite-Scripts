@@ -4,18 +4,23 @@
  * @NModuleScope SameAccount
  */
 define(['N/record'], function (record) {
+  // Get the color for the current month
   var currentMonthColor = getMonthColor();
 
+  // Entry point for the Suitelet script
   function onRequest(context) {
     var request = context.request,
       response = context.response;
 
+    // Load the inventory transfer record
     var printInventoryTransferDr = record.load({
-        type: 'inventorytransfer',
-        id: request.parameters.internalId,
-        isDynamic: true,
-      }),
-      customer = printInventoryTransferDr.getText({
+      type: 'inventorytransfer',
+      id: request.parameters.internalId,
+      isDynamic: true,
+    });
+
+    // Extract relevant data from the inventory transfer record
+    var customer = printInventoryTransferDr.getText({
         fieldId: 'custbody41',
       }),
       refnum = printInventoryTransferDr.getText({
@@ -25,8 +30,10 @@ define(['N/record'], function (record) {
         sublistId: 'inventory',
       });
 
+    // Set the response headers to indicate PDF content
     response.headers['Content-Type'] = 'application/pdf';
 
+    // Iterate over the sublist lines and generate PDF content
     for (var line = 0; line < sublistLength; line++) {
       var item = printInventoryTransferDr.getSublistText({
           sublistId: 'inventory',
@@ -49,21 +56,27 @@ define(['N/record'], function (record) {
           line: line,
         });
 
+      // Generate PDF content for the current line
       var pdfContent = generatePDFContent(item, quantity, desc, unit, customer, refnum, line, sublistLength);
 
+      // Write the PDF content to the response
       response.write(pdfContent);
 
+      // Add a page break if it's not the last line
       if (line < sublistLength - 1) {
         response.write('<p style="page-break-after:always;"></p>');
       }
     }
   }
 
+  // Generate the HTML content for a PDF document
   function generatePDFContent(item, quantity, desc, unit, customer, refnum, line, sublistLength) {
+    // Construct the HTML content using inline CSS and dynamic values
     var pdfContent =
       "<html>" +
       "<head>" +
       "<style>" +
+      // CSS styles for the PDF content
       "body { font-family: Arial, Helvetica, sans-serif; }" +
       "table { border-collapse: collapse; width: 725px; }" +
       "td { border: 2px solid black; padding: 8px; }" +
@@ -85,6 +98,7 @@ define(['N/record'], function (record) {
       "</style>" +
       "</head>" +
       "<body>" +
+      // HTML table structure for the PDF content
       "<table>" +
       "<tr><td style='margin-top: 20px; background-color: " + currentMonthColor + "; color: #fff; padding: 10px; width: 160px;'></td>" +
       "<td><span class='title1'>RAW-Materials TAG</span><br>" +
@@ -147,9 +161,11 @@ define(['N/record'], function (record) {
     return pdfContent;
   }
 
+  // Get the color for the current month
   function getMonthColor() {
     var currentMonth = new Date().getMonth(),
 
+      // Predefined colors for each month
       colors = [
         "#008000", "#ffff00", "#0000ff", "#ffa500", "#000000", "#ffc0cb",
         "#ff0000", "#8f00ff", "#808080", "#adff2f", "#87ceeb", "#8b4513"
@@ -158,6 +174,7 @@ define(['N/record'], function (record) {
     return colors[currentMonth];
   }
 
+  // Return the onRequest function as the Suitelet's handler
   return {
     onRequest: onRequest
   };
