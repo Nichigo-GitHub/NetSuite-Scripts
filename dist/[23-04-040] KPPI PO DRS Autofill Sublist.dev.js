@@ -41,7 +41,7 @@ define(['N/search', 'N/currentRecord'], function (search, currentRecord) {
 
         var searchObj = search.create({
           type: 'purchaseorder',
-          filters: [['type', 'anyof', 'PurchOrd'], 'AND', ['mainline', 'is', 'F'], 'AND', ['subsidiary', 'anyof', '18'], 'AND', ['vendtype', 'noneof', '3'], 'AND', ['status', 'noneof', 'PurchOrd:C', 'PurchOrd:G', 'PurchOrd:H', 'PurchOrd:A'], 'AND', ['formulanumeric: {quantity}-{quantityshiprecv}', 'notlessthanorequalto', '0'], 'AND', ['closed', 'is', 'F'], 'AND', ['custcol13', 'contains', 'DRS'], 'AND', ['mainname', 'is', vendor]],
+          filters: [['type', 'anyof', 'PurchOrd'], 'AND', ['mainline', 'is', 'F'], 'AND', ['subsidiary', 'anyof', '18'], 'AND', ['vendtype', 'noneof', '3'], 'AND', ['status', 'noneof', 'PurchOrd:C', 'PurchOrd:G', 'PurchOrd:H', 'PurchOrd:A'], 'AND', ['formulanumeric: {quantity}-{quantityshiprecv}', 'notlessthanorequalto', '0'], 'AND', ['closed', 'is', 'F'], 'AND', ['custcol13', 'contains', 'DRS']],
           columns: [search.createColumn({
             name: 'custbody39'
           }), search.createColumn({
@@ -51,7 +51,9 @@ define(['N/search', 'N/currentRecord'], function (search, currentRecord) {
           }), search.createColumn({
             name: 'tranid'
           }), search.createColumn({
-            name: 'item'
+            name: 'item',
+            sort: search.Sort.ASC // Sorting order: ascending
+
           }), search.createColumn({
             name: 'memo'
           }), search.createColumn({
@@ -112,7 +114,7 @@ define(['N/search', 'N/currentRecord'], function (search, currentRecord) {
             });
             currentRecord.setCurrentSublistText({
               sublistId: 'recmachcustrecord500',
-              fieldId: 'custrecord534',
+              fieldId: 'custrecord700',
               text: result.getText({
                 name: 'custbody382'
               })
@@ -173,7 +175,7 @@ define(['N/search', 'N/currentRecord'], function (search, currentRecord) {
         }),
             prRequestorField = currentRecord.getSublistField({
           sublistId: 'recmachcustrecord500',
-          fieldId: 'custrecord534',
+          fieldId: 'custrecord700',
           line: 0
         }),
             descriptionField = currentRecord.getSublistField({

@@ -57,9 +57,7 @@ define(['N/search', 'N/currentRecord'], function (search, currentRecord) {
             'AND',
             ['closed', 'is', 'F'],
             'AND',
-            ['custcol13', 'contains', 'DRS'],
-            'AND',
-            ['mainname', 'is', vendor]
+            ['custcol13', 'contains', 'DRS']
           ],
           columns: [
             search.createColumn({
@@ -75,7 +73,8 @@ define(['N/search', 'N/currentRecord'], function (search, currentRecord) {
               name: 'tranid'
             }),
             search.createColumn({
-              name: 'item'
+              name: 'item',
+              sort: search.Sort.ASC   // Sorting order: ascending
             }),
             search.createColumn({
               name: 'memo'
@@ -144,7 +143,7 @@ define(['N/search', 'N/currentRecord'], function (search, currentRecord) {
             });
             currentRecord.setCurrentSublistText({
               sublistId: 'recmachcustrecord500',
-              fieldId: 'custrecord534',
+              fieldId: 'custrecord700',
               text: result.getText({
                 name: 'custbody382'
               })
@@ -208,7 +207,7 @@ define(['N/search', 'N/currentRecord'], function (search, currentRecord) {
           }),
           prRequestorField = currentRecord.getSublistField({
             sublistId: 'recmachcustrecord500',
-            fieldId: 'custrecord534',
+            fieldId: 'custrecord700',
             line: 0
           }),
           descriptionField = currentRecord.getSublistField({
