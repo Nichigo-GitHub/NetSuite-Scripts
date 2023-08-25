@@ -139,27 +139,32 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
             context.fieldId === 'custrecord621' || context.fieldId === 'custrecord622' ||
             context.fieldId === 'custrecord623') {
             var sum = 0;
+            var trigger = context.fieldId;
+            var triggerValue = currentRecord.getCurrentSublistValue({
+                sublistId: 'recmachcustrecord625',
+                fieldId: trigger
+            });
+            var rejQuantity = currentRecord.getCurrentSublistValue({
+                sublistId: 'recmachcustrecord625',
+                fieldId: 'custrecord585'
+            });
+
             for (var i = 0; i < fieldIdsToCheck.length; i++) {
                 var kindOfReject = currentRecord.getCurrentSublistValue({
                     sublistId: 'recmachcustrecord625',
                     fieldId: fieldIdsToCheck[i]
                 });
 
-                sum += kindOfReject;
-
-                var rejQuantity = currentRecord.getCurrentSublistValue({
-                    sublistId: 'recmachcustrecord625',
-                    fieldId: 'custrecord585'
-                });
+                sum += kindOfReject;                
 
                 if (sum > rejQuantity) {
-                    window.alert('[Notice: Input is Exceeding The Reject Quantity]');
+                    window.alert('[Notice: Input is Exceeding The Reject Quantity]');                    
 
-                    sum = -kindOfReject;
+                    sum =- triggerValue;
 
                     currentRecord.setCurrentSublistValue({
                         sublistId: 'recmachcustrecord625',
-                        fieldId: fieldIdsToCheck[i],
+                        fieldId: trigger,
                         value: 0
                     });
 
