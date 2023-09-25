@@ -27,10 +27,14 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
         name: 'custcol227',
         join: 'appliedToTransaction'
       });
+      var itemreceiptSearchColItemDescription = search.createColumn({
+        name: 'memo',
+        join: 'appliedToTransaction'
+      });
       var itemreceiptSearch = search.create({
         type: 'itemreceipt',
         filters: [["transactionnumbertext", "is", rr], 'AND', ['type', 'anyof', 'ItemRcpt'], 'AND', ['subsidiary', 'anyof', '15'], 'AND', ['mainline', 'is', 'F']],
-        columns: [itemreceiptSearchColCustomer, itemreceiptSearchColSize, "entity", "item", "quantity", "fxrate"]
+        columns: [itemreceiptSearchColCustomer, itemreceiptSearchColSize, itemreceiptSearchColItemDescription, "entity", "item", "quantity", "fxrate"]
       });
       var itemreceiptSearchResults = itemreceiptSearch.run().getRange({
         start: 0,
@@ -65,6 +69,15 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
           value: result.getValue({
             name: 'custitem122',
             join: 'item'
+          })
+        }); // Description
+
+        currentRecord.setCurrentSublistValue({
+          sublistId: 'recmachcustrecord625',
+          fieldId: "custrecord702",
+          value: result.getValue({
+            name: 'memo',
+            join: 'appliedToTransaction'
           })
         }); // Quantity
 

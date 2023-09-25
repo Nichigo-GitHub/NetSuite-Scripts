@@ -16,18 +16,20 @@ function suitelet(request, response) {
     var customRecord = nlapiLoadRecord('customrecord1034', recordId);
 
     var vendor = customRecord.getFieldValue('custrecord576') || '';
+    var NCRnum = customRecord.getFieldValue('custrecord699') || '';
     var RRNo = customRecord.getFieldText('custrecord575') || '';
     var InvoiceNo = customRecord.getFieldValue('custrecord578') || '';
     var ReceivedDate = customRecord.getFieldValue('custrecord579') || '';
     var IssuedDate = customRecord.getFieldValue('custrecord580') || '';
     var RRNo2 = customRecord.getFieldValue('custrecord626') || '';
+
     var RMcode = customRecord.getLineItemValue('recmachcustrecord625', 'custrecord582', 1) || '';
     var total = customRecord.getLineItemValue('recmachcustrecord625', 'custrecord584', 1) || '';
     var rejquantity = customRecord.getLineItemValue('recmachcustrecord625', 'custrecord585', 1) || '';
     var size = customRecord.getLineItemValue('recmachcustrecord625', 'custrecord583', 1);
-    var partName = '';
-    var desc = '';
+    var desc = customRecord.getLineItemValue('recmachcustrecord625', 'custrecord702', 1);
     var limiter = 0;
+    var partName = '';
     var defects = [];
 
     var filters = [new nlobjSearchFilter('transactionnumber', null, 'is', RRNo2)];
@@ -37,6 +39,22 @@ function suitelet(request, response) {
         for (var i = 0; i < 1; i++) {
             var recordId = searchResults[i].getId();
             var loadedRecord = nlapiLoadRecord('itemreceipt', recordId);
+
+            var location = loadedRecord.getFieldText('location');
+            var hanoi = 'hanoi';
+            var amata = 'amata';
+
+            // Convert both the input string and the target word to lowercase
+            var location = location.toLowerCase();
+
+            // Check if the string contains the target word
+            if (location.indexOf(hanoi) !== -1) {
+                // The string contains the word hanoi
+            } else if (location.indexOf(amata) !== -1) {
+                // The string contains the word amata
+            } else {
+                // matches none, but defaults to hanoi
+            }
 
             var sublistItemCount = loadedRecord.getLineItemCount('item');
             for (var j = 1; j <= sublistItemCount; j++) {
@@ -51,32 +69,31 @@ function suitelet(request, response) {
 
                 // Extract the desired parts using match() and the defined regex
                 partName = part1Match ? part1Match[1].trim() : '';
-                desc = sublistValue ? sublistValue.trim() : '';
                 if (size == null)
                     size = part2Match ? part2Match[1].trim() : '';
             }
-
-            for (var i = DEFECT_START; i <= DEFECT_END; i++) {
-                var sublistFieldLabel = customRecord.getLineItemField('recmachcustrecord625', 'custrecord' + i, 1) || '';
-                var kindOfDefect = sublistFieldLabel.getLabel();
-                var numberOfDefect = customRecord.getLineItemValue('recmachcustrecord625', 'custrecord' + i, 1) || '';
-
-                if (limiter == MAX_DEFECTS) {
-                    break;
-                } else if (numberOfDefect > 0) {
-                    if (numberOfDefect < 10) {
-                        defects[limiter] = '0' + numberOfDefect + ' - ' + kindOfDefect;
-                        limiter++;
-                    } else {
-                        defects[limiter] = numberOfDefect + ' - ' + kindOfDefect;
-                        limiter++;
-                    }                    
-                }
-            };
-
-            var arrayOfDefects = defects.join("<br>");
         }
     }
+
+    for (var i = DEFECT_START; i <= DEFECT_END; i++) {
+        var sublistFieldLabel = customRecord.getLineItemField('recmachcustrecord625', 'custrecord' + i, 1) || '';
+        var kindOfDefect = sublistFieldLabel.getLabel();
+        var numberOfDefect = customRecord.getLineItemValue('recmachcustrecord625', 'custrecord' + i, 1) || '';
+
+        if (limiter == MAX_DEFECTS) {
+            break;
+        } else if (numberOfDefect > 0) {
+            if (numberOfDefect < 10) {
+                defects[limiter] = '0' + numberOfDefect + ' - ' + kindOfDefect;
+                limiter++;
+            } else {
+                defects[limiter] = numberOfDefect + ' - ' + kindOfDefect;
+                limiter++;
+            }
+        }
+    };
+
+    var arrayOfDefects = defects.join("<br>");
 
     var html = "<!DOCTYPE HTML>" +
         "<html>" +
@@ -139,7 +156,7 @@ function suitelet(request, response) {
         "<h2 align='left'  style='padding-left: 20px'>KANEPACKAGE VIETNAM CO., LTD.<br>QUALITY ASSURANCE DEPARTMENT</h2>" +
         "</td>" +
         "<td width='300'></td>" +
-        "<td width='300'><b>Control No.: 23-0700</b></td>" +
+        "<td width='300'><b>Control No.: " + NCRnum + "</b></td>" +
         "</tr>" +
         "<tr>" +
         "<td width='400'></td>" +
@@ -439,6 +456,21 @@ function suitelet(request, response) {
         "</tr>" +
         "<tr>" +
         "<td width='800' align='center'>Document keep-1 year: Effective 16-July 16</td>" +
+        "</tr>" +
+        "</table>" +
+        "<br>" +
+        "<br>" +
+        "<br>" +
+        "<br>" +
+        "<br>" +
+        "<br>" +
+        "<table class='tableMarginTop3'>" +
+        "<tr>" +
+        "<td style='padding-left: 35px;'><b>Prepared by: _________________</b></td>" +
+        "<td width='100'></td>" +
+        "<td><b>Checked by: _________________</b></td>" +
+        "<td width='100'></td>" +
+        "<td><b>Approved by: _________________</b></td>" +
         "</tr>" +
         "</table>" +
         "</body>" +

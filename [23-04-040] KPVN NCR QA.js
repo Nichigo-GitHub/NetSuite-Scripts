@@ -27,6 +27,10 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                 name: 'custcol227',
                 join: 'appliedToTransaction'
             });
+            const itemreceiptSearchColItemDescription = search.createColumn({
+                name: 'memo',
+                join: 'appliedToTransaction'
+            });
             const itemreceiptSearch = search.create({
                 type: 'itemreceipt',
                 filters: [
@@ -41,6 +45,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                 columns: [
                     itemreceiptSearchColCustomer,
                     itemreceiptSearchColSize,
+                    itemreceiptSearchColItemDescription,
                     "entity",
                     "item",
                     "quantity",
@@ -82,6 +87,15 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                     value: result.getValue({
                         name: 'custitem122',
                         join: 'item'
+                    })
+                });
+                // Description
+                currentRecord.setCurrentSublistValue({
+                    sublistId: 'recmachcustrecord625',
+                    fieldId: "custrecord702",
+                    value: result.getValue({
+                        name: 'memo',
+                        join: 'appliedToTransaction'
                     })
                 });
                 // Quantity
@@ -155,12 +169,12 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                     fieldId: fieldIdsToCheck[i]
                 });
 
-                sum += kindOfReject;                
+                sum += kindOfReject;
 
                 if (sum > rejQuantity) {
-                    window.alert('[Notice: Input is Exceeding The Reject Quantity]');                    
+                    window.alert('[Notice: Input is Exceeding The Reject Quantity]');
 
-                    sum =- triggerValue;
+                    sum = -triggerValue;
 
                     currentRecord.setCurrentSublistValue({
                         sublistId: 'recmachcustrecord625',

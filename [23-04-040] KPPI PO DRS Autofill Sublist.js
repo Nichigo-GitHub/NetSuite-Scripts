@@ -21,7 +21,7 @@ define(['N/search', 'N/currentRecord'], function (search, currentRecord) {
     var currentRecord = context.currentRecord;
 
     // If the field changed is 'custrecord533'
-    if (context.fieldId === 'custrecord533') {
+    if (context.mode === 'create' && context.fieldId === 'custrecord533') {
       try {
         // Get the selected vendor from the pop-up list field
         var vendor = currentRecord.getText({
@@ -74,7 +74,7 @@ define(['N/search', 'N/currentRecord'], function (search, currentRecord) {
             }),
             search.createColumn({
               name: 'item',
-              sort: search.Sort.ASC   // Sorting order: ascending
+              sort: search.Sort.ASC // Sorting order: ascending
             }),
             search.createColumn({
               name: 'memo'
@@ -268,10 +268,18 @@ define(['N/search', 'N/currentRecord'], function (search, currentRecord) {
       context.fieldId === 'custrecord567' || context.fieldId === 'custrecord568' ||
       context.fieldId === 'custrecord569' || context.fieldId === 'custrecord570' ||
       context.fieldId === 'custrecord571') {
+      var sum = 0;
+      var trigger = context.fieldId;
+      var triggerValue = currentRecord.getCurrentSublistValue({
+        sublistId: 'recmachcustrecord500',
+        fieldId: trigger
+      });
 
       // Check if the if condition was executed before running the else if condition
-      if (isIfConditionExecuted) {
-        var sum = 0;
+      if (isIfConditionExecuted && triggerValue !== '') {
+        console.log(1)
+        console.log('triggerValue: ' + triggerValue)
+
         for (var i = 0; i < fieldIdsToCheck.length; i++) {
           var dayOfMonth = currentRecord.getCurrentSublistValue({
             sublistId: 'recmachcustrecord500',
@@ -288,18 +296,257 @@ define(['N/search', 'N/currentRecord'], function (search, currentRecord) {
           if (sum > poBalanceValue) {
             window.alert('[Notice: Input is Exceeding The Remaining PO Balance]');
 
-            sum = -dayOfMonth;
+            console.log("sum:" + sum)
+            console.log("poBalanceValue:" + poBalanceValue)
+
+            sum = -triggerValue;
 
             currentRecord.setCurrentSublistValue({
               sublistId: 'recmachcustrecord500',
-              fieldId: fieldIdsToCheck[i],
+              fieldId: trigger,
               value: 0
             });
 
             break; // Exit the loop if the condition is met for any field
           }
         }
+      } else if (isIfConditionExecuted && triggerValue === '') {
+        currentRecord.setCurrentSublistValue({
+          sublistId: 'recmachcustrecord500',
+          fieldId: trigger,
+          value: 0
+        });
       }
+    }
+  }
+
+  function pageInit(context) {
+    // Check if the sublist is the "item" sublist and the mode is 'edit'
+    if (context.mode === 'edit') {
+      // Get the current record
+      var currentRecord = context.currentRecord;
+
+      // Get line count from the sublist
+      var lineCount = currentRecord.getLineCount({
+        sublistId: 'recmachcustrecord500'
+      });
+
+      // Perform a saved search based on the selected vendor value
+      var searchObj = search.create({
+        type: 'purchaseorder',
+        filters: [
+          ['type', 'anyof', 'PurchOrd'],
+          'AND',
+          ['mainline', 'is', 'F'],
+          'AND',
+          ['subsidiary', 'anyof', '18'],
+          'AND',
+          ['vendtype', 'noneof', '3'],
+          'AND',
+          ['status', 'noneof', 'PurchOrd:C', 'PurchOrd:G', 'PurchOrd:H', 'PurchOrd:A'],
+          'AND',
+          ['formulanumeric: {quantity}-{quantityshiprecv}', 'notlessthanorequalto', '0'],
+          'AND',
+          ['closed', 'is', 'F'],
+          'AND',
+          ['custcol13', 'contains', 'DRS']
+        ],
+        columns: [
+          search.createColumn({
+            name: 'tranid'
+          }),
+          search.createColumn({
+            name: 'mainname'
+          }),
+          search.createColumn({
+            name: 'item',
+            sort: search.Sort.ASC // Sorting order: ascending
+          }),
+          search.createColumn({
+            name: 'formulanumeric',
+            formula: '{quantity}-{quantityshiprecv}'
+          })
+        ]
+      });
+      // Run the search and get the results
+      var searchResults = searchObj.run().getRange({
+        start: 0,
+        end: 999
+      });
+
+      var count = 0;
+      var total = 0;
+      // Loop through the search results and count number of results
+      searchResults.forEach(function () {
+        total++;
+      });
+
+      // Loop through the search results and add new lines to the sublist
+      searchResults.forEach(function (result) {
+        count++;
+        var supplier = result.getText({
+          name: 'mainname'
+        });
+        var ssPOnum = result.getValue({
+          name: 'tranid'
+        });
+        var ssItemCode = result.getText({
+          name: 'item'
+        });
+        var ssPObal = parseInt(result.getValue({
+          name: 'formulanumeric',
+          formula: '{quantity}-{quantityshiprecv}'
+        }));
+
+        // Get the selected vendor from the pop-up list field
+        var vendor = currentRecord.getText({
+          fieldId: 'custrecord533'
+        });
+
+        console.log('count: ' + count)
+        console.log('total: ' + total)
+
+        if (vendor == supplier) {
+          for (i = 0; i < lineCount; i++) {
+            // Get the selected PO number from the sublist field
+            var POnum = currentRecord.getSublistValue({
+              sublistId: 'recmachcustrecord500',
+              fieldId: 'custrecord537',
+              line: i
+            });
+
+            // Get the selected Item Code from the sublist field
+            var itemCode = currentRecord.getSublistValue({
+              sublistId: 'recmachcustrecord500',
+              fieldId: 'custrecord538',
+              line: i
+            });
+
+            if (POnum == ssPOnum && itemCode == ssItemCode) {
+              // Add a new line to the sublist and set the values
+              currentRecord.selectLine({
+                sublistId: 'recmachcustrecord500',
+                line: i
+              });
+
+              // Get the selected PO balance from the sublist field
+              var PObal = currentRecord.getSublistValue({
+                sublistId: 'recmachcustrecord500',
+                fieldId: 'custrecord540',
+                line: i
+              });
+
+              currentRecord.setCurrentSublistValue({
+                sublistId: 'recmachcustrecord500',
+                fieldId: 'custrecord540',
+                line: i,
+                value: ssPObal
+              });
+
+              console.log('Customer  : ' + vendor);
+              console.log('PO Number : ' + POnum);
+              console.log('Item Code: ' + itemCode);
+              console.log('PO Balance: ' + PObal);
+
+              console.log('ssCustomer  : ' + supplier);
+              console.log('ssPO Number : ' + ssPOnum);
+              console.log('ssPO Balance: ' + ssPObal);
+              console.log('ssItem Code: ' + ssItemCode);
+
+              var dayOfMonthValue = [];
+              var sum = 0;
+              for (var x = 0; x < fieldIdsToCheck.length; x++) {
+                dayOfMonthValue[x] = currentRecord.getSublistValue({
+                  sublistId: 'recmachcustrecord500',
+                  fieldId: fieldIdsToCheck[x],
+                  line: i
+                });
+
+                sum += dayOfMonthValue[x];
+
+                // Uncomment line below for loop debugging
+                console.log(fieldIdsToCheck[x] + ' ' + [x + 1] + ': ' + dayOfMonthValue[x] + ' [' + x + '/' + fieldIdsToCheck.length + ']')
+              }
+              for (var y = 0; y < fieldIdsToCheck.length; y++) {
+                if (sum > ssPObal) {
+                  while (sum > ssPObal) {
+                    var smallest = 999999999;
+                    var smallestIndex = [];
+
+                    for (var z = 0; z < dayOfMonthValue.length; z++) {
+                      if (dayOfMonthValue[z] > 0) {
+                        /* if (dayOfMonthValue[y] < smallest) { */
+                        smallest = dayOfMonthValue[z];
+                        smallestIndex = z;
+                        /* } */
+                        break;
+                      }
+                    }
+                    sum -= smallest;
+
+                    console.log('-----------------------------------------------------------')
+
+                    console.log('earliest input   : ' + smallest)
+                    console.log('index of earliest: ' + [smallestIndex + 1])
+                    console.log('earliest - sum   = ' + sum)
+                    console.log('PO Balance       : ' + ssPObal)
+                    console.log('-----------------------------------------------------------')
+
+                    console.log('Old value of Day ' + [smallestIndex + 1] + ': ' + currentRecord.getSublistValue({
+                      sublistId: 'recmachcustrecord500',
+                      fieldId: fieldIdsToCheck[smallestIndex],
+                      line: i
+                    }))
+
+                    currentRecord.setCurrentSublistValue({
+                      sublistId: 'recmachcustrecord500',
+                      fieldId: fieldIdsToCheck[smallestIndex],
+                      line: i,
+                      value: 0
+                    });
+
+                    currentRecord.commitLine({
+                      sublistId: 'recmachcustrecord500'
+                    });
+                    currentRecord.selectLine({
+                      sublistId: 'recmachcustrecord500',
+                      line: i
+                    });
+                    console.log('New value of Day ' + [smallestIndex + 1] + ': ' + currentRecord.getSublistValue({
+                      sublistId: 'recmachcustrecord500',
+                      fieldId: fieldIdsToCheck[smallestIndex],
+                      line: i
+                    }))
+
+                    for (var x = 0; x < fieldIdsToCheck.length; x++) {
+                      dayOfMonthValue[x] = currentRecord.getSublistValue({
+                        sublistId: 'recmachcustrecord500',
+                        fieldId: fieldIdsToCheck[x],
+                        line: i
+                      });
+
+                      // Uncomment line below for loop debugging
+                      console.log(fieldIdsToCheck[x] + ' ' + [x + 1] + ': ' + dayOfMonthValue[x] + ' [' + x + '/' + fieldIdsToCheck.length + ']')
+                    }
+                  }
+
+
+                } else {
+                  currentRecord.commitLine({
+                    sublistId: 'recmachcustrecord500'
+                  });
+                  break;
+                }
+              }
+              break;
+            }            
+          }
+        } else {}
+        // Set the flag to true if all relevant search results are processed
+        if (count === total) {
+          isIfConditionExecuted = true;
+        }
+      });
     }
   }
 
@@ -317,6 +564,7 @@ define(['N/search', 'N/currentRecord'], function (search, currentRecord) {
   }
 
   return {
-    fieldChanged: fieldChanged
+    fieldChanged: fieldChanged,
+    pageInit: pageInit
   };
 });
