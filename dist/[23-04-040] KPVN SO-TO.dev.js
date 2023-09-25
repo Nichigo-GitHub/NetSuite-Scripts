@@ -45,15 +45,30 @@ define(['N/record'], function (record) {
           fieldId: 'orderstatus'
         });
         var customer = salesOrder.getValue({
-          fieldId: 'entityname'
+          fieldId: 'entity'
         });
         var memo = salesOrder.getValue({
           fieldId: 'memo'
         });
-        log.error({
-          title: 'customer',
-          details: customer
-        }); // Create Transfer Order record
+
+        if (customer) {
+          // Load the customer record using the internal ID
+          var customerRecord = record.load({
+            type: record.Type.CUSTOMER,
+            id: customer
+          }); // Get the customer name
+
+          var customerName = customerRecord.getValue({
+            fieldId: 'companyname' // Change to the appropriate field ID for the customer name
+
+          }); // Now, customerName should contain "CÔNG TY TNHH IPAX VIỆT NAM"
+
+          log.debug({
+            title: 'Customer Name',
+            details: customerName
+          });
+        } // Create Transfer Order record
+
 
         var transferOrder = record.create({
           type: record.Type.TRANSFER_ORDER
@@ -97,11 +112,11 @@ define(['N/record'], function (record) {
         transferOrder.setValue({
           fieldId: 'orderstatus',
           value: orderstatus
-        }); // Set custbody41
+        }); // Set custbody466
 
         transferOrder.setValue({
-          fieldId: 'custbody41',
-          value: customer
+          fieldId: 'custbody466',
+          value: customerName
         }); // Set memo
 
         transferOrder.setValue({
@@ -126,11 +141,6 @@ define(['N/record'], function (record) {
             fieldId: 'quantity',
             line: i
           });
-          var onhand = salesOrder.getSublistValue({
-            sublistId: 'item',
-            fieldId: 'quantityonhand',
-            line: i
-          });
           var item_unit = salesOrder.getSublistValue({
             sublistId: 'item',
             fieldId: 'units',
@@ -145,10 +155,6 @@ define(['N/record'], function (record) {
             sublistId: 'item',
             fieldId: 'amount',
             line: i
-          });
-          log.error({
-            title: 'quantityonhand',
-            details: onhand
           }); // Insert a new line in Transfer Order sublist
 
           transferOrder.insertLine({
@@ -166,12 +172,6 @@ define(['N/record'], function (record) {
             fieldId: 'description',
             line: i,
             value: description
-          });
-          transferOrder.setSublistValue({
-            sublistId: 'item',
-            fieldId: 'quantityonhand',
-            line: i,
-            value: onhand
           });
           transferOrder.setSublistValue({
             sublistId: 'item',
@@ -200,7 +200,7 @@ define(['N/record'], function (record) {
         } // Save Transfer Order
 
 
-        var transferOrderId = transferOrder.save();
+        transferOrder.save();
       }
     }
   }
