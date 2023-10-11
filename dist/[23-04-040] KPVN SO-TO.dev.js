@@ -63,7 +63,7 @@ define(['N/record'], function (record) {
 
           }); // Now, customerName should contain "CÔNG TY TNHH IPAX VIỆT NAM"
 
-          log.debug({
+          log.error({
             title: 'Customer Name',
             details: customerName
           });

@@ -12,7 +12,7 @@ define(['N/ui/dialog'], function(dialog) {
         try {
             dialog.alert(contents)
 
-            log.debug ({
+            log.error ({
                 title: 'Success',
                 details: 'Alert displayed successfully'
             })
