@@ -1,0 +1,248 @@
+<?xml version="1.0"?>
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+
+    <head>
+        <style>
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 725px;
+            }
+
+            td {
+
+                padding: 8px;
+            }
+
+            .right-aligned {
+                text-align: right;
+                font-size: 12px;
+                font-weight: bold;
+            }
+
+            .title1 {
+                font-size: 45px;
+                font-weight: bold;
+            }
+
+            .border {
+
+                border-color: black;
+                padding: 4px;
+            }
+
+            .title2 {
+
+                font-weight: bold;
+                font-size: 30px;
+                vertical-align: top;
+            }
+
+            .rawmats {
+
+                font-weight: bold;
+                font-size: 40px;
+                vertical-align: middle;
+                text-align: center;
+            }
+
+            .rmDesc {
+                height: 120px;
+                font-weight: bold;
+                font-size: 30px;
+                vertical-align: middle;
+                text-align: center;
+            }
+
+            .title3 {
+
+                font-weight: bold;
+                font-size: 28px;
+            }
+
+            .title4 {
+
+                font-weight: bold;
+                font-size: 28px;
+                vertical-align: top;
+            }
+
+            .dateProcess {
+                width: 195px;
+
+                font-weight: bold;
+                font-size: 16px;
+                vertical-align: top;
+            }
+
+            .title5 {
+                height: 85px;
+                font-weight: bold;
+                font-size: 32px;
+                vertical-align: middle;
+                text-align: center;
+            }
+
+            .title6 {
+                font-weight: bold;
+                font-size: 25px;
+                background-color: black;
+                color: white;
+                vertical-align: middle;
+                text-align: center;
+            }
+
+            .title7 {
+                height: 85px;
+                font-weight: bold;
+                font-size: 30px;
+                vertical-align: middle;
+                text-align: center;
+            }
+
+            .field {
+                font-weight: bold;
+                vertical-align: top;
+                text-align: center;
+            }
+
+            .footer {
+
+                text-align: right;
+                font-weight: bold;
+                font-size: 25px;
+            }
+        </style>
+    </head>
+
+    <body size="A4" padding="10px 0 0 10px">
+        <#assign items=inventoryItems.inventoryItems>
+            <#list items as item>
+                <table border="1px solid black">
+                    <tr>
+                        <td border-right="1px solid black"
+                            style='margin-top: 1px; background-color: ${item.monthColor}; color: #fff; padding: 10px; width: 160px;'>
+                        </td>
+                        <td><span class='title1'>RAW-Materials TAG</span><br></br>
+                            <span style='font-size: 25px; font-weight: bold;'>(For In-house)</span>
+                            <span style='font-size: 20px; font-weight: bold;'><i>WAREHOUSE DEPARTMENT</i></span>
+                        </td>
+                    </tr>
+                    <tr border-top="1px solid black">
+                        <td colspan='12' align='right'>WHSE-RMT-19 REV.01</td>
+                    </tr>
+                </table>
+                <table border="1px solid black">
+                    <tr>
+                        <td border-right="1px solid black" style='width: 55px;' rowspan="2">
+                            <barcode style="float: left; margin: -20px -25px -20px -25px; " codetype='qrcode'
+                                showtext='true' height='130' width='100' value='${item.itemUPC}' />
+                        </td>
+                        <td>
+                            <span style='float: left; font-size: 30px; font-weight: bold;'>RAW-MATS CODE:
+                            </span><br></br>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align='center'>
+                            <span style='right: 100px; font-size: 35px; font-weight: bold;'>${item.item}</span>
+                        </td>
+                    </tr>
+                </table>
+                <table border="1px solid black" border-top="0">
+                    <tr border-top="1px solid black">
+                        <td class='title2 border'>RM DESCRIPTION:</td>
+                    </tr>
+                    <tr>
+                        <td align='center' class='rmDesc'>${item.description?html}</td>
+                    </tr>
+                </table>
+                <table border="1px solid black" border-top="0">
+                    <tr>
+                        <td class='title3' style='width: 391px; border-right: 1px solid black'>PERSON IN CHARGE:</td>
+                        <td class='title3' style='font-size: 27px'>JO NUMBER:</td>
+                    </tr>
+                    <tr>
+                        <td class='border borderWidth' style='height: 45px; border-right: 1px solid black'></td>
+                        <td class='border borderWidth field'>
+                            <barcode codetype='qrcode' showtext='true' height='100' width='100' value='${item.joNum}'
+                                style='margin-top: -25px; margin-left: -9px; margin-bottom: -10px;' />
+                            <p style='margin-top: -50px; margin-left: 10px;'>${item.joNum}</p>
+                        </td>
+                    </tr>
+                </table>
+                <table border="1px solid black" border-top="0">
+                    <tr>
+                        <td class='dateProcess border' style="border-right: 1px solid black;">PRODUCTION QA
+                            DATE<br></br>PROCESS:</td>
+                        <td class='title4 border' style='width: 195px; border-right: 1px solid black;'>DEL. DATE:</td>
+                        <td class='title4 border'>CUSTOMER:</td>
+                    </tr>
+                    <tr>
+                        <td class='border borderWidth' style='height: 45px; border-right: 1px solid black;'></td>
+                        <td class='border borderWidth' style='height: 45px; border-right: 1px solid black;'></td>
+                        <td class='border borderWidth field' style='height: 45px'>${item.customer}</td>
+                    </tr>
+                </table>
+                <table border="1px solid black" border-top="0">
+                    <tr>
+                        <td class='title5 border borderWidth' style='width: 195px; border-right: 1px solid black;'>
+                            QUANTITY:</td>
+                        <td style="text-align: center;">
+                            <table width='85%' style='margin: 0; padding: 0;'>
+                                <tr>
+                                    <td align="center" style='font-weight: bold; font-size: 30px;'>
+                                        ${item.quantity} ${item.unit}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center">
+                                        <span style='font-size: 15px; margin-top: -50px;'>(note: This is the quantity
+                                            for adjustment)</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                <table border="1px solid black" border-top="0">
+                    <tr>
+                        <td class='title6 border borderWidth' style='width: 150px; border-right: 1px solid black;'>
+                            ORIGINAL</td>
+                        <td align='center' class='title6 border borderWidth'>1st</td>
+                        <td align='center' class='title6 border borderWidth'>2nd</td>
+                        <td align='center' class='title6 border borderWidth'>3rd</td>
+                        <td align='center' class='title6 border borderWidth'>4th</td>
+                        <td align='center' class='title6 border borderWidth'>5th</td>
+                    </tr>
+                    <tr>
+                        <td class='border borderWidth'
+                            style='height: 85px; width: 115px; border-right: 1px solid black;'></td>
+                        <td class='border borderWidth' style='height: 85px; border-right: 1px solid black;'></td>
+                        <td class='border borderWidth' style='height: 85px; border-right: 1px solid black;'></td>
+                        <td class='border borderWidth' style='height: 85px; border-right: 1px solid black;'></td>
+                        <td class='border borderWidth' style='height: 85px; border-right: 1px solid black;'></td>
+                        <td class='border borderWidth' style='height: 85px'></td>
+                    </tr>
+                </table>
+                <table border="1px solid black" border-top="0">
+                    <tr>
+                        <td class='title6 border borderWidth' style='height: 20px'></td>
+                        <td class='title6 border borderWidth'></td>
+                    </tr>
+                </table>
+                <table border="1px solid black" border-top="0">
+                    <tr>
+                        <td class='title7 border borderWidth' style='width: 195px; border-right: 1px solid black;'>
+                            REMARKS:</td>
+                        <td class='title7 border borderWidth' style="border-right: 1px solid black;"></td>
+                    </tr>
+                </table>
+            </#list>
+
+    </body>
+</pdf>
