@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pdf>
+    <html>
+
+    <head>
+        <!--***********************STYLESHEET***********************-->
+        <style type="text/css">
+            .table_unx {
+                table-layout: fixed;
+                width: 100%;
+            }
+
+            .td_unx {
+                white-space: forced;
+            }
+
+            .tableMarginTop {
+                margin-top: 25px;
+                margin-bottom: 25px;
+                height: auto;
+            }
+
+            .img {
+                position: absolute;
+                float: left;
+                top: 0;
+            }
+
+            .borderLeft {
+                border-left: 1px solid;
+            }
+
+            .borderRight {
+                border-right: 1px solid;
+            }
+
+            .borderTop {
+                border-top: 1px solid;
+            }
+
+            .borderBottom {
+                border-bottom: 1px solid;
+            }
+
+            .width {
+                width: 800px;
+            }
+
+            h1 {
+                text-align: center;
+            }
+
+            body {
+                font-size: 12px;
+            }
+
+            .paddingSFLIadd {
+                margin-left: 800px;
+                position: relative;
+            }
+
+            .cent {
+                text-align: center;
+                width: 100%;
+                font-size: 20px;
+                font-weight: bold;
+            }
+
+            .right {
+                padding-right: 350px;
+                padding-bottom: 100px;
+            }
+
+            .left {
+                text-align: left;
+                padding-right: 80px;
+                padding-bottom: 100px;
+            }
+
+            #payee {
+                border-top: 2px solid black;
+                width: 100%;
+                height: 60px;
+            }
+
+            #payee_2 {
+                border-top: 2px solid black;
+                width: 100%;
+                padding-top: 20px;
+                padding-bottom: 20px;
+            }
+
+            .pay {
+                font-weight: bold;
+            }
+
+            #details {
+                border-top: 1px solid black;
+                border-bottom: 1px solid black;
+                width: 100%;
+            }
+
+            .rowz {
+                text-align: left;
+                padding-right: 80px;
+                border: 1px solid black;
+            }
+
+            .perDetail {
+                position: relative;
+                border: 1px solid black;
+                padding-right: 80px;
+            }
+
+            .perDetail2 {
+                position: relative;
+                border: 1px solid black;
+                padding-right: 80px;
+            }
+
+            .perDetail3 {
+                position: relative;
+                border: 1px solid black;
+                padding-right: 80px;
+            }
+
+            .space {
+                padding-top: 30px;
+            }
+
+            .tableColor {
+                background-color: #808080;
+            }
+
+            .january-background {
+                background-color: #008000;
+                /* Green */
+            }
+
+            .february-background {
+                background-color: #ffff00;
+                /* Yellow */
+            }
+
+            .march-background {
+                background-color: #0000ff;
+                /* Blue */
+            }
+
+            .april-background {
+                background-color: #ffa500;
+                /* Orange */
+            }
+
+            .may-background {
+                background-color: #000000;
+                /* Black */
+            }
+
+            .june-background {
+                background-color: #ffc0cb;
+                /* Pink */
+            }
+
+            .july-background {
+                background-color: #ff0000;
+                /* Red */
+            }
+
+            .august-background {
+                background-color: #8f00ff;
+                /* Violet */
+            }
+
+            .september-background {
+                background-color: #808080;
+                /* Gray */
+            }
+
+            .october-background {
+                background-color: #adff2f;
+                /* Yellow Green */
+            }
+
+            .november-background {
+                background-color: #87ceeb;
+                /* Sky Blue */
+            }
+
+            .december-background {
+                background-color: #8b4513;
+                /* Brown */
+            }
+
+            .default-background {
+                background-color: #ffffff;
+                /* White */
+            }
+
+            .tableColor2 {
+                background-color: #adff2f;
+            }
+
+            #amount {
+                border: 1px solid black;
+            }
+
+            #amountInwords {
+                border-bottom: 2px solid black;
+                width: 100%;
+                height: 30px;
+            }
+
+            #paymentFor {
+                border-bottom: 2px solid black;
+                width: 100%;
+            }
+
+            #apdetails {
+                height: 320px;
+            }
+
+            #list {
+                width: 100%;
+            }
+
+            #signatories {
+                width: 100%;
+                border-top: 2px solid black;
+                border-bottom: 2px solid black;
+                height: 60px;
+            }
+
+            #from {
+                width: 100%;
+                font-weight: bold;
+            }
+
+            #moredetails {
+                width: 500px;
+            }
+
+            .moredetails {
+                position: relative;
+                float: left;
+                padding-right: 100px;
+            }
+
+            .borderAll {
+                border-left: 2px solid #000000;
+                border-right: 2px solid #000000;
+                border-top: 2px solid #000000;
+                border-bottom: 2px solid #000000;
+            }
+
+            .fonts {
+                font-size: 19px;
+                font-weight: bold;
+                padding-right: 40px;
+            }
+
+            .LeftRight {
+                margin-left: 10px;
+                padding-left: 10px;
+                padding-right: 10px;
+                font-weight: bold;
+                font-size: 9px;
+            }
+
+            .footer {
+                border-top: 2px solid black;
+                width: 100%;
+                height: 60px;
+                position: relative;
+            }
+
+            .height {
+                height: 30px;
+            }
+        </style>
+    </head>
+
+    <body size="A4">
+        <table class="borderAll" width="100%">
+            <tr>
+                <td class="borderAll {color}" colspan="1" height="50px" width="28%" style="font-size:45px;">
+                    <b></b>
+                </td>
+                <td class="borderAll" height="50px" colspan="3" valign="center" align="center" width="72%"
+                    style="font-size:30px;">
+                    <b>FINISHED GOODS TAG</b>
+                    <p style="font-size:20px;">Warehouse Department</p>
+                </td>
+            </tr>
+        </table>
+        <!-- ***********************************REV NUMBER ***********************************-->
+        <table width="100%">
+            <tr>
+                <td style="font-size:12px;" colspan="6" align="right">
+                    <b>WH-FG-10 REV.04</b>
+                </td>
+            </tr>
+        </table>
+        <!-- ***********************************FG Table *********************************** -->
+        <table class="borderAll" width="100%">
+            <tr>
+                <td class="borderAll" width="20%" colspan="1" align="center">
+                    <barcode style="width: 90%; height: 90%; padding: -15px -20px -20px -20px;" codetype="qrcode"
+                        showtext="true" value="{body4}" />
+                </td>
+                <td class="borderAll" width="80%" colspan="3">
+                    <p align="left" valign="top" style="font-size:30px;">FG Code:</p>
+                    <p align="center" style="font-size:55px; padding-top:-30px;">
+                        <b>{body}</b>
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td class="borderAll" width="100%" colspan="4" valign="center" align="center" style="font-size:30px;"
+                    height="80px">FG Item Description:<br />
+                    <b>{body2}</b>
+                </td>
+            </tr>
+            <tr>
+                <td class="borderAll" width="50%" colspan="2" align="left" style="font-size:20px;" height="80px"
+                    valign="top">PERSON IN CHARGE : <br />
+                    <br />
+                    <b>{prepby}</b>
+                </td>
+                <td class="borderAll" width="50%" colspan="2" align="left" style="font-size:20px;" height="80px"
+                    valign="top">REF JO NUMBER :
+                    <barcode style="width: 50%; height: 50%; padding: -25px -10px -20px -10px;" codetype="qrcode"
+                        showtext="true" value="{Jonumber}" />
+                    <b>{Jonumber2}</b>
+                </td>
+            </tr>
+            <tr>
+                <td class="borderAll" width="25%" colspan="2" align="left" style="font-size:16px;" height="100px"
+                    valign="top">CUSTOMER : <br />
+                    <br />
+                    <b>{customer} </b>
+                </td>
+                <td class="borderAll" width="25%" colspan="1" align="left" style="font-size:16px;" height="100px"
+                    valign="top">DEL DATE : <br />
+                    <br />
+                    <b>{prdQA}</b>
+                </td>
+                <td class="borderAll" width="50%" colspan="1" align="left" style="font-size:16px;" height="100px"
+                    valign="top">PROD/QA DATE PROCESS : <br />
+                    <br />
+                    <b>{date}</b>
+                </td>
+            </tr>
+        </table>
+        <!-- ***********************************Quantity Table*********************************** -->
+        <table class="borderAll" width="100%">
+            <tr>
+                <td class="borderAll" width="30%" valign="center" style="font-size:20px;" height="50px">QUANTITY </td>
+                <td class="borderAll" width="70%" align="center" colspan="5" style="font-size:20px;" height="50px">
+                    ACTUAL QUANTITY <br />
+                    Note: Pls. indicate the remaining qty after partial)</td>
+            </tr>
+            <tr>
+                <td class="borderAll" width="30%px" align="center" style="font-size:20px;">ORIGINAL</td>
+                <td class="borderAll" width="14%" align="center" style="font-size:20px;">1ST</td>
+                <td class="borderAll" width="14%" align="center" style="font-size:20px;">2ND</td>
+                <td class="borderAll" width="14%" align="center" style="font-size:20px;">3RD</td>
+                <td class="borderAll" width="14%" align="center" style="font-size:20px;">4TH</td>
+                <td class="borderAll" width="14%" align="center" style="font-size:20px;">5TH</td>
+            </tr>
+            <tr>
+                <td class="borderAll" width="30%" align="center" style="font-size:30px;">
+                    <b>{body3}</b>
+                </td>
+                <td class="borderAll" width="14%" align="center" height="80px">
+                    <h3></h3>
+                </td>
+                <td class="borderAll" width="14%" align="center" height="80px">
+                    <h3></h3>
+                </td>
+                <td class="borderAll" width="14%" align="center" height="80px">
+                    <h3></h3>
+                </td>
+                <td class="borderAll" width="14%" align="center" height="80px">
+                    <h3></h3>
+                </td>
+                <td class="borderAll" width="14%" align="center" height="80px">
+                    <h3></h3>
+                </td>
+            </tr>
+            <tr>
+                <td class="borderAll tableColor" width="100%" align="center" height="30px" colspan="6">
+                    <h3></h3>
+                </td>
+            </tr>
+            <tr>
+                <td class="borderAll" width="30%" align="center" height="130px">
+                    <h3>Remarks</h3>
+                </td>
+                <td class="borderAll" width="70%" align="center" height="130px" colspan="5">
+                    <h3></h3>
+                </td>
+            </tr>
+        </table>
+    </body>
+
+    </html>
+</pdf>

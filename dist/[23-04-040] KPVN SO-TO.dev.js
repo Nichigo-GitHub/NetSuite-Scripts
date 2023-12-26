@@ -4,7 +4,7 @@
  *@NApiVersion 2.x
  *@NScriptType UserEventScript
  */
-define(['N/record'], function (record) {
+define(['N/record', 'N/search'], function (record, search) {
   function beforeSubmit(context) {
     if (context.type === context.UserEventType.CREATE) {
       // Retrieve Sales Order data
@@ -61,11 +61,56 @@ define(['N/record'], function (record) {
           var customerName = customerRecord.getValue({
             fieldId: 'companyname' // Change to the appropriate field ID for the customer name
 
-          }); // Now, customerName should contain "CÔNG TY TNHH IPAX VIỆT NAM"
+          });
+        }
 
-          log.error({
-            title: 'Customer Name',
-            details: customerName
+        var savedSearchId = 'customsearch4064';
+        var mySavedSearch = search.load({
+          id: savedSearchId
+        });
+        var SOitems = [];
+        var skip = [];
+        var skipCount = 0; // Add Transfer Order line items based on Sales Order
+
+        for (var i = 0; i < items; i++) {
+          // Get sublist items from Sales Order
+          SOitems[i] = salesOrder.getSublistValue({
+            sublistId: 'item',
+            fieldId: 'item',
+            line: i
+          }); // Add additional filters
+
+          mySavedSearch.filters.push(search.createFilter({
+            name: 'internalid',
+            // Replace with the actual field name
+            operator: search.Operator.IS,
+            values: SOitems[i] // Replace with the value you're looking for
+
+          })); // Run the search and get the first result
+
+          var searchResult = mySavedSearch.run().getRange({
+            start: 0,
+            end: 1
+          }); // Get the first result
+
+          var firstResult = searchResult[0] ? searchResult[0].id : null;
+
+          if (firstResult == SOitems[i]) {
+            skip[i] = 1;
+            skipCount++;
+          } else {
+            skip[i] = 0;
+          } // Log relevant information about each result
+
+
+          log.debug({
+            title: 'skip ' + (i + 1),
+            details: skip[i]
+          }); // Log relevant information about each result
+
+          log.debug({
+            title: 'firstResult ' + (i + 1),
+            details: firstResult
           });
         } // Create Transfer Order record
 
@@ -122,81 +167,96 @@ define(['N/record'], function (record) {
         transferOrder.setValue({
           fieldId: 'memo',
           value: memo
-        }); // Add Transfer Order line items based on Sales Order
+        });
+        var TOline = 0; // Add Transfer Order line items based on Sales Order
 
-        for (var i = 0; i < items; i++) {
-          // Get sublist items from Sales Order
-          var item = salesOrder.getSublistValue({
-            sublistId: 'item',
-            fieldId: 'item',
-            line: i
-          });
-          var description = salesOrder.getSublistValue({
-            sublistId: 'item',
-            fieldId: 'description',
-            line: i
-          });
-          var order_quantity = salesOrder.getSublistValue({
-            sublistId: 'item',
-            fieldId: 'quantity',
-            line: i
-          });
-          var item_unit = salesOrder.getSublistValue({
-            sublistId: 'item',
-            fieldId: 'units',
-            line: i
-          });
-          var price = salesOrder.getSublistValue({
-            sublistId: 'item',
-            fieldId: 'rate',
-            line: i
-          });
-          var amount = salesOrder.getSublistValue({
-            sublistId: 'item',
-            fieldId: 'amount',
-            line: i
-          }); // Insert a new line in Transfer Order sublist
+        for (var i = 0; i < skip.length; i++) {
+          if (skip[i] == 0) {
+            // Get sublist items from Sales Order
+            var item = salesOrder.getSublistValue({
+              sublistId: 'item',
+              fieldId: 'item',
+              line: i
+            });
+            var description = salesOrder.getSublistValue({
+              sublistId: 'item',
+              fieldId: 'description',
+              line: i
+            });
+            var order_quantity = salesOrder.getSublistValue({
+              sublistId: 'item',
+              fieldId: 'quantity',
+              line: i
+            });
+            var item_unit = salesOrder.getSublistValue({
+              sublistId: 'item',
+              fieldId: 'units',
+              line: i
+            });
+            var price = salesOrder.getSublistValue({
+              sublistId: 'item',
+              fieldId: 'rate',
+              line: i
+            });
+            var amount = salesOrder.getSublistValue({
+              sublistId: 'item',
+              fieldId: 'amount',
+              line: i
+            }); // Insert a new line in Transfer Order sublist
 
-          transferOrder.insertLine({
-            sublistId: 'item',
-            line: i
-          });
-          transferOrder.setSublistValue({
-            sublistId: 'item',
-            fieldId: 'item',
-            line: i,
-            value: item
-          });
-          transferOrder.setSublistValue({
-            sublistId: 'item',
-            fieldId: 'description',
-            line: i,
-            value: description
-          });
-          transferOrder.setSublistValue({
-            sublistId: 'item',
-            fieldId: 'quantity',
-            line: i,
-            value: order_quantity
-          });
-          transferOrder.setSublistValue({
-            sublistId: 'item',
-            fieldId: 'units',
-            line: i,
-            value: item_unit
-          });
-          transferOrder.setSublistValue({
-            sublistId: 'item',
-            fieldId: 'rate',
-            line: i,
-            value: price * exchangerate
-          });
-          transferOrder.setSublistValue({
-            sublistId: 'item',
-            fieldId: 'amount',
-            line: i,
-            value: amount * exchangerate
-          });
+            transferOrder.insertLine({
+              sublistId: 'item',
+              line: TOline
+            });
+            transferOrder.setSublistValue({
+              sublistId: 'item',
+              fieldId: 'item',
+              line: TOline,
+              value: item
+            });
+            transferOrder.setSublistValue({
+              sublistId: 'item',
+              fieldId: 'description',
+              line: TOline,
+              value: description
+            });
+            transferOrder.setSublistValue({
+              sublistId: 'item',
+              fieldId: 'quantity',
+              line: TOline,
+              value: order_quantity
+            });
+            transferOrder.setSublistValue({
+              sublistId: 'item',
+              fieldId: 'units',
+              line: TOline,
+              value: item_unit
+            });
+            transferOrder.setSublistValue({
+              sublistId: 'item',
+              fieldId: 'rate',
+              line: TOline,
+              value: price * exchangerate
+            });
+            transferOrder.setSublistValue({
+              sublistId: 'item',
+              fieldId: 'amount',
+              line: TOline,
+              value: amount * exchangerate
+            }); // Log relevant information about each result
+
+            log.debug({
+              title: 'If Item',
+              details: 'Item: ' + item + ', Line: ' + TOline
+            });
+            TOline++;
+          } else {
+            // Log relevant information about each result
+            log.debug({
+              title: 'Else Item',
+              details: 'Item: ' + item + ', Line: ' + TOline
+            });
+          }
         } // Save Transfer Order
 
 

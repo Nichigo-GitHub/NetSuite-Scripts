@@ -22,7 +22,10 @@ function suitelet(request, response) {
     var ReceivedDate = customRecord.getFieldValue('custrecord579') || '';
     var IssuedDate = customRecord.getFieldValue('custrecord580') || '';
     var RRNo2 = customRecord.getFieldValue('custrecord626') || '';
+    var JoNum = customRecord.getFieldValue('custrecord732') || '';
 
+  
+    
     var RMcode = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord582', 1) || '';
     var total = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord584', 1) || '';
     var rejquantity = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord585', 1) || '';
@@ -35,21 +38,21 @@ function suitelet(request, response) {
     var filters = [new nlobjSearchFilter('transactionnumber', null, 'is', RRNo2)];
     var searchResults = nlapiSearchRecord('itemreceipt', null, filters);
 
-    if (searchResults) {
-        for (var i = 0; i < 1; i++) {
+   if (searchResults) {
+        for (var i = 0; i < searchResults.length; i++) {
             var recordId = searchResults[i].getId();
             var loadedRecord = nlapiLoadRecord('itemreceipt', recordId);
 
             var sublistItemCount = loadedRecord.getLineItemCount('item');
             for (var j = 1; j <= sublistItemCount; j++) {
                 var sublistValue = loadedRecord.getLineItemValue('item', 'itemdescription', j);
-
+                
                 // Define regular expressions for matching the desired patterns
                 const regex1 = /\b((?:(?!\b(?:\d+|\w+F)\b)\b\w+\s*)+)/;
                 const regex2 = /\s([0-9*]+mm)/;
 
-                const part1Match = sublistValue.match(regex1);
-                const part2Match = sublistValue.match(regex2);
+                const part1Match = desc.match(regex1);
+                const part2Match = desc.match(regex2);
 
                 // Extract the desired parts using match() and the defined regex
                 partName = part1Match ? part1Match[1].trim() : '';
@@ -58,6 +61,51 @@ function suitelet(request, response) {
             }
         }
     }
+	/*var filters = [new nlobjSearchFilter('transactionnumber', null, 'is', RRNo2)];
+	var searchResults = nlapiSearchRecord('itemreceipt', null, filters);
+	if (searchResults && searchResults.length > 0) {
+    for (var x = 0; x < searchResults.length; x++) {
+    var RMcode = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord582', x) || '';
+    var total = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord584', x) || '';
+    var rejquantity = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord585', x) || '';
+    var size = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord583', x) || '';
+    var desc = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord702', x) || '';
+    var limiter = 0;
+    var partName = '';
+    var defects = [];
+
+
+
+if (searchResults) {
+    for (var i = 0; i < searchResults.length; i++) {
+        var recordId = searchResults[i].getId();
+        var loadedRecord = nlapiLoadRecord('itemreceipt', recordId);
+
+        var sublistItemCount = loadedRecord.getLineItemCount('item');
+        for (var j = 1; j <= sublistItemCount; j++) {
+            var sublistValue = loadedRecord.getLineItemValue('item', 'itemdescription', j);
+            
+            // Define regular expressions for matching the desired patterns
+            const regex1 = /\b((?:(?!\b(?:\d+|\w+F)\b)\b\w+\s*)+)/;
+            const regex2 = /\s([0-9*]+mm)/;
+
+            const part1Match = sublistValue.match(regex1);
+            const part2Match = sublistValue.match(regex2);
+
+            // Extract the desired parts using match() and the defined regex
+            partName = part1Match ? part1Match[1].trim() : '';
+            if (size == '') {
+                size = part2Match ? part2Match[1].trim() : '';
+					}
+					// Process or store extracted data as needed
+				}
+			}
+		}
+	}
+}*/
+
+
+
 
     var fieldLabels = {
         'custrecord589': 'OTHER KIND OF REJECTION LỖI KHÁC',
@@ -152,6 +200,7 @@ function suitelet(request, response) {
         ".tableMarginTop { margin-top: 25px; height: auto; }" +
         ".tableColor { background-color: black; color: #ffffff; }" +
         ".padding { padding-top: 5px; padding-bottom: 5px; }" +
+
         ".paddingLR { padding-left: 5px; padding-right: 5px; }" +
         ".grey { background-color: #C0C0C0; }" +
         "footer { width: 800px; height: 30px; font-family: cursive; font-style: normal; }" +
@@ -282,7 +331,7 @@ function suitelet(request, response) {
         "<td class='border' width='132'><b>RR No.</b></td>" +
         "<td class='border' width='270' align='center'>" + RRNo + "</td>" +
         "<td class='border' width='132'><b>JO No.</b></td>" +
-        "<td class='border' width='269'></td>" +
+        "<td class='border' width='269' align='center'>"+ JoNum + "</td>" +
         "</tr>" +
         "</table>" +
         "<table>" +

@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pdf>
+<html>
+
+<head>
+<style type="text/css">
+* {
+border-spacing: 0;
+font-family: Sans-serif;
+font-size: 8px;
+margin: 0;
+}
+
+body {
+height: 297mm;
+width: 210mm;
+margin: 3px;
+padding: 0;
+}
+
+h1 {
+font-size: 20px;
+}
+
+.border {
+border-left: 1px solid;
+border-right: 1px solid;
+border-top: 1px solid;
+border-bottom: 1px solid;
+}
+
+.borderBold {
+border-left: 2px solid;
+border-right: 2px solid;
+border-top: 2px solid;
+border-bottom: 2px solid;
+}
+
+
+
+.img {
+float: right;
+margin-top: -25px;
+}
+
+.floatRight {
+padding-top: 20px;
+float: right;
+}
+
+.joborder {
+display: block;
+font-size: 2em;
+
+font-weight: bold;
+}
+
+.address {
+font-size: 8px;
+}
+
+.bold {
+font-weight: bold;
+}
+
+.paddingTop {
+padding-left: 100px;
+}
+
+.paddingLeft {
+padding-left: 100px;
+}
+
+.paddingRight {
+padding-right: 70px;
+}
+
+.paddingBottom {
+padding-bottom: 25px;
+}
+
+.paddingSFLIadd {
+margin-left: 600px;
+}
+
+.borderLeft {
+border-left: 1px solid;
+}
+
+.borderRight {
+border-right: 1px solid;
+}
+
+.borderTop {
+border-top: 1px solid;
+}
+
+.borderBottom {
+border-bottom: 1px solid;
+}
+
+.tableMarginTop {
+margin-top: 3px;
+height: auto;
+}
+
+.tableColor {
+background-color: #5A5A5A;
+color: #ffffff;
+}
+
+.padding {
+padding-top: 5px;
+padding-bottom: 5px;
+}
+
+.paddingLR {
+padding-left: 5px;
+padding-right: 5px;
+}
+
+.grey {
+background-color: #C0C0C0;
+}
+
+footer {
+width: 100%;
+height: 20px;
+}
+
+.floatLeft1 {
+padding-top: 10px;
+float: left;
+border-left: 1px solid;
+border-right: 1px solid;
+border-top: 1px solid;
+border-bottom: 1px solid;
+}
+.custom-cell {
+width: 60px;
+}
+.tdTable {
+colspan: 1;
+rowspan: 1;
+}
+</style>
+</head>
+
+<body>
+<table style="width: 250px;" align="right">
+<tr>
+<td align="right">
+<img style="width: 65px; height: 60px; margin-bottom: 10px; margin-top: 0px; padding-top: -5px" src="https://3389427.app.netsuite.com/core/media/media.nl?id=1138&c=3389427&h=ueq3mWB0n4_ATVXT-t97HWbnG8O8z1kK_E39_Bd7lW3DO6Mb&fcts=20130124003715&whence=" alt="kppi logo" />
+</td>
+<td align="right"><br></br><br></br><br></br>Light Industry Science Park II.<br></br>
+    National Highway, Calamba, 4027 Laguna<br></br>
+    Tel:(049) 545 7166/67<br></br>
+    Fax:(049)544-0010</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td class="joborder" align="left">JOB ORDER</td>
+<td width="100px"></td>
+<td align="center">PRO-JON-03 rev.03</td>
+</tr>
+</table>
+<table class="borderBold" width="100%" align="center">
+<tr>
+<td>JO No.</td>
+<td align="center" class="bold paddingLeft paddingRight">{joNum}</td>
+</tr>
+<tr>
+<td>Date Prepared :</td>
+<td align="center" class="paddingLeft paddingRight">{date}</td>
+</tr>
+</table>
+
+<table class="borderBold tableMarginTop" width="100%" align="center">
+<tr>
+<td rowspan="3" class="bold">Customer </td>
+<td rowspan="1">
+<p>
+<barcode codetype="qrcode" style="height: 75px; width: 75px;" showtext="true" value="{cust2}" />
+</p>
+</td>
+<td rowspan="4">
+<p></p>
+<p>{cust}</p>
+</td>
+<td>
+<p></p>
+</td>
+</tr>
+</table>
+
+<table class="borderBold tableMarginTop" width="100%" align="center">
+<tr>
+<td rowspan="1">Component:</td>
+<td rowspan="1">
+<p>
+<barcode codetype="qrcode" style="height: 75px; width: 75px;" showtext="true"
+value="{upcCode}" />
+</p>
+</td>
+<td rowspan="2">
+<p></p>
+<p>{assemblyItem}</p>
+<p>{assemblyItemDesc}</p>
+</td>
+<td rowspan="2">
+<p>Quantity: {qty}</p>
+<p>Date Needed: {DateNeed}</p>
+<p>Time Needed: {TimeNeed}</p>
+</td>
+</tr>
+</table>
+<!-- tableMarginTop -->
+
+<p>Materials Required</p>
+<table class="borderBold" width="100%" align="center">
+<tr>
+<td class="tableColor padding" align="center">CODE</td>
+<td class="tableColor padding" align="center">DESCRIPTION/SPECIFICATION</td>
+<td class="tableColor padding" align="center">REQD QTY</td>
+<td class="tableColor padding" align="center">ISSUED QTY</td>
+<td class="tableColor padding custom-cell" align="center">DR NO</td>
+<td class="tableColor padding" align="center">SUPPLIER</td>
+<td class="tableColor padding" align="center">DATE RECVD</td>
+</tr>
+{body}
+</table>
+<table class="borderBold tableMarginTop" width="100%" align="center">
+<tr>
+<td class="tableColor padding" rowspan="2" align="center">PROCESS</td>
+<td class="tableColor padding" rowspan="2" align="center">Approval for mass production</td>
+<td class="tableColor padding" colspan="4" align="center">DATE/TIME</td>
+<td class="tableColor padding" rowspan="2" align="center">GOOD QTY</td>
+<td class="tableColor padding" colspan="2" align="center">REJECT QTY</td>
+<td class="tableColor padding" colspan="2" rowspan="2" align="center">OPERATOR</td>
+</tr>
+<tr>
+<td class="grey padding borderRight" colspan="2" align="center">Start</td>
+<td class="grey padding" colspan="2" align="center">Finished</td>
+<td class="grey padding borderRight" align="center">In-house</td>
+<td class="grey padding" align="center">Supplier</td>
+</tr>
+{one}
+{two}
+{three}
+{four}
+{five}
+{six}
+{seven}
+{eight}
+{nine}
+{ten}
+{eleven}
+{twelve}
+{thirteen}
+{fourteen}
+{fifteen}
+{sixteen}
+{seventeen}
+{eightteen}
+{nineteen}
+{twenty}
+{twentyone}
+{twentytwo}
+{twentythree}
+{twentyfour}
+{twentyfive}
+</table>
+
+
+<table class="floatLeft1">
+<tr>
+<td align="center" colspan="4" width="400px">Partial Transfer</td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="center">Date</td>
+<td class="borderRight borderTop tdTable" align="center">QTY</td>
+<td class="borderRight borderTop tdTable" align="center">Transferred by</td>
+<td class="borderTop tdTable" align="center">Receive By</td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">1. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">2. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">3. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">4. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">5. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">6. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">7. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">8. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">9. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">10. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+</table>
+
+<table class="floatLeft1">
+<tr>
+<td align="center" colspan="4" width="400px">Partial Delivery</td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="center">Date</td>
+<td class="borderRight borderTop tdTable" align="center">QTY</td>
+<td class="borderRight borderTop tdTable" align="center">OQA</td>
+<td class="borderTop tdTable" align="center">Delivery By</td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">1. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">2. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">3. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">4. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">5. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">6. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">7. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">8. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">9. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+<tr>
+<td class="borderRight borderTop tdTable" align="left">10. </td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderRight borderTop tdTable" align="center"></td>
+<td class="borderTop tdTable" align="center"></td>
+</tr>
+</table>
+
+
+
+
+<footer>
+<table width="100%" align="center">
+<tr>
+<td class="borderRight borderLeft borderTop">Prepared By:</td>
+<td class="borderRight borderTop">Noted By:</td>
+<td class="borderRight borderTop">Approved By:</td>
+<td class="borderRight borderTop">Issued By:</td>
+<td class="borderRight borderTop">Received By:</td>
+<td class="borderRight borderTop" align="center">{joNum2}</td>
+</tr>
+<tr>
+<td class="borderLeft borderRight borderBottom">
+<p></p>
+</td>
+<td class="borderRight borderBottom">
+<p></p>
+</td>
+<td class="borderRight borderBottom">
+<p></p>
+</td>
+<td class="borderRight borderBottom">
+<p></p>
+</td>
+<td class="borderRight borderBottom">
+</td>
+<td class="borderRight borderBottom" align="center">
+<barcode codetype="qrcode" style="height: 75px; width: 75px;" showtext="false"
+value="{joNum3}" />
+</td>
+</tr>
+
+</table>
+</footer>
+</body>
+
+</html>
+</pdf>

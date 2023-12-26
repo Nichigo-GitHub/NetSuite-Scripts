@@ -110,6 +110,71 @@
                 text-align: center;
             }
 
+            .january-background {
+                background-color: #008000;
+                /* Green */
+            }
+
+            .february-background {
+                background-color: #ffff00;
+                /* Yellow */
+            }
+
+            .march-background {
+                background-color: #0000ff;
+                /* Blue */
+            }
+
+            .april-background {
+                background-color: #ffa500;
+                /* Orange */
+            }
+
+            .may-background {
+                background-color: #000000;
+                /* Black */
+            }
+
+            .june-background {
+                background-color: #ffc0cb;
+                /* Pink */
+            }
+
+            .july-background {
+                background-color: #ff0000;
+                /* Red */
+            }
+
+            .august-background {
+                background-color: #8f00ff;
+                /* Violet */
+            }
+
+            .september-background {
+                background-color: #808080;
+                /* Gray */
+            }
+
+            .october-background {
+                background-color: #adff2f;
+                /* Yellow Green */
+            }
+
+            .november-background {
+                background-color: #87ceeb;
+                /* Sky Blue */
+            }
+
+            .december-background {
+                background-color: #8b4513;
+                /* Brown */
+            }
+
+            .default-background {
+                background-color: #ffffff;
+                /* White */
+            }
+
             .footer {
 
                 text-align: right;
@@ -124,8 +189,8 @@
             <#list items as item>
                 <table border="1px solid black">
                     <tr>
-                        <td border-right="1px solid black"
-                            style='margin-top: 1px; background-color: ${item.monthColor}; color: #fff; padding: 10px; width: 160px;'>
+                        <td class="${item.monthColor}" border-right="1px solid black"
+                            style='margin-top: 1px; color: #fff; padding: 10px; width: 160px;'>
                         </td>
                         <td><span class='title1'>RAW-Materials TAG</span><br></br>
                             <span style='font-size: 25px; font-weight: bold;'>(For In-house)</span>
@@ -133,7 +198,7 @@
                         </td>
                     </tr>
                     <tr border-top="1px solid black">
-                        <td colspan='12' align='right'>WHSE-RMT-19 REV.01</td>
+                        <td colspan='12' align='right'>WH-RMT-19 REV.01</td>
                     </tr>
                 </table>
                 <table border="1px solid black">

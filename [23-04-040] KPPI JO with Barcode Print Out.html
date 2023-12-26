@@ -1,0 +1,336 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <style type="text/css">
+        * {
+            border-spacing: 0;
+            font-family: Sans-serif;
+            font-size: 11px;
+            margin: 0;
+        }
+
+        h2 {
+            font-size: 15px;
+        }
+
+        h1 {
+            font-size: 20px;
+        }
+
+        .border {
+            border-left: .5px solid;
+            border-right: .5px solid;
+            border-top: .5px solid;
+            border-bottom: .5px solid;
+        }
+
+        .column {
+            height: 50px;
+        }
+
+        .row {
+            display: flex;
+        }
+
+        .width {
+            width: 800px;
+        }
+
+        .img {
+            float: right;
+            margin-top: -25px;
+        }
+
+        .floatRight {
+            padding-top: 20px;
+            float: right;
+        }
+
+        .address {
+            font-size: 8px;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .paddingLeft {
+            padding-left: 100px;
+        }
+
+        .paddingRight {
+            padding-right: 70px;
+        }
+
+        .paddingBottom {
+            padding-bottom: 25px;
+        }
+
+        .paddingSFLIadd {
+            padding-top: 30px;
+            margin-left: 640px;
+            position: absolute;
+        }
+
+        .borderLeft {
+            border-left: .5px solid;
+        }
+
+        .borderRight {
+            border-right: .5px solid;
+        }
+
+        .borderTop {
+            border-top: .5px solid;
+        }
+
+        .borderBottom {
+            border-bottom: .5px solid;
+        }
+
+        .tableMarginTop2 {
+            margin-top: 5px;
+            height: auto;
+        }
+
+        .tableMarginTop {
+            margin-top: 25px;
+            height: auto;
+        }
+
+        .tableColor {
+            background-color: black;
+            color: #ffffff;
+        }
+
+        .padding {
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+
+        .paddingLR {
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        .grey {
+            background-color: #C0C0C0;
+        }
+
+        footer {
+            width: 800px;
+            height: 30px;
+            font-family: cursive;
+            font-style: normal;
+        }
+    </style>
+</head>
+
+<body width="880px" height="825px" class="width">
+    <div style='width: 100%; height: 100%; position: relative;'>
+        <h1 align="left">KANEPACKAGE PHILIPPINE, INC.</h1>
+        <div class="img">
+            <image
+                src="https://3389427.app.netsuite.com/core/media/media.nl?id=1138&c=3389427&h=ueq3mWB0n4_ATVXT-t97HWbnG8O8z1kK_E39_Bd7lW3DO6Mb&fcts=20130124003715&whence=">
+            </image>
+        </div><br /><br />
+        <div class="paddingSFLIadd">
+            <p class="address">Light Industry Science Park II.</p>
+            <p class="address">National Highway, Calamba, 4027 Laguna</p>
+            <p class="address">Tel:(049) 545 7166/67</p>
+            <p class="address">Fax:(049)544-0010</p>
+        </div>
+        <table>
+            <tr>
+                <td class="borderLeft borderTop">SO No. :</td>
+                <td align="center" class="bold paddingLeft borderTop borderRight paddingRight">{soNum}</td>
+            </tr>
+            <td class="borderLeft">JO No. :</td>
+            <td align="center" class="bold paddingLeft borderRight paddingRight">{joNum}</td>
+            </tr>
+            <tr>
+                <td class="borderLeft">ISSUED BY :</td>
+                <td align="center" class="paddingLeft paddingRight borderRight">{IssuedBy}</td>
+            </tr>
+            <tr>
+                <td class="borderLeft">DATE ISSUED :</td>
+                <td align="center" class="paddingLeft paddingRight borderRight">{date}</td>
+            </tr>
+            <tr>
+                <td class="bold borderLeft borderBottom">CUSTOMER</td>
+                <td align="center" class="bold paddingLeft paddingRight borderRight borderBottom">{cust}</td>
+            </tr>
+        </table>
+
+
+        <table class="border tableMarginTop" width="800px">
+            <tr>
+                <td width="100px">Item Description:</td>
+                <td colspan="2" width="500px">
+                    <b>{assemblyItem} {assemblyItemDesc}</p>
+                </td>
+                <td width="100" align="left"><b>Memo : </b></td>
+                <td width="150" align="left"><b>{memo} {memoSO}<b></td>
+            <tr>
+                <td>Quantity:</td>
+                <td colspan="2" width="500px"> <b>{qty}</b></td>
+                <td width="10" align="left"><b>BK Code :</b></td>
+                <td width="150" align="left"><b>{BKCode}<b></td>
+            </tr>
+            <tr>
+                <td>Delivery Date:</td>
+                <td colspan="2" width="500px"><b>{DateNeed}</b></td>
+                <td width="10" align="left"><b>Blades : </b></td>
+                <td width="150" align="left"><b>{blades}</b></td>
+            </tr>
+            <tr>
+        </table>
+
+        <table class="tableMarginTop2" width="800px">
+            <tr>
+                <td class="border" align="center" width="200px">Material Description</td>
+                <td class="borderTop borderBottom" align="center">Qty To <br />Be Used</td>
+                <td class="border" align="center">Cut Size</td>
+                <td class="borderTop borderBottom" align="center">No. of <br />Cuts</td>
+                <td class="border" align="center">Actual <br />Qty Used</td>
+                <td class="borderTop borderBottom" align="center">DR No.</td>
+                <td class="border" align="center" width="160px">Supplier</td>
+                <td class="borderTop borderBottom" align="center">Batch No.</td>
+                <td class="border" align="center">Issued By</td>
+            </tr>
+            {body}
+        </table>
+
+        <table class="column tableMarginTop" width="800px">
+            <tr>
+                <td class="borderRight borderTop borderLeft" width="120px" align="center">PROCESS</td>
+                <td class="borderTop" align="center" colspan="2">Finished</td>
+                <td class="borderRight borderTop borderLeft" width="70" align="center">GOOD QTY</td>
+                <td class="borderRight borderTop" width="70" align="center">Trial Run</td>
+                <td class="borderTop" colspan="2" align="center">REJECT QTY</td>
+                <td class="borderRight borderTop borderLeft" align="center" width="150px">OPERATOR</td>
+                <td class="borderRight borderTop" align="center" width="100px">Remarks</td>
+            </tr>
+            <tr>
+                <td class="borderBottom borderLeft borderRight" align="center"> </td>
+                <td class="borderBottom" align="center">Date</td>
+                <td class="borderBottom" align="center">Time</td>
+                <td class="borderBottom borderLeft borderRight" align="center"></td>
+                <td class="borderBottom borderRight" align="center"></td>
+                <td class="borderBottom" align="center">In-house</td>
+                <td class="borderBottom" align="center">Supplier</td>
+                <td class="borderBottom borderLeft borderRight" align="center"></td>
+                <td class="borderRight" align="center"></td>
+            </tr>
+            {one}
+            {two}
+            {three}
+            {four}
+            {five}
+            {six}
+            {seven}
+            {eight}
+            {nine}
+            {ten}
+            {eleven}
+            {twelve}
+            {thirteen}
+            {fourteen}
+            {fifteen}
+            {sixteen}
+            {seventeen}
+            {eightteen}
+            {nineteen}
+            {twenty}
+            {twentyone}
+            {twentytwo}
+            {twentythree}
+            {twentyfour}
+            {twentyfive}
+        </table>
+
+        <table class="border column tableMarginTop2" width="800px">
+            <td colspan="2" width="800px" align="center" class=" padding font borderBottom">REJECTION HISTORY</td>
+            </tr>
+            <tr>
+                <td colspan="2" width="800px" class="h1"><b>
+                        <h2>1. {customer1}</h2>
+                    </b></td>
+            </tr>
+            <tr>
+                <td colspan="2" width="800px" class="h1"><b>
+                        <h2>2. {customer2}</h2>
+                    </b></td>
+            </tr>
+            <tr>
+                <td colspan="2" width="800px" class="h1"><b>
+                        <h2>3. {customer3}</h2>
+                    </b></td>
+            </tr>
+            <tr>
+                <td colspan="2" width="800px" class="h1"><b>
+                        <h2>4. {customer4}</h2>
+                    </b></td>
+            </tr>
+            <tr>
+                <td colspan="2" width="800px" class="h1"><b>
+                        <h2>5. {customer5}</h2>
+                    </b></td>
+            </tr>
+        </table>
+
+        <table class="border column tableMarginTop2" width="800px">
+            <td colspan="2" width="800px" align="center" class="padding font borderBottom">NOTES</td>
+            </tr>
+            <tr>
+                <td colspan="2" width="800px" class="h1"><b>
+                        <h2>1. {note1}</h2>
+                    </b></td>
+            </tr>
+            <tr>
+                <td colspan="2" width="800px" class="h1"><b>
+                        <h2>2. {note2}</h2>
+                    </b></td>
+            </tr>
+            <tr>
+                <td colspan="2" width="800px" class="h1"><b>
+                        <h2>3. {note3}</h2>
+                    </b></td>
+            </tr>
+            <tr>
+                <td colspan="2" width="800px" class="h1"><b>
+                        <h2>4. {note4}</h2>
+                    </b></td>
+            </tr>
+            <tr>
+                <td colspan="2" width="800px" class="h1"><b>
+                        <h2>5. {note5}</h2>
+                    </b></td>
+            </tr>
+        </table>
+        <footer class="footer" align="right"><b><i>PR-001-F07 REV.00</i></b>
+        </footer>
+        <table class="tableMarginTop2" width="800px">
+            <tr>
+                <td width="150px" align="right"><b>JO Received By(WHSE):</b></td>
+                <td class="borderBottom" width="250px"></td>
+                <td width="150px" align="right"><b>JO Returned to(QA):</b></td>
+                <td class="borderBottom" width="250px"></td>
+            </tr>
+            <tr>
+                <td width="150px"></td>
+                <td width="250px" align="center"><i>Signature over printed name/Date/Time</i></td>
+                <td width="150px"></td>
+                <td width="250px" align="center"><i>Signature over printed name/Date/Time</i></td>
+            </tr>
+        </table>
+
+    </div>
+    </div>
+
+
+
+</body>
+
+</html>
