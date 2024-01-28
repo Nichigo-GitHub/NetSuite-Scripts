@@ -54,6 +54,7 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
           drNumber = requestParams.drnumber;
           mrrNumber = requestParams.mrrnumber;
           date = requestParams.date;
+          
           preparedBy = requestParams.preparedBy;
           inspectedBy = requestParams.inspectedBy;
           invoiceno = requestParams.invoiceno;
@@ -183,8 +184,7 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
                         transactionInternalId, transactionType);
 
                     }
-                    if (opentaskSearchResults.length > 0 && isMapReduceScriptInvoked
- == 'F') {
+                    if (opentaskSearchResults.length > 0 && isMapReduceScriptInvoked == 'F') {
 
                       var recordType = record.Type.PURCHASE_ORDER;
                       if (transactionType == 'returnauthorization')

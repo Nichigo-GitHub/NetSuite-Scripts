@@ -7,7 +7,7 @@
  * @NScriptType Restlet
  * @NModuleScope public
  */
-define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', './wms_inventory_utility_2'],
+define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', './wms_inventory_utility_lima'],
 	/**
 	 * @param {search} search
 	 */
@@ -65,10 +65,13 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			var toBinInternalLoctype = '';
 			var department = '', customer = '', preparedBy = '';
 			var deliveryDate = '';
+			var invTranID = '';
+
 
 			try {
 				if (utility.isValueValid(requestBody)) {
 					requestParams = requestBody.params;
+					invTranID = requestParams.lotName;
 					department = requestParams.department.label;
 					customer = requestParams.customer;
 					preparedBy = requestParams.preparedBy;
@@ -393,7 +396,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 									if (processType == 'inventoryTransfer') {
 										var invtransferObj = {};
 										invtransferObj.itemType = itemType;
-										invtransferObj.whLocation = warehouseLocationId;invtransferObj
+										invtransferObj.whLocation = warehouseLocationId;
 										invtransferObj.towhLocation = toWarehouseLocationId;
 										invtransferObj.itemId = itemInternalId;
 										invtransferObj.fromBinId = fromBinInternalId;
@@ -402,7 +405,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 										invtransferObj.units = stockUnitName;
 										invtransferObj.stockConversionRate = stockConversionRate;
 										invtransferObj.fromLocUseBinsFlag = fromLocUseBinsFlag;
-										
+
 										impactRec = invtUtility.transferallInvTransfer(invtransferObj);
 
 										if (utility.isValueValid(impactRec.inventoryCountId)) {
@@ -503,8 +506,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 													serialSearch.filters = serailFilters;
 													var SrchRecordTmpSerial = utility.getSearchResultInJSON(serialSearch);
 													if (SrchRecordTmpSerial.length > 0) {
-														binValidateArray.errorMessage = translator.getTranslationString("Serial# already scanned");
-														log.debug('error 506', 'error');
+														binValidateArray.errorMessage = translator.getTranslationString("Serial# already scanned"); log.debug('error 506', 'error');
 														binValidateArray.isValid = false;
 														return binValidateArray;
 													}
@@ -543,8 +545,8 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 												log.debug('tallyScanObj for inv transfer', tallyScanObj);
 											}
 											impactRec = fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId,
-												toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate);
-												log.debug('fninvtransfer', impactRec);
+												toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID);
+											log.debug('fninvtransfer', impactRec);
 
 
 											if (utility.isValueValid(impactRec.inventoryCountId)) {
@@ -663,13 +665,14 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			return impactRec;
 		}
 
-		function fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate) {
+		function fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID) {
 			var invtransferObj = {};
 			var impactRec = {};
 
 			invtransferObj.department = department;
 			invtransferObj.customer = customer;
 			invtransferObj.preparedBy = preparedBy;
+            invtransferObj.invTranID = invTranID;
 			invtransferObj.deliveryDate = deliveryDate.value;
 			invtransferObj.itemType = itemType;
 			invtransferObj.whLocation = warehouseLocationId;
@@ -696,7 +699,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 				invtransferObj.quantity = tallyScanObj.tallyScanBarCodeQty;
 			}
 
-				impactRec = invtUtility.inventoryInvTransfer(invtransferObj);
+			impactRec = invtUtility.inventoryInvTransfer(invtransferObj);
 			return impactRec;
 		}
 
@@ -728,7 +731,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 				}
 			}
 
-				impactRec = invtUtility.inventoryBinTransfer(bintransferObj);
+			impactRec = invtUtility.inventoryBinTransfer(bintransferObj);
 
 			return impactRec;
 		}

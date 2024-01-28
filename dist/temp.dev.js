@@ -4,7 +4,7 @@
  * Module Description
  * 
  * Version    Date            Author           Remarks
- * 1.00       01 Oct 2020     Lenovo
+ * 1.00       11 Mar 2016     Administrator
  *
  */
 
@@ -14,153 +14,208 @@
  * @returns {Void} Any output is written via response object
  */
 function suitelet(request, response) {
-  var recordId = request.getParameter("internalId");
-  var customRecord = nlapiLoadRecord('customrecord1034', recordId);
-  var vendor = customRecord.getFieldValue('custrecord576') || '';
-  var NCRnum = customRecord.getFieldValue('custrecord699') || '';
-  var RRNo = customRecord.getFieldText('custrecord575') || '';
-  var InvoiceNo = customRecord.getFieldValue('custrecord578') || '';
-  var ReceivedDate = customRecord.getFieldValue('custrecord579') || '';
-  var IssuedDate = customRecord.getFieldValue('custrecord580') || '';
-  var RRNo2 = customRecord.getFieldValue('custrecord626') || '';
-  var JoNum = customRecord.getFieldValue('custrecord732') || '';
-  var RMcode = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord582', 1) || '';
-  var total = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord584', 1) || '';
-  var rejquantity = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord585', 1) || '';
-  var size = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord583', 1) || '';
-  var desc = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord702', 1) || '';
-  var limiter = 0;
-  var partName = '';
-  var defects = [];
-  var filters = [new nlobjSearchFilter('transactionnumber', null, 'is', RRNo2)];
-  var searchResults = nlapiSearchRecord('itemreceipt', null, filters);
+  var poId = request.getParameter("poId");
+  var lineNo = request.getParameter("lineNo");
+  var Id = request.getParameter("Id");
+  var recType = request.getParameter("recType");
 
-  if (searchResults) {
-    for (var i = 0; i < searchResults.length; i++) {
-      var recordId = searchResults[i].getId();
-      var loadedRecord = nlapiLoadRecord('itemreceipt', recordId);
-      var sublistItemCount = loadedRecord.getLineItemCount('item');
+  if (recType == "itemreceipt") {
+    if (!poId && !receiptId) return "";
+    var poRecord = poId ? nlapiLoadRecord("purchaseorder", poId) : nlapiLoadRecord("itemreceipt", receiptId);
+    var customform = poRecord.getFieldValue("customform");
+    var subsidiary = poRecord.getFieldValue("subsidiary");
 
-      for (var j = 1; j <= sublistItemCount; j++) {
-        var sublistValue = loadedRecord.getLineItemValue('item', 'itemdescription', j); // Define regular expressions for matching the desired patterns
+    if (customform == 128 && subsidiary == 18) {
+      var receivingTagTemplateFile = nlapiLoadFile("290270"); //KPLima_Receiving_Tag.xml
 
-        var regex1 = /\b((?:(?!\b(?:\d+|\w+F)\b)\b\w+\s*)+)/;
-        var regex2 = /\s([0-9*]+mm)/;
-        var part1Match = desc.match(regex1);
-        var part2Match = desc.match(regex2); // Extract the desired parts using match() and the defined regex
+      var orderedBy = poRecord.getFieldText("custbody382");
+    } else if (customform == 486 && subsidiary == 15) {
+      var receivingTagTemplateFile = nlapiLoadFile("290270"); //KPVN_Receiving_Tag.xml
+    } else {
+      var receivingTagTemplateFile = nlapiLoadFile("22162"); //receivingTagTemplate.xml
 
-        partName = part1Match ? part1Match[1].trim() : '';
-        if (size == null) size = part2Match ? part2Match[1].trim() : '';
+      var orderedBy = "Ian and Ms Weng"; //getOrderedBy(poId);
+    }
+
+    var dataArray = getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy);
+    var xml = juicer(receivingTagTemplateFile.getValue(), {
+      "dataArray": dataArray
+    });
+    response.setContentType("PDF", "RECEIVING TAG", "inline");
+    response.write(nlapiXMLToPDF(xml));
+  } else if (recType == "inventorytransfer") {
+    if (!poId && !receiptId) return "";
+    var invTransRec = Id ? nlapiLoadRecord("purchaseorder", poId) : nlapiLoadRecord("itemreceipt", receiptId);
+    var subsidiary = poRecord.getFieldValue("subsidiary");
+
+    if (subsidiary == 18) {
+      var receivingTagTemplateFile = nlapiLoadFile("290270"); //KPLima_FG_Tag.xml
+
+      var orderedBy = poRecord.getFieldText("custbody382");
+    }
+
+    var dataArray = getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy);
+    var xml = juicer(receivingTagTemplateFile.getValue(), {
+      "dataArray": dataArray
+    });
+    response.setContentType("PDF", "RECEIVING TAG", "inline");
+    response.write(nlapiXMLToPDF(xml));
+  }
+}
+
+function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy) {
+  if (!poId && !receiptId) return "";
+  var poRecord = poId ? nlapiLoadRecord("purchaseorder", poId) : nlapiLoadRecord("itemreceipt", receiptId);
+  var refPoNo = poRecord.getFieldValue("custbody92"); //External PO No. (Custom)   
+
+  var refPoNo2 = poRecord.getFieldText("createdfrom");
+  var dateDelivered = poRecord.getFieldValue("custbody328");
+  var drNo = poRecord.getFieldValue("custbody28"); //DR No. (Custom)
+
+  var reveivedBy = poRecord.getFieldText("custbody1"); //Prepared by (Custom)
+
+  var dateReceived = poRecord.getFieldValue("trandate"); //Date
+
+  var customer = poRecord.getFieldText("custbody41"); //Customer (Custom)
+
+  var RrNo = poRecord.getFieldValue("custbody19"); //KPLIMA RR #
+
+  var supplier = nlapiLookupField("vendor", poRecord.getFieldValue("entity"), "companyname"); //COMPANY NAME
+
+  var receiveMonth = dateReceived ? nlapiStringToDate(dateReceived).getMonth() + 1 : "";
+  var month = poId ? nlapiCreateRecord("customrecord_kpj_date").getFieldValue("custrecord_current_month") : receiveMonth; //当前月
+
+  month = getSimpleEnglishMonthJson(month, true);
+  var receivingTagCommonDataJson = {
+    "refPoNo": convertNullToEmpty(refPoNo),
+    "refPoNo2": convertNullToEmpty(refPoNo2).substring(16, 40),
+    "orderedBy": convertNullToEmpty(orderedBy),
+    "drNo": convertNullToEmpty(drNo),
+    "RrNo": convertNullToEmpty(RrNo),
+    "reveivedBy": convertNullToEmpty(reveivedBy),
+    "dateReceived": convertNullToEmpty(dateReceived),
+    "customer": convertNullToEmpty(customer),
+    "dateDelivered": convertNullToEmpty(dateDelivered),
+    "supplier": convertNullToEmpty(supplier),
+    "month": convertNullToEmpty(month),
+    "inspectedBy": ""
+  };
+  var receivingTagCommonDataString = JSON.stringify(receivingTagCommonDataJson);
+  var itemCode = "";
+  var itemDescription = "";
+  var quantity = "";
+  var itemUPC = "";
+  var dataArray = [];
+  var itemCounts = poRecord.getLineItemCount("item");
+
+  for (var i = 1; i <= itemCounts; i++) {
+    var receivingTagDataJson = JSON.parse(receivingTagCommonDataString);
+
+    if (!lineNo) {
+      itemId = poRecord.getLineItemValue("item", "item", i);
+      itemCode = nlapiLookupField("item", itemId, "itemid");
+      quantity = poRecord.getLineItemValue("item", "quantity", i);
+      itemDescription = poRecord.getLineItemValue("item", "description", i);
+      itemUPC = poRecord.getLineItemValue("item", "custcol241", i);
+      receivingTagDataJson["itemCode"] = convertNullToEmpty(itemCode);
+      receivingTagDataJson["itemDescription"] = convertNullToEmpty(itemDescription);
+      receivingTagDataJson["quantity"] = convertNullToEmpty(quantity);
+      receivingTagDataJson["itemUPC"] = convertNullToEmpty(itemUPC);
+      dataArray.push(receivingTagDataJson);
+    } else {
+      var lineNo1 = poRecord.getLineItemValue("item", "line", i);
+
+      if (lineNo1 == lineNo) {
+        var itemId1 = poRecord.getLineItemValue("item", "item", i);
+        itemCode = nlapiLookupField("item", itemId1, "itemid");
+        quantity = poRecord.getLineItemValue("item", "quantity", i);
+        itemDescription = poRecord.getLineItemValue("item", "description", i);
+        itemUPC = poRecord.getLineItemValue("item", "custcol241", i);
+        receivingTagDataJson["itemCode"] = convertNullToEmpty(itemCode);
+        receivingTagDataJson["itemDescription"] = convertNullToEmpty(itemDescription);
+        receivingTagDataJson["quantity"] = convertNullToEmpty(quantity);
+        receivingTagDataJson["itemUPC"] = convertNullToEmpty(itemUPC);
+        dataArray.push(receivingTagDataJson);
+        break;
       }
     }
   }
-  /*var filters = [new nlobjSearchFilter('transactionnumber', null, 'is', RRNo2)];
-  var searchResults = nlapiSearchRecord('itemreceipt', null, filters);
-  if (searchResults && searchResults.length > 0) {
-     for (var x = 0; x < searchResults.length; x++) {
-     var RMcode = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord582', x) || '';
-     var total = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord584', x) || '';
-     var rejquantity = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord585', x) || '';
-     var size = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord583', x) || '';
-     var desc = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord702', x) || '';
-     var limiter = 0;
-     var partName = '';
-     var defects = [];
-  
-  
-  
-  if (searchResults) {
-     for (var i = 0; i < searchResults.length; i++) {
-         var recordId = searchResults[i].getId();
-         var loadedRecord = nlapiLoadRecord('itemreceipt', recordId);
-  
-         var sublistItemCount = loadedRecord.getLineItemCount('item');
-         for (var j = 1; j <= sublistItemCount; j++) {
-             var sublistValue = loadedRecord.getLineItemValue('item', 'itemdescription', j);
-             
-             // Define regular expressions for matching the desired patterns
-             const regex1 = /\b((?:(?!\b(?:\d+|\w+F)\b)\b\w+\s*)+)/;
-             const regex2 = /\s([0-9*]+mm)/;
-  
-             const part1Match = sublistValue.match(regex1);
-             const part2Match = sublistValue.match(regex2);
-  
-             // Extract the desired parts using match() and the defined regex
-             partName = part1Match ? part1Match[1].trim() : '';
-             if (size == '') {
-                 size = part2Match ? part2Match[1].trim() : '';
-  				}
-  				// Process or store extracted data as needed
-  			}
-  		}
-  	}
-  }
-  }*/
+
+  nlapiLogExecution('ERROR', 'Month Value', receivingTagDataJson.month);
+  return dataArray.length > 0 ? dataArray : "";
+}
+/**
+ * 
+ * @param poId
+ * @returns
+ */
 
 
-  var fieldLabels = {
-    'custrecord589': 'OTHER KIND OF REJECTION LỖI KHÁC',
-    'custrecord590': 'DIRTY BẨN',
-    'custrecord591': 'SCORING GÃY',
-    'custrecord592': 'TEAR OFF RÁCH',
-    'custrecord593': 'MISALIGN Dán Lệch Cắt Lệch',
-    'custrecord594': 'PAPER DIRTY BẨN GIẤY',
-    'custrecord595': 'WATER STAGNATTION VẢY NƯỚC',
-    'custrecord596': 'CORNER BROKEN GÃY GÓC',
-    'custrecord597': 'WRINKLE HẰN',
-    'custrecord598': 'SCRATCH XƯỚC',
-    'custrecord599': 'TEAR AT TAB GLUE RÁCH TAB GLUE',
-    'custrecord600': 'WRINKLE NHĂN',
-    'custrecord601': 'OVERCUT CẮT ĐỨT',
-    'custrecord602': 'DELAMINATED BONG SÓNG BONG HỒ',
-    'custrecord603': 'STICK GLUE DÍNH HỒ',
-    'custrecord604': 'DIMENSION KÍCH THƯỚC',
-    'custrecord605': 'MATERIAL VẬT LIỆU',
-    'custrecord606': 'PAPER DOT NỐT GIẤY',
-    'custrecord607': 'KHÔ NƯỚC',
-    'custrecord608': 'DIFFERENT COLOR KHÁC MÀU',
-    'custrecord609': 'COLOR DOT NỐT MÀU',
-    'custrecord610': 'CURVE GỒ',
-    'custrecord611': 'BROKEN VỠ',
-    'custrecord612': 'PAPER CORE LÕM GIẤY',
-    'custrecord613': 'ALREADY CUT INTO PRODUCTS ĐÃ CẮT THÀNH SP',
-    'custrecord614': 'NG VARNISH LỖI PHỦ',
-    'custrecord615': 'PRINTING ERROR LỖI IN',
-    'custrecord616': 'STRANGE THING DỊ VẬT',
-    'custrecord617': 'BA VIA',
-    'custrecord618': 'LỆCH MẶT',
-    'custrecord619': 'ƯỚT',
-    'custrecord620': 'THIẾU GHIM',
-    'custrecord621': 'LẪN HÀNG',
-    'custrecord622': 'CÓ CÔN TRÙNG TRONG SP',
-    'custrecord623': 'LỆCH LỖ'
+function getOrderedBy(poId) {}
+/*
+var results = nlapiSearchRecord("transaction", "customsearch_transac_body_fields_search", ["internalid","is",poId], null);
+if (results)
+    return convertNullToEmpty(results[0].getText("custbody49"));
+*/
+
+/**
+ * 
+ * @param monthNum
+ * @param upper
+ * @param lower
+ * @returns
+ */
+
+
+function getSimpleEnglishMonthJson(monthNum, upper, lower) {
+  var simpleMonthJson = {
+    "1": "Jan",
+    "2": "Feb",
+    "3": "Mar",
+    "4": "Apr",
+    "5": "May",
+    "6": "June",
+    "7": "July",
+    "8": "Aug",
+    "9": "Sept",
+    "10": "Oct",
+    "11": "Nov",
+    "12": "Dec"
   };
 
-  for (var i = DEFECT_START; i <= DEFECT_END; i++) {
-    var sublistFieldLabel = customRecord.getLineItemField('recmachcustrecord730', 'custrecord' + i, 1) || '';
-    var kindOfDefect = fieldLabels['custrecord' + i];
-    var numberOfDefect = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord' + i, 1) || '';
+  if (monthNum) {
+    if (/(^[1-9]$)|(^1[0-2]$)/.test(monthNum)) {
+      var simpleMonth = simpleMonthJson[monthNum];
+      return upper ? simpleMonth.toUpperCase() : lower ? simpleMonth.toLowerCase() : simpleMonth;
+    } else {
+      return ""; //月份参数不正确
+    }
+  } else {
+    if (upper) {
+      for (var key in simpleMonthJson) {
+        var month = simpleMonthJson[key];
+        simpleMonthJson[key] = month.toUpperCase();
+      }
+    }
 
-    if (limiter == MAX_DEFECTS) {
-      break;
-    } else if (numberOfDefect > 0) {
-      if (numberOfDefect < 10) {
-        defects[limiter] = '0' + numberOfDefect + ' - ' + kindOfDefect;
-        limiter++;
-      } else {
-        defects[limiter] = numberOfDefect + ' - ' + kindOfDefect;
-        limiter++;
+    if (lower) {
+      for (var key1 in simpleMonthJson) {
+        var month1 = simpleMonthJson[key1];
+        simpleMonthJson[key1] = month1.toLowerCase();
       }
     }
   }
 
-  ;
-  var arrayOfDefects = defects.join("<br>");
-  var html = "<!DOCTYPE HTML>" + "<html>" + "<head>" + "<style type='text/css'>" + "* { border-spacing: 0; font-family: Sans-serif; font-size: 11px; margin: 0; }" + "h2 { font-size: 15px; }" + "h1 { font-size: 20px; }" + "table { border-collapse: collapse; }" + ".table_unx { table-layout: fixed; width: 100%; }" + ".td_unx { white-space: forced; }" + ".border { border-left: .5px solid; border-right: .5px solid; border-top: .5px solid; border-bottom: .5px solid; }" + ".sideBorder { border-left: .5px solid; border-right: .5px solid; }" + ".topSideBorder { border-left: .5px solid; border-right: .5px solid; border-top: .5px solid; }" + ".bottomSideBorder { border-left: .5px solid double; border-right: .5px solid; border-bottom: .5px solid; }" + ".column { height: 50px; }" + ".row { display: flex; }" + ".width { width: 800px; }" + ".img { float: left; margin-bottom: 30px; }" + ".floatRight { padding-top: 20px; float: right; }" + ".address { font-size: 10px; }" + ".PR { font-size: 35px; }" + ".bold { font-weight: bold; }" + ".paddingLeft { padding-left: 100px; }" + ".paddingRight { padding-right: 70px; }" + ".paddingBottom { padding-bottom: 25px; }" + ".paddingSFLIadd { padding-top: 30px; margin-left: 640px; position: absolute; }" + ".borderLeft { border-left: .5px solid; }" + ".borderRight { border-right: .5px solid; }" + ".borderTop { border-top: .5px solid; }" + ".borderBottom { border-bottom: .5px solid; }" + ".tableMarginTop3 { height: auto; }" + ".tableMarginTop2 { margin-top: 5px; height: auto; }" + ".tableMarginTop { margin-top: 25px; height: auto; }" + ".tableColor { background-color: black; color: #ffffff; }" + ".padding { padding-top: 5px; padding-bottom: 5px; }" + ".paddingLR { padding-left: 5px; padding-right: 5px; }" + ".grey { background-color: #C0C0C0; }" + "footer { width: 800px; height: 30px; font-family: cursive; font-style: normal; }" + "</style>" + "</head>" + "<body width='880px' height='825px' class='width'>" + "<table>" + "<tr>" + "<td width='800px' align='right'>KPVN - 008 </td>" + "</tr>" + "<tr>" + "<td width='800px' align='right'>REV 04</td>" + "<tr>" + "</table>" + "<div style='width: 100%; height: 100%; position: relative;'>" + "<div class='img'>" + "<image src='https://3389427.app.netsuite.com/core/media/media.nl?id=1138&c=3389427&h=ueq3mWB0n4_ATVXT-t97HWbnG8O8z1kK_E39_Bd7lW3DO6Mb'>" + "</image>" + "</div><br><br>" + "<div class='paddingSFLIadd'> </div>" + "<table>" + "<tr>" + "<td width='500'>" + "<h2 align='left'  style='padding-left: 20px'>KANEPACKAGE VIETNAM CO., LTD.<br>QUALITY ASSURANCE DEPARTMENT</h2>" + "</td>" + "<td width='300'></td>" + "<td width='300'><b>Control No.: " + NCRnum + "</b></td>" + "</tr>" + "<tr>" + "<td width='400'></td>" + "<td width='100'></td>" + "<td width='200'><b> Issue Date: " + IssuedDate + "</b></td>" + "</tr>" + "</table><br>" + "<table class='tableMarginTop'>" + "<tr>" + "<td width='1000px'>" + "<h1 align='center'>NON CONFORMANCE REPORT</h1>" + "</td>" + "</tr>" + "</table>" + "<table class='tableMarginTop'>" + "<tr>" + "<td width='70'><b>to:</b></td>" + "<td width='450'><b>" + vendor + "</b></td>" + "<td width='70'><b>Nature:</b></td>" + "<td width='10' align='center'>⬜</td>" + "<td width='90' >Information</td>" + "<td width='10'>⬛</td>" + "<td width='110'>Critical</td>" + "</tr>" + "<tr>" + "<td width='70'><b>Attn:</b></td>" + "<td width='450'></td>" + "<td width='70'><b>Disposition:</b></td>" + "<td width='10' align='center'>⬛</td>" + "<td width='10'>Backload</td>" + "<td width='10'>⬜</td>" + "<td width='110'>Under Evaluation</td>" + "</tr>" + "<tr>" + "<td width='70'><b>Section IQA:</b></td>" + "<td width='450' align='left'></td>" + "<td width='70'></td>" + "<td width='10'></td>" + "<td width='10'></td>" + "<td width='10'>⬜</td>" + "<td width='110'>Subject for Backload</td>" + "</tr>" + "<tr>" + "<td width='70'></td>" + "<td width='450'><b>Rejection Notice No.:_____________________</td>" + "<td width='70'></td>" + "<td width='10'></td>" + "<td width='10'></td>" + "<td width='10'>⬜</td>" + "<td width='110'>Reject for Disposal</td>" + "</tr>" + "</table>" + "<table class='tableMarginTop'>" + "<tr>" + "<td width='400' style='font-size:20' align='center'><b>⚫ Quality Management System</b></td>" + "<td width='400' style='font-size:20' align='center'><b>⚪ EOHS Management System</b></td>" + "</tr>" + "</table>" + "<table class='border tableMarginTop'>" + "<tr>" + "<td class='border' width='132'><b>Supplier</b></td>" + "<td class='border' width='270' align='center'>" + vendor + "</td>" + "<td class='border' width='132'><b>Date Received</b></td>" + "<td class='border' width='270' align='center'>" + ReceivedDate + "</td>" + "</tr>" + "<tr>" + "<td class='border' width='132'><b>Part Name</b></td>" + "<td class='border' width='270' align='center'>" + partName + "</td>" + "<td class='border' width='132'><b>Date Inspected</b></td>" + "<td class='border' width='270' align='center'>" + IssuedDate + "</td>" + "</tr>" + "<tr>" + "<td class='border' width='132'><b>Code RM</b></td>" + "<td class='border' width='270' align='center'>" + RMcode + "</td>" + "<td class='border' width='132'><b>Lot Size</b></td>" + "<td class='border' width='270' align='center'>" + total + " pcs.</td>" + "</tr>" + "<tr>" + "<td class='border' width='132'><b>Size</b></td>" + "<td class='border' width='270' align='center'>" + size + "</td>" + "<td class='border' width='132'><b>Act. Quantity</b></td>" + "<td class='border' width='270' align='center'>" + total + " pcs.</td>" + "</tr>" + "<tr>" + "<td class='border' width='132' rowspan='2'><b>Description</b></td>" + "<td class='border' width='270' rowspan='2' align='center'>" + desc + "</td>" + "<td class='border' width='132'><b>Good Quantity</b></td>" + "<td class='border' width='270' align='center'>" + [total - rejquantity] + " pcs.</td>" + "</tr>" + "<tr>" + "<td class='border' width='132'><b>QTY Reject</b></td>" + "<td class='border' width='270' align='center'>" + rejquantity + " pcs.</td>" + "</tr>" + "<tr>" + "<td class='border' width='132'><b>DA / INV. No</b></td>" + "<td class='border' width='270' align='center'>" + InvoiceNo + "</td>" + "<td class='border' width='132'><b>% Rejection</b></td>" + "<td class='border' width='270' align='center'>" + parseFloat(([rejquantity / total] * 100).toFixed(1)) + "%</td>" + "</tr>" + "<tr>" + "<td class='border' width='132'><b>RR No.</b></td>" + "<td class='border' width='270' align='center'>" + RRNo + "</td>" + "<td class='border' width='132'><b>JO No.</b></td>" + "<td class='border' width='269' align='center'>" + JoNum + "</td>" + "</tr>" + "</table>" + "<table>" + "<tr>" + "<td class='border' width='380' valign='top' align='center'><b>DEFECT MODE/NON-CONFORMANCE LAYOUT</b></td>" + "<td class='border' width='131' align='center'><b>SECTION</b></td>" + "<td class='border' width='131' align='center'><b>ACKNOWLEDGEMENT</b></td>" + "<td class='border' width='131' align='center'><b>DISTRIBUTION</b></td>" + "</tr>" + "<tr>" + "<td class='border' width='380' valign='top' rowspan='6' style='padding-left: 20px'><b>" + arrayOfDefects + "</b></td>" + "<td class='border' width='131'><b>Purchasing</b></td>" + "<td class='border' width='131'></td>" + "<td class='border' width='131'></td>" + "</tr>" + "<tr>" + "<td class='border' width='131'><b>Planning</b></td>" + "<td class='border' width='131'></td>" + "<td class='border' width='131'></td>" + "</tr>" + "<tr>" + "<td class='border' width='131'><b>Warehouse</b></td>" + "<td class='border' width='131'></td>" + "<td class='border' width='131'></td>" + "</tr>" + "<tr>" + "<td class='border' width='131'><b>Production</b></td>" + "<td class='border' width='131'></td>" + "<td class='border' width='131'></td>" + "</tr>" + "<tr>" + "<td class='border' width='131'><b>Sales</b></td>" + "<td class='border' width='131'></td>" + "<td class='border' width='131'></td>" + "</tr>" + "<tr>" + "<td class='border' width='131'><b>QA</b></td>" + "<td class='border' width='131'></td>" + "<td class='border' width='131'></td>" + "</tr>" + "</table>" + "<table class='sideBorder tableMarginTop3'>" + "<tr>" + "<td class='sideBorder borderTop' width='20' align='center'>S</td>" + "<td class='border' width='780' rowspan='4' colspan='4' valign='top'><b>ROOT CAUSE ANALYSIS:</b></td>" + "</tr>" + "<tr>" + "<td class='borderLeft' width='20' align='center'>U</td>" + "</tr>" + "<tr>" + "<td class='borderLeft' width='20' align='center'>P</td>" + "</tr>" + "<tr>" + "<td class='borderLeft' width='20' align='center'>P</td>" + "</tr>" + "<tr>" + "<td class='borderLeft' width='20' align='center'>L</td>" + "<td class='borderBottom borderLeft' width='390' rowspan='5' colspan='2' valign='top'><b>IMMEDIATE CORRECTIVE ACTION:</b></td>" + "<td class='sideBorder' width='390'  colspan='2' align='center'><b>IMPLEMENTATION</b></td>" + "</tr>" + "<tr>" + "<td class='borderLeft' width='20' align='center'>I</td>" + "<td class='borderLeft' width='390' colspan='2'></td>" + "</tr>" + "<tr>" + "<td class='borderLeft' width='20' align='center'>E</td>" + "<td class='sideBorder' width='390' colspan='2' style='padding-left: 20px'>Date: ___________</td>" + "</tr>" + "<tr>" + "<td class='borderLeft' width='20' align='center'>R</td>" + "<td class='sideBorder' width='390' colspan='2' style='padding-left: 20px'>Resp:___________</td>" + "</tr>" + "<tr>" + "<td class='sideBorder' width='20' style='height:12px'></td>" + "<td class='borderLeft' width='390' colspan='2'></td>" + "</tr>" + "<tr>" + "<td class='borderLeft' width='20' align='center'>T</td>" + "<td class='borderLeft' width='390' rowspan='6' colspan='2' valign='top'><b>PERMANENT CORRECTIVE ACTION:</b></td>" + "<td class='topSideBorder' width='390' colspan='2' align='center'><b>IMPLEMENTATION</b></td>" + "</tr>" + "<tr>" + "<td class='borderLeft' width='20' align='center'>O</td>" + "<td class='borderLeft' width='390' colspan='2'></td>" + "</tr>" + "<tr>" + "<td class='borderLeft' width='20' style='height:12px'></td>" + "<td class='sideBorder' width='390' colspan='2' style='padding-left: 20px'>Date: ___________</td>" + "</tr>" + "<tr>" + "<td class='borderLeft' width='20' align='center'>F</td>" + "<td class='sideBorder' width='390' colspan='2' style='padding-left: 20px'>Resp:___________</td>" + "</tr>" + "<tr>" + "<td class='borderLeft' width='20' align='center'>I</td>" + "<td class='sideBorder' width='390' colspan='2'></td>" + "</tr>" + "<tr>" + "<td class='borderLeft' width='20' align='center'>L</td>" + "<td class='borderLeft' width='390' colspan='2'></td>" + "</tr>" + "<tr>" + "<td style='border-left: .5px solid;' width='20' align='center'>L</td>" + "<td class='border' colspan='4' width='780'></td>" + "</tr>" + "<tr>" + "<td class='sideBorder' width='20' style='height:12px'></td>" + "<td class='borderRight' width='180' style='height:12px'></td>" + "<td class='borderRight' width='195' style='height:12px'></td>" + "<td class='borderRight' width='200' style='height:12px'></td>" + "<td class='borderRight' width='195' style='height:12px'></td>" + "</tr>" + "<tr>" + "<td class='sideBorder' width='20' align='center'>U</td>" + "<td class='borderRight' width='180' style='height:12px'></td>" + "<td class='borderRight' width='195' style='height:12px'></td>" + "<td class='borderRight' width='200' style='height:12px'></td>" + "<td class='borderRight' width='195' style='height:12px'></td>" + "</tr>" + "<tr>" + "<td class='sideBorder' width='20' align='center'>P</td>" + "<td class='borderRight' width='180' style='height:12px'></td>" + "<td class='borderRight' width='195' style='height:12px'></td>" + "<td class='borderRight' width='200' style='height:12px'></td>" + "<td class='borderRight' width='195' style='height:12px'></td>" + "</tr>" + "<tr>" + "<td class='borderBottom borderLeft' width='20'></td>" + "<td class='border' width='180' style='height:12px' align='center'><b>PREPARED</b></td>" + "<td class='border' width='195' style='height:12px' align='center'><b>CHECKED</b></td>" + "<td class='border' width='200' style='height:12px' align='center'><b>APPROVED</b></td>" + "<td class='border' width='195' style='height:12px' align='center'><b>DATE</b></td>" + "</tr>" + "<tr>" + "<td class='borderLeft' width='20' align='center'></td>" + "<td width='180' style='height:12px'></td>" + "<td width='195' style='height:12px'></td>" + "<td width='200' style='height:12px'></td>" + "<td class='borderRight'width='195' style='height:12px'></td>" + "</tr>" + "</table>" + "<table class='topSideBorder tableMarginTop3'>" + "<tr>" + "<td width='400' align='center'><b>VERIFICATION OF COUNTERMEASURE</b></td>" + "<td width='400'></td>" + "</tr>" + "</table>" + "<table class='sideBorder tableMarginTop3'>" + "<tr>" + "<td class='sideBorder' width='20' align='center'>K</td>" + "<td class='borderRight borderTop' width='90' align='center'></td>" + "<td class='borderRight borderTop' width='90' align='center'></td>" + "<td class='borderRight borderTop' width='100' align='center'></td>" + "<td class='borderRight borderTop' width='90' align='center'></td>" + "<td class='borderRight borderTop borderBottom' width='400' align='center'><b>Remarks</b></td>" + "</tr>" + "<tr>" + "<td class='sideBorder' width='20' align='center'>P</td>" + "<td class='borderRight' width='90' align='center'></td>" + "<td class='borderRight' width='90' align='center'></td>" + "<td class='borderRight' width='100' align='center'></td>" + "<td class='borderRight' width='90' align='center'></td>" + "<td class='borderRight' width='400' align='center'></td>" + "</tr>" + "<tr>" + "<td class='sideBorder' width='20' align='center'>V</td>" + "<td class='borderRight' width='90' align='center'></td>" + "<td class='borderRight' width='90' align='center'></td>" + "<td class='borderRight' width='100' align='center'></td>" + "<td class='borderRight' width='90' align='center'></td>" + "<td class='borderRight' width='400' align='center'></td>" + "</tr>" + "<tr>" + "<td class='sideBorder' width='20' align='center'>N</td>" + "<td class='borderRight borderBottom borderTop' width='90' align='center'><b>PREPARED</b></td>" + "<td class='borderRight borderBottom borderTop' width='90' align='center'><b>CHECKED</b></td>" + "<td class='borderRight borderBottom borderTop' width='100' align='center'><b>APPROVED</b></td>" + "<td class='borderRight borderBottom borderTop' width='90' align='center'><b>DATE</b></td>" + "<td class='borderRight borderBottom' width='400' align='center'></td>" + "</tr>" + "<tr>" + "<td class='borderLeft borderBottom' width='20' height='12px'></td>" + "<td class='borderBottom' width='90'></td>" + "<td class='borderBottom' width='90'></td>" + "<td class='borderBottom' width='100'></td>" + "<td class='borderBottom' width='90'></td>" + "<td class='borderRight borderBottom' width='400'></td>" + "</tr>" + "</table>" + "<table class='tableMarginTop3'>" + "<tr>" + "<td width='800' align='center'>Note: Pls Reply within 7 days working days upon receipt</td>" + "</tr>" + "<tr>" + "<td width='800' align='center'>Document keep-1 year: Effective 16-July 16</td>" + "</tr>" + "</table>" + "<br>" + "<br>" + "<br>" + "<br>" + "<br>" + "<br>" + "<table class='tableMarginTop3'>" + "<tr>" + "<td style='padding-left: 35px;'><b>Prepared by: _________________</b></td>" + "<td width='100'></td>" + "<td><b>Checked by: _________________</b></td>" + "<td width='100'></td>" + "<td><b>Approved by: _________________</b></td>" + "</tr>" + "</table>" + "</body>" + "</html>";
-  response.write(html);
-} // Constants
+  return simpleMonthJson;
+}
+/**
+ * 把null和undefined 转为""
+ * @param parameter
+ * @returns
+ */
 
 
-var DEFECT_START = 589;
-var DEFECT_END = 623;
-var MAX_DEFECTS = 5;
+function convertNullToEmpty(parameter) {
+  if (!parameter && parameter != 0) return "";
+  return parameter;
+}
