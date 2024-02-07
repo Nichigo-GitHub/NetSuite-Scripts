@@ -35,6 +35,7 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
             var date = null;
             var memo = '';
             var timeOfRr = '';
+            var DrNum = '';
 
             try {
                 if (utility.isValueValid(requestBody)) {
@@ -56,6 +57,7 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
                     invoiceno = requestParams.invoiceno;
                     memo = requestParams.memo;
                     timeOfRr = requestParams.timeOfRr;
+                    DrNum = requestParams.DrNum;
                     var itemReceiptId = '';
 
                     if (utility.isValueValid(warehouseLocationId) && utility.isValueValid(transactionInternalId) && utility.isValueValid(transactionName) &&
@@ -285,6 +287,8 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
                                                 trecord.setValue('memo', memo);
 
                                                 trecord.setValue('custbody34', timeOfRr);
+
+                                                trecord.setValue('custbody28', DrNum);
 
                                                 // Search for employees with 'entityid' containing 'preparedBy'
                                                 var employeeSearchResults = search.load({

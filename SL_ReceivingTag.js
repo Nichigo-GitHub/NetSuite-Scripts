@@ -9,7 +9,7 @@
 /**
  * @param {nlobjRequest} request Request object
  * @param {nlobjResponse} response Response object
- * @returns {Void} Any output is written via the response object
+ * @returns {Void} Any output is written via response object
  */
 function suitelet(request, response) {
     var poId = request.getParameter("poId");
@@ -24,12 +24,9 @@ function suitelet(request, response) {
     nlapiLogExecution('ERROR', 'recType', recType);
     nlapiLogExecution('ERROR', 'tag', tag);
 
-    var finalPdf = '';
-
     if (recType == "itemreceipt") {
         if (!poId && !receiptId)
             return "";
-
         var poRecord = poId ? nlapiLoadRecord("purchaseorder", poId) : nlapiLoadRecord("itemreceipt", receiptId);
 
         var customform = poRecord.getFieldValue("customform");
@@ -40,18 +37,22 @@ function suitelet(request, response) {
             var orderedBy = poRecord.getFieldText("custbody382");
         } else if (customform == 486 && subsidiary == 15) {
             var receivingTagTemplateFile = nlapiLoadFile("290270"); //KPVN_Receiving_Tag.xml
+        } else if (customform == 503 && subsidiary == 4) {
+            var receivingTagTemplateFile = nlapiLoadFile("299436"); //KPIN_Receiving_Tag.xml
+            var orderedBy = "-----"; //getOrderedBy(poId);
         } else {
-            var receivingTagTemplateFile = nlapiLoadFile("22162"); //receivingTagTemplate.xml
+            var receivingTagTemplateFile = nlapiLoadFile("22162"); //(SFLI) receivingTagTemplate.xml
             var orderedBy = "Ian and Ms Weng"; //getOrderedBy(poId);
         }
 
         var dataArray = getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy);
 
-        for (var i = 0; i < dataArray.length; i++) {
-            var pdf = generatePdf(dataArray[i], receivingTagTemplateFile);
-            finalPdf += pdf;
-        }
+        var xml = juicer(receivingTagTemplateFile.getValue(), {
+            "dataArray": dataArray
+        });
 
+        response.setContentType("PDF", "RECEIVING TAG", "inline");
+        response.write(nlapiXMLToPDF(xml));
     } else if (recType == "inventorytransfer") {
         if (!receiptId) {
             // Log an error or handle the case where receiptId is missing
@@ -61,33 +62,29 @@ function suitelet(request, response) {
 
         var poRecord = nlapiLoadRecord("inventorytransfer", receiptId);
 
-        if (tag == 'RM') {
-            var receivingTagTemplateFile = nlapiLoadFile("290270"); //KPLima_Receiving_Tag.xml
-        } else {
-            var receivingTagTemplateFile = nlapiLoadFile("295850"); //KPLima_FG_Tag.xml
+        if (customform == 128 && subsidiary == 18) {
+            if (tag == 'RM') {
+                var receivingTagTemplateFile = nlapiLoadFile("290270"); //KPLima_Receiving_Tag.xml
+            } else {
+                var receivingTagTemplateFile = nlapiLoadFile("295850"); //KPLima_FG_Tag.xml
+            }
+        } else if (customform == 128 && subsidiary == 4) {
+
         }
         var dataArray = getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, orderedBy);
 
-        for (var i = 0; i < dataArray.length; i++) {
-            var pdf = generatePdf(dataArray[i], receivingTagTemplateFile);
-            finalPdf += pdf;
-        }
+        var xml = juicer(receivingTagTemplateFile.getValue(), {
+            "dataArray": dataArray
+        });
+
+        response.setContentType("PDF", "RECEIVING TAG", "inline");
+        response.write(nlapiXMLToPDF(xml));
     }
-
-    response.setContentType("PDF", "RECEIVING TAG", "inline");
-    response.write(finalPdf);
-}
-
-// Function to generate PDF for each iteration
-function generatePdf(data, receivingTagTemplateFile) {
-    var xml = juicer(receivingTagTemplateFile.getValue(), {
-        "dataArray": [data]
-    });
-    return nlapiXMLToPDF(xml);
 }
 
 function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy) {
-    var poRecord = poId ? nlapiLoadRecord("purchaseorder", poId) : nlapiLoadRecord("itemreceipt", receiptId);
+    var poRecord = poId ? nlapiLoadRecord("purchaseorder", poId
+    ) : nlapiLoadRecord("itemreceipt", receiptId);
     var refPoNo = poRecord.getFieldValue("custbody92"); //External PO No. (Custom)   
     var refPoNo2 = poRecord.getFieldText("createdfrom");
     var dateDelivered = poRecord.getFieldValue("custbody328");
@@ -187,7 +184,7 @@ function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, or
     var itRecord = nlapiLoadRecord("inventorytransfer", receiptId);
     var refJoNo = itRecord.getFieldValue("custbody23");
     //var refPoNo2 = itRecord.getFieldText("createdfrom");
-    var dateDelivered = itRecord.getFieldValue("trandate");
+    var dateDelivered = itRecord.getFieldValue("custbody397");
     var drNo = itRecord.getFieldValue("custbody396");
 
 
@@ -195,6 +192,7 @@ function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, or
     var dateReceived = itRecord.getFieldValue("trandate"); //Date
     var customer = itRecord.getFieldText("custbody41");//Customer (Custom)
     var RrNo = itRecord.getFieldValue("custbody19");//KPLIMA RR #
+    var supplier2 = itRecord.getFieldText("custbodycust_sfli_vendor"); //supplier
     //var supplier = nlapiLookupField("vendor", itRecord.getFieldValue("entity"), "companyname"); //COMPANY NAME
 
     //month = getSimpleEnglishMonthJson(month, true);
@@ -209,7 +207,7 @@ function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, or
         "dateReceived": convertNullToEmpty(dateReceived),
         "customer": convertNullToEmpty(customer),
         "dateDelivered": convertNullToEmpty(dateDelivered),
-        //"supplier": convertNullToEmpty(supplier),
+        "supplier2": convertNullToEmpty(supplier2),
         //"month": convertNullToEmpty(month),
         "inspectedBy": ""
     };
@@ -231,11 +229,11 @@ function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, or
             quantity = itRecord.getLineItemValue("inventory", "adjustqtyby", i);
             itemDescription = itRecord.getLineItemValue("inventory", "description", i);
             itemUPC = itRecord.getLineItemValue("inventory", "custcol242", i);
-            
+
             receivingTagDataJson["itemCode"] = convertNullToEmpty(itemCode);
             receivingTagDataJson["itemDescription"] = convertNullToEmpty(itemDescription);
             receivingTagDataJson["quantity"] = convertNullToEmpty(quantity);
-            receivingTagDataJson["itemUPC"] = convertNullToEmpty(itemUPC);            
+            receivingTagDataJson["itemUPC"] = convertNullToEmpty(itemUPC);
             dataArray.push(receivingTagDataJson);
         } else {
             var lineNo1 = itRecord.getLineItemValue("inventory", "line", i);

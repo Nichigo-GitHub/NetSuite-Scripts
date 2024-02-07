@@ -1,0 +1,389 @@
+<?xml version="1.0"?>
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+
+    <head>
+        <link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}"
+            src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}"
+            src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+
+        <link name="cyberbit" type="font" subtype="opentype" src="NetSuiteFonts/Cyberbit.ttf" bytes="2" />
+
+        <style type="text/css">
+            /*  po screen  */
+            .head_tab {
+                text-align: left;
+            }
+
+            .htab_tdw1 {
+                padding: 0 0 0 35px;
+            }
+
+            .text_alr {
+                margin: 10px 0 0 0;
+                text-align: right;
+            }
+
+            .htab_tdm {
+                margin: 15px 0 0 0;
+                text-align: center;
+            }
+
+            .podate01 {}
+
+            .podate02 {
+                margin: 0 0 0 10px;
+            }
+
+            .htl_tdmt10 {
+                margin: 10px 0 0 0;
+            }
+
+            .body {
+                font-family: cyberbit, helvetica;
+            }
+
+            .body_tab {
+                border: 2px solid #333 !important;
+                border-bottom: 1px solid #333;
+                text-align: left;
+            }
+
+            .body_tab tr td {
+                border-bottom: 1px solid #333;
+                border-left: 1px solid #333;
+            }
+
+            .top_solid {
+                border-top: 3px solid #000000;
+            }
+
+            .left_solid {
+                border-left: 3px solid #000000;
+            }
+
+            .bottom_solid {
+                border-bottom: 3px solid #000000;
+            }
+
+            .right_solid {
+                border-right: 3px solid #000000;
+            }
+
+            .borderAll {
+                border-left: 3px solid #000000;
+                border-right: 3px solid #000000;
+                border-top: 3px solid #000000;
+                border-bottom: 3px solid #000000;
+            }
+
+            .bottomless {
+                border-left: 3px solid #000000;
+                border-right: 3px solid #000000;
+                border-top: 3px solid #000000;
+            }
+
+            .topless {
+                border-left: 3px solid #000000;
+                border-right: 3px solid #000000;
+                border-bottom: 3px solid #000000;
+            }
+
+            .size12 {
+                font-size: 12px;
+            }
+
+            .size14 {
+                font-size: 14px;
+            }
+
+            .size16 {
+                font-size: 16px;
+            }
+
+            .size18 {
+                font-size: 18px;
+            }
+
+            .size20 {
+                font-size: 20px;
+            }
+
+            .size22 {
+                font-size: 22px;
+            }
+
+            .size24 {
+                font-size: 24px;
+            }
+
+            .size26 {
+                font-size: 26px;
+            }
+
+            .size28 {
+                font-size: 28px;
+            }
+
+            .size34 {
+                font-size: 34px;
+            }
+
+            .size38 {
+                font-size: 38px;
+            }
+
+            .size48 {
+                font-size: 48px;
+            }
+
+            .size58 {
+                font-size: 58px;
+            }
+
+            .size75 {
+                font-size: 75px;
+            }
+
+            .default-background {
+                background-color: #ffffff;
+                /* White */
+            }
+
+            .ht_head td {
+                text-align: center;
+                padding: 2px 0;
+            }
+
+            .ht_body td {
+                padding: 5px;
+                height: 50px;
+                vertical-align: middle;
+            }
+
+            .body_tab tr td.bdno_l {
+                border-left: none;
+            }
+
+            .body_tab tr td.bdno_b {
+                border-bottom: none;
+            }
+
+            .bdline_b {
+                border-bottom: 1px solid #333 !important;
+            }
+
+            .ht_tdf {
+                vertical-align: middle;
+                text-align: center;
+            }
+
+            .promt {
+                margin: 20px 0 0 0;
+                text-align: left;
+            }
+
+            .hr0 {
+                height: 1px;
+                border: none;
+                border-top: 1px dashed #0066CC;
+            }
+
+            .next_page {
+                page-break-after: always;
+            }
+        </style>
+    </head>
+
+    <body padding="0.5in 0.5in 0.5in 0.5in" size="A3">
+        <#assign items=inventoryItems.inventoryItems>
+            <#list items as item>
+                <table width="100%" border="0">
+                    <tr>
+                        <td width="30%" height="30" align="right" valign="bottom"></td>
+                        <td class="size14" width="70%" height="30" align="right" valign="bottom">
+                            <h2>FORM-WH-01 REV:01 012712</h2>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td height="35" class="size28" colspan="2" width="70%" align="right" valign="bottom">
+                            <h2>KP INDONESIA RAW MATERIALS TAG</h2>
+                        </td>
+                    </tr>
+                </table>
+                <table width="100%" border="0">
+                    <tr>
+                        <td class="size20" height="41" width="85%" align="right" valign="bottom">
+                            <h2>Month of</h2>
+                        </td>
+                        <td class="bottom_solid size20" width="15%" align="center" valign="bottom">
+                            <h2>${item.simpleMonth}</h2>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td height="23" colspan="3" align="center"></td>
+                    </tr>
+                </table>
+                <table width="100%" class="bottomless">
+                    <tr>
+                        <td width="4%" height="20" rowspan="2" class="size20 right_solid" valign="top">
+                            <barcode style="width: 150; height: 150;" codetype="qrcode" showtext="false" value="${item.itemUPC}" />
+                        </td>
+                        <td width="80%" height="20" class="size20" align="left" valign="bottom">
+                            <h2>PART CODE AND DESCRIPTION</h2>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="80%" height="30" class="size38 bold-text" style="font-weight: bold;" align="left"
+                            valign="top">
+                            <h2>${item.item} ${item.description?html}</h2>
+                        </td>
+                    </tr>
+                </table>
+                <table width="100%" class="topless">
+                    <tr>
+                        <td width="50%" height="30" class="top_solid right_solid size20" valign="bottom">
+                            <h2>CUSTOMER</h2>
+                        </td>
+                        <td width="50%" valign="bottom" class="top_solid size20">
+                            <h2>SUPPLIER</h2>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td height="70" class="right_solid size28" align="center" valign="middle">
+                            <h2>${item.customer}</h2>
+                        </td>
+                        <td class="size28" align="center" valign="middle">
+                            <h2></h2>
+                        </td>
+                    </tr>
+                </table>
+                <table width="100%" border="0">
+                    <tr>
+                        <td height="15">
+
+                        </td>
+                    </tr>
+                </table>
+                <table width="100%" class="borderAll">
+                    <tr>
+                        <td width="20%" height="15" class="right_solid bottom_solid" valign="bottom" align="center">
+                            <h2 class="size34" style="text-align: center;">Quantity<br />received</h2>
+                        </td>
+                        <td width="20%" height="15" class="right_solid bottom_solid" valign="bottom" align="center">
+                            <h2 class="size34" style="text-align: center;">Quantity<br />per pallet</h2>
+                        </td>
+                        <td width="60%" colspan="4" height="15" class="bottom_solid" style="text-align: center;"
+                            valign="top" align="center">
+                            <h2 class="size34">Actual Quantity</h2>
+                            <h2 class="size18">(Note: indicate remaining quantity after partial receiving)</h2>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="20%" height="10" class="right_solid"></td>
+                        <td width="20%" height="10" class="right_solid"></td>
+                        <td width="20%" height="10" class="bottom_solid right_solid size14" align="center">
+                            <h2>1st</h2>
+                        </td>
+                        <td width="20%" height="10" class="bottom_solid right_solid size14" align="center">
+                            <h2>2nd</h2>
+                        </td>
+                        <td width="20%" height="10" class="bottom_solid right_solid size14" align="center">
+                            <h2>3rd</h2>
+                        </td>
+                        <td width="20%" height="10" class="bottom_solid right_solid size14" align="center">
+                            <h2>4th</h2>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td height="10" align="center" valign="top" class="right_solid size24">
+                            <barcode style="width: 125; height: 30;" codetype="code128" showtext="false" value="${item.quantity}" />
+                            <h2>${item.quantity2}</h2>
+                        </td>
+                        <td height="10" align="center" class="right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="size20">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td height="10" align="center" class="right_solid"></td>
+                        <td height="10" align="center" class="right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="size20">&nbsp;</td>
+                    </tr>
+                </table>
+                <table width="100%" border="0">
+                    <tr>
+                        <td height="15">
+
+                        </td>
+                    </tr>
+                </table>
+                <table width="100%" border="borderAll">
+                    <tr height="30">
+                        <td width="21%" class="top_solid left_solid size18" valign="bottom">
+                            <h2>Purpose</h2>
+                        </td>
+                        <td width="34%" class="top_solid left_solid size18" valign="bottom" align="center">
+                            <h2>${item.reason}</h2>
+                        </td>
+                        <td width="45%" align="center" class="top_solid left_solid right_solid size18" valign="bottom">
+                            <h2>Memo</h2>
+                        </td>
+                    </tr>
+                    <tr height="30">
+                        <td valign="middle" class="top_solid left_solid size18">
+                            <h2>Reference #</h2>
+                        </td>
+                        <td valign="middle" align="center" class="top_solid left_solid size18">
+                            <h2>${item.refNum}</h2>
+                            <barcode style="width: 125; height: 25;" codetype="code128" showtext="false" value="${item.refNum2}" />
+                        </td>
+                        <td valign="middle" class="top_solid left_solid right_solid size18" style="text-align: center;" rowspan="2" align="center">
+                            <h2>${item.memo}</h2>
+                        </td>
+                    </tr>
+                    <tr height="30">
+                        <td valign="bottom" class="top_solid left_solid size18">
+                            <h2>Control #</h2>
+                        </td>
+                        <td valign="bottom" class="top_solid left_solid size18"></td>
+                    </tr>
+                    <tr height="30">
+                        <td valign="bottom" class="top_solid left_solid size18">
+                            <h2>Batch #</h2>
+                        </td>
+                        <td valign="bottom" class="top_solid left_solid size18"></td>
+                        <td valign="bottom" align="center" class="top_solid left_solid right_solid size18">
+                            <h2>Approval Status</h2>
+                        </td>
+                    </tr>
+                    <tr height="30">
+                        <td valign="middle" class="top_solid left_solid size18">
+                            <h2>Atuom #</h2>
+                        </td>
+                        <td valign="middle" align="center" class="top_solid left_solid size18">
+                            <h2>${item.atuomNum}</h2>
+                            <barcode style="width: 125; height: 25;" codetype="code128" showtext="false" value="${item.atuomNum2}" />
+                        </td>
+                        <td valign="bottom" rowspan="2" class="top_solid left_solid right_solid bottom_solid size18"
+                            align="center">
+                            <h2>${item.approval}</h2>
+                            <h2 style="font-size: 20px; margin-top: -10px;">by ${item.department}</h2>
+                        </td>
+                    </tr>
+                    <tr height="30">
+                        <td valign="bottom" class="top_solid bottom_solid left_solid" style="font-size: 15px;">
+                            <h2>Date Received</h2>
+                        </td>
+                        <td valign="bottom" align="center" class="top_solid bottom_solid left_solid size16">
+                            <h2>${item.date}</h2>
+                        </td>
+                    </tr>
+                </table>
+            </#list>
+    </body>
+</pdf>

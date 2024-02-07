@@ -11,6 +11,12 @@ define(['N/currentRecord', 'N/search', 'N/record', 'N/log'], function (currentRe
     // Check if the field changed is 'custrecord733'
     if (context.fieldId === 'custrecord733') {
       try {
+        var ipdNum = currentRecord.getText({
+          fieldId: 'custrecord733'
+        });
+
+        var trimmedIpd = ipdNum.substring("Sales Order #".length);
+
         const assemblyItemSearchColTransactionTranDate = search.createColumn({ name: 'trandate', join: 'transaction' });
         const assemblyItemSearchColTransactionTranId = search.createColumn({ name: 'tranid', join: 'transaction', sort: search.Sort.ASC });
         const assemblyItemSearchColCUSTOMER = search.createColumn({ name: 'formulatext', formula: 'CASE WHEN {transaction.type} = \'Sales Order\' THEN {transaction.mainname} ELSE {transaction.custbody41} END' });
@@ -56,7 +62,9 @@ define(['N/currentRecord', 'N/search', 'N/record', 'N/log'], function (currentRe
             "AND",
             ["memberitem.type", "anyof", "Assembly", "InvtPart"],
             "AND",
-            ["transaction.trandate", "within", "thismonth"]
+            ["transaction.trandate", "within", "thismonth"],
+            "AND",
+            ["transaction.tranid", "is", trimmedIpd],
           ],
           columns: [
             /* assemblyItemSearchColTransactionTranDate,
@@ -219,7 +227,7 @@ define(['N/currentRecord', 'N/search', 'N/record', 'N/log'], function (currentRe
             sublistId: 'recmachcustrecord731',
             fieldId: 'custrecord726',
             text: memberitemSupplier
-          });
+          }); 
 
           currentRecord.setCurrentSublistText({
             sublistId: 'recmachcustrecord731',
