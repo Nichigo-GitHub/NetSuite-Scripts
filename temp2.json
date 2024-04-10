@@ -1,0 +1,28 @@
+{
+  "tallyScanItem": "",
+  "page_id": "custom_page_inventoryTransfer_toLocation_7",
+  "fromStatusName": null,
+  "isTallyScanRequired": false,
+  "qtyUomSelection": [{
+    "pluralname": "",
+    "baseunit": "",
+    "unitname": "",
+    "inuse": "",
+    "abbreviation": "",
+    "conversionrate": "",
+    "pluralabbreviation": "",
+    "unit": "",
+    "value": "2"
+  }],
+  "locUseBinsFlag": true,
+  "stockUnitName": "",
+  "warehouseLocationId": "406",
+  "unitType": null,
+  "transactionUomConversionRate": "",
+  "scannedQuantity": 2,
+  "itemType": "lotnumberedassemblyitem",
+  "itemInternalId": "449076",
+  "fromStatusInternalId": null,
+  "binInternalId": 5713,
+  "availbleQuanity": "1"
+}

@@ -48,13 +48,10 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
                     transactionName = requestParams.transactionName;
                     transactionInternalId = requestParams.transactionInternalId;
                     warehouseLocationName = requestParams.warehouseLocationName;
-                    drNumber = requestParams.drnumber;
-                    mrrNumber = requestParams.mrrnumber;
                     date = requestParams.date;
 
                     preparedBy = requestParams.preparedBy;
                     inspectedBy = requestParams.inspectedBy;
-                    invoiceno = requestParams.invoiceno;
                     memo = requestParams.memo;
                     timeOfRr = requestParams.timeOfRr;
                     DrNum = requestParams.DrNum;
@@ -372,7 +369,6 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
                                                 });
 
                                                 var ir_tranid = ir_record.getValue('tranid');
-
 
                                                 log.debug({
                                                     title: 'transactionName',

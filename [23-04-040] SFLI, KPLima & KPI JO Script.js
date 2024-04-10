@@ -4,12 +4,10 @@ function suitelet(request, response) {
 	//SW Start 
 	var subsidary = workorder.getFieldValue("subsidiary");
 	var htmlId = (subsidary == "4" ? "custscript_html_indonesia" : subsidary == "18" ? "custscript74" : "custscript26");
-	//	html = context.getSetting('SCRIPT', 'custscript26');
 	html = context.getSetting('SCRIPT', htmlId);
 	//SW End
 
 	tablerow = '';
-	//	tablerow2 = '';
 	var lineCount = workorder.getLineItemCount('item');
 	for (var i = 1; i <= lineCount; i++) {
 		//SW Start
@@ -1190,9 +1188,6 @@ function suitelet(request, response) {
 		twelve12row += Numtwelve12(twelvetext12, '', '', '', '', '', '', '', '', '', '');
 	}
 	html = html.replace('{twelve12}', twelve12row == null ? '' : twelve12row);
-
-
-
 }
 
 function addRow2_Indonesia(desc2) {

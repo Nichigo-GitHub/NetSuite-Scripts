@@ -15,7 +15,14 @@ define(['N/currentRecord', 'N/search', 'N/record', 'N/log'], function (currentRe
           fieldId: 'custrecord733'
         });
 
-        var trimmedIpd = ipdNum.substring("Sales Order #".length);
+        var trimmedIpdSO = ipdNum.replace(/^Sales Order #/, '').trim();
+        var trimmedIpd = trimmedIpdSO.replace(/^Transfer Order #/, '').trim();
+
+        log.error({
+          title: 'trimmedIpd',
+
+          details: trimmedIpd
+        })
 
         const assemblyItemSearchColTransactionTranDate = search.createColumn({ name: 'trandate', join: 'transaction' });
         const assemblyItemSearchColTransactionTranId = search.createColumn({ name: 'tranid', join: 'transaction', sort: search.Sort.ASC });
@@ -38,6 +45,11 @@ define(['N/currentRecord', 'N/search', 'N/record', 'N/log'], function (currentRe
         const assemblyItemSearchColMemberitemSupplier = search.createColumn({ name: 'othervendor', join: 'memberitem' });
         const assemblyItemSearchColRemarks = search.createColumn({ name: 'custitem101' });
 
+        // Load the saved search by its ID
+        var Endorsement_Source = search.load({
+          id: 'customsearch4095' // Replace with the actual ID of your saved search
+        });
+
         // Create a search to find the item record based on the selected item ID
         var assemblyItemSearch = search.create({
           type: "assemblyitem",
@@ -47,8 +59,6 @@ define(['N/currentRecord', 'N/search', 'N/record', 'N/log'], function (currentRe
             ["transaction.type", "anyof", "SalesOrd", "TrnfrOrd"],
             "AND",
             ["subsidiary", "anyof", "18"],
-            "AND",
-            ["transaction.customform", "anyof", "606"],
             "AND",
             ["isinactive", "is", "F"],
             "AND",
@@ -62,19 +72,21 @@ define(['N/currentRecord', 'N/search', 'N/record', 'N/log'], function (currentRe
             "AND",
             ["memberitem.type", "anyof", "Assembly", "InvtPart"],
             "AND",
-            ["transaction.trandate", "within", "thismonth"],
+            ["transaction.trandate", "within", "thisfiscalyear"],
             "AND",
             ["transaction.tranid", "is", trimmedIpd],
+            "AND",
+            ["transaction.customform", "anyof", "606", "609"]
           ],
           columns: [
-            /* assemblyItemSearchColTransactionTranDate,
+            assemblyItemSearchColTransactionTranDate,
             assemblyItemSearchColTransactionTranId,
-            assemblyItemSearchColCUSTOMER, */
+            assemblyItemSearchColCUSTOMER,
             assemblyItemSearchColITEMCODE,
             assemblyItemSearchColITEMDESCRIPTION,
-            /* assemblyItemSearchColGROUP, */
+            assemblyItemSearchColGROUP,
             assemblyItemSearchColMATERIALUSEDBKMATERIALS,
-            /* assemblyItemSearchColDELIVERYDATE, */
+            assemblyItemSearchColDELIVERYDATE,
             assemblyItemSearchColCUTTINGSIZE,
             assemblyItemSearchColOutsPerSheet,
             assemblyItemSearchColOutsPerBlade,
@@ -102,14 +114,14 @@ define(['N/currentRecord', 'N/search', 'N/record', 'N/log'], function (currentRe
         log.debug("itemcode", total);
 
         searchResults.forEach(function (result) {
-          /* const transactionTranDate = result.getValue(assemblyItemSearchColTransactionTranDate);
+          const transactionTranDate = result.getValue(assemblyItemSearchColTransactionTranDate);
           const transactionTranId = result.getValue(assemblyItemSearchColTransactionTranId);
-          const customer = result.getValue(assemblyItemSearchColCUSTOMER); */
+          const customer = result.getValue(assemblyItemSearchColCUSTOMER);
           const itemcode = result.getValue(assemblyItemSearchColITEMCODE);
           const itemdescription = result.getValue(assemblyItemSearchColITEMDESCRIPTION);
-          /* const group = result.getValue(assemblyItemSearchColGROUP); */
+          const group = result.getValue(assemblyItemSearchColGROUP);
           const materialusedbkmaterials = result.getValue(assemblyItemSearchColMATERIALUSEDBKMATERIALS);
-          /* const deliverydate = result.getValue(assemblyItemSearchColDELIVERYDATE); */
+          const deliverydate = result.getValue(assemblyItemSearchColDELIVERYDATE);
           const cuttingsize = result.getValue(assemblyItemSearchColCUTTINGSIZE);
           const outsPerSheet = result.getValue(assemblyItemSearchColOutsPerSheet);
           const outsPerBlade = result.getValue(assemblyItemSearchColOutsPerBlade);
@@ -144,91 +156,98 @@ define(['N/currentRecord', 'N/search', 'N/record', 'N/log'], function (currentRe
           currentRecord.selectNewLine({
             sublistId: 'recmachcustrecord731'
           });
-
+          /* itemcode */
           currentRecord.setCurrentSublistText({
             sublistId: 'recmachcustrecord731',
             fieldId: 'custrecord712',
             text: itemcode
           });
-
+          /* description */
           currentRecord.setCurrentSublistText({
             sublistId: 'recmachcustrecord731',
             fieldId: 'custrecord713',
             text: itemdescription
           });
-
+          /* group */
+          currentRecord.setCurrentSublistText({
+            sublistId: 'recmachcustrecord731',
+            fieldId: 'custrecord738',
+            text: group
+          });
+          /* sheet size */
           currentRecord.setCurrentSublistText({
             sublistId: 'recmachcustrecord731',
             fieldId: 'custrecord714',
-            text: cuttingsize
-          });
-
-          currentRecord.setCurrentSublistText({
-            sublistId: 'recmachcustrecord731',
-            fieldId: 'custrecord716',
             text: materialusedbkmaterials
           });
-
+          /* paper com */
+          /*  currentRecord.setCurrentSublistText({
+             sublistId: 'recmachcustrecord731',
+             fieldId: 'custrecord716',
+             text: materialusedbkmaterials
+           }); */
+          /* outs per sheet */
           currentRecord.setCurrentSublistText({
             sublistId: 'recmachcustrecord731',
             fieldId: 'custrecord717',
             text: outsPerSheet
           });
-
+          /* outs per blade */
           currentRecord.setCurrentSublistText({
             sublistId: 'recmachcustrecord731',
             fieldId: 'custrecord718',
             text: outsPerBlade
           });
-
+          /* needed per set */
           currentRecord.setCurrentSublistText({
             sublistId: 'recmachcustrecord731',
             fieldId: 'custrecord719',
             text: neededPerSet
           });
-
+          /* selling price */
           currentRecord.setCurrentSublistText({
             sublistId: 'recmachcustrecord731',
             fieldId: 'custrecord720',
             text: pricingSellingPrice
           });
-
+          /* MOQ (Selling Price) */
           currentRecord.setCurrentSublistValue({
             sublistId: 'recmachcustrecord731',
             fieldId: 'custrecord721',
-            value: convertNullToZero(pricingMOQValue)
+            value: pricingMOQValue
           });
-
+          /* RM Unit price */
           currentRecord.setCurrentSublistValue({
             sublistId: 'recmachcustrecord731',
             fieldId: 'custrecord722',
-            value: convertNullToZero(parseFloat(memberitemPurchasePrice))
+            value: memberitemPurchasePrice
           });
-
+          /* procurement */
           currentRecord.setCurrentSublistValue({
             sublistId: 'recmachcustrecord731',
             fieldId: 'custrecord723',
-            value: convertNullToZero(parseFloat(procurement))
+            value: procurement
           });
 
-          currentRecord.setCurrentSublistValue({
+          /* currentRecord.setCurrentSublistValue({
             sublistId: 'recmachcustrecord731',
             fieldId: 'custrecord724',
             value: rmmoq
-          });
-
+          }); */
+          /* GPR */
           currentRecord.setCurrentSublistValue({
             sublistId: 'recmachcustrecord731',
             fieldId: 'custrecord725',
-            value: convertNullToZero(parseFloat(gpr)) + '%'
+            value: gpr + "%"
           });
 
+          /* Supplier */
           currentRecord.setCurrentSublistText({
             sublistId: 'recmachcustrecord731',
             fieldId: 'custrecord726',
             text: memberitemSupplier
-          }); 
-
+          });
+          /* BOM Code */
           currentRecord.setCurrentSublistText({
             sublistId: 'recmachcustrecord731',
             fieldId: 'custrecord729',

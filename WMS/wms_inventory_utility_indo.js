@@ -1468,6 +1468,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             var lotArray = invtransferObj.lotArray;
             var department = invtransferObj.department.toLowerCase();
             var memo = invtransferObj.memo;
+            var invTranID = invtransferObj.invTranID;
 
             var invTransfer = record.create({
                 type: record.Type.INVENTORY_TRANSFER,
@@ -1501,6 +1502,16 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 fieldId: 'trandate',
                 value: parsedCurrentDate
             });
+
+            invTransfer.setValue({
+				fieldId: 'tranid',
+				value: invTranID
+			});
+
+            invTransfer.setValue({
+				fieldId: 'custbody23',
+				value: invTranID
+			});
 
             var queryResult = query.runSuiteQL({
                 query: "SELECT (select id from department where lower(name) LIKE '" + department + "') as Department",

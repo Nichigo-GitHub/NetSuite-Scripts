@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pdf>
+    <html>
+
+    <head>
+        <style type="text/css">
+            * {
+                border-spacing: 0;
+                font-family: Sans-serif;
+                font-size: 13px;
+                margin: 0;
+            }
+
+            @page {
+                size: landscape;
+            }
+
+            body {
+                width: 210mm;
+                margin: 3px;
+                padding: 0;
+            }
+
+            h1 {
+                font-size: 20px;
+                letter-spacing: 1px;
+            }
+
+            h3 {
+                font-size: 15px;
+                font-family: Sans-serif;
+                letter-spacing: 1px;
+            }
+
+            h5 {
+                font-size: 12px;
+                font-family: Sans-serif;
+                letter-spacing: 1px;
+            }
+
+            .fix {
+                letter-spacing: 1px;
+            }
+
+            .border {
+                border-left: 1px solid;
+                border-right: 1px solid;
+                border-top: 1px solid;
+                border-bottom: 1px solid;
+            }
+
+            .borderBold {
+                border-left: 2px solid;
+                border-right: 2px solid;
+                border-top: 2px solid;
+                border-bottom: 2px solid;
+            }
+
+            .img {
+                float: right;
+                margin-top: -25px;
+            }
+
+            .floatRight {
+                padding-top: 20px;
+                float: right;
+            }
+
+            .joborder {
+                display: block;
+                font-size: 2em;
+                font-weight: bold;
+            }
+
+            .headers {
+                font-size: 8px;
+                font-weight: bold;
+                background-color: #D9D9D9;
+            }
+
+            .address {
+                font-size: 8px;
+            }
+
+            .bold {
+                font-weight: bold;
+            }
+
+            .paddingTop {
+                padding-left: 100px;
+            }
+
+            .paddingLeft {
+                padding-left: 100px;
+            }
+
+            .paddingRight {
+                padding-right: 70px;
+            }
+
+            .paddingBottom {
+                padding-bottom: 25px;
+            }
+
+            .paddingSFLIadd {
+                margin-left: 600px;
+            }
+
+            .borderLeft {
+                border-left: 1px solid;
+            }
+
+            .borderRight {
+                border-right: 1px solid;
+            }
+
+            .borderTop {
+                border-top: 1px solid;
+            }
+
+            .borderBottom {
+                border-bottom: 1px solid;
+            }
+
+            .tableMarginTop {
+                margin-top: 3px;
+                height: auto;
+            }
+
+            .tableColor {
+                background-color: #5A5A5A;
+                color: #ffffff;
+            }
+
+            .padding {
+                padding-top: 5px;
+                padding-bottom: 5px;
+            }
+
+            .softPadding {
+                padding-top: 2px;
+                padding-bottom: 2px;
+            }
+
+            .paddingLR {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+
+            .grey {
+                background-color: #C0C0C0;
+            }
+
+            footer {
+                width: 100%;
+                height: 20px;
+            }
+
+            .floatLeft1 {
+                padding-top: 10px;
+                float: left;
+                border-left: 1px solid;
+                border-right: 1px solid;
+                border-top: 1px solid;
+                border-bottom: 1px solid;
+            }
+
+            .tab {
+                display: inline-block;
+                margin-left: 450px;
+            }
+
+            .custom-cell {
+                width: 60px;
+            }
+
+            .custom-cell2 {
+                width: 140px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <table style="width: 130%;" align="left">
+            <tr>
+                <td valign="middle" align="center" class="border" colspan="2" style="width: 30%;">
+                    <img style="width: 188px; height: 16px;"
+                        src="https://3389427.app.netsuite.com/core/media/media.nl?id=295848&c=3389427&h=2oAzdhUPy9SyeB6750x1Lbm8F6qqMO8jq0o9SUnwJlJRP_zX&fcts=20240102204235&whence="
+                        alt="kppi logo" />
+                </td>
+                <td class="borderTop borderBottom borderRight" colspan="8" valign="middle" align="center"
+                    style="font-size: 2em; font-weight: bold;">
+                    NEW ITEM ENDORSEMENT
+                </td>
+            </tr>
+            <tr>
+                <td class="borderBottom borderRight borderLeft"
+                    style="background-color: #D9D9D9; width: 6.5%; font-size: 10px; font-weight: bold;" align="center"
+                    valign="middle">Customer:</td>
+                <td width="13.5%" class="borderBottom borderRight" style="font-size: 10px; font-weight: bold;"
+                    align="center" valign="middle">{customer}</td>
+                <td class="borderBottom borderRight" style="background-color: #D9D9D9; width: 5%; font-weight: bold;"
+                    align="center" valign="middle" rowspan="2">Area</td>
+                <td class="borderBottom borderRight" style="width: 7%; font-weight: bold;" align="center"
+                    valign="middle" rowspan="2">
+                    {area}</td>
+                <td class="borderBottom borderRight" style="background-color: #D9D9D9; width: 5%; font-weight: bold;"
+                    align="center" valign="middle">Forex Date</td>
+                <td class="borderBottom borderRight" style="width: 7%; font-weight: bold;" align="center"
+                    valign="middle">{forex_date}
+                </td>
+                <td class="borderBottom borderRight" style="background-color: #D9D9D9; width: 5%; font-weight: bold;"
+                    align="center" valign="middle" rowspan="2">Date</td>
+                <td class="borderBottom borderRight" style="width: 7%; font-weight: bold;" align="center"
+                    valign="middle" rowspan="2">
+                    {date}</td>
+                <td class="borderBottom borderRight" style="background-color: #D9D9D9; width: 5%; font-weight: bold;"
+                    align="center" valign="middle" rowspan="2">Control #</td>
+                <td class="borderBottom borderRight" style="width: 7%; font-weight: bold;" align="center"
+                    valign="middle" rowspan="2">
+                    {controlNum}</td>
+            </tr>
+            <tr>
+                <td class="borderBottom borderRight borderLeft"
+                    style="background-color: #D9D9D9; font-size: 10px; font-weight: bold;" align="center"
+                    valign="middle">Endorsed<br />New PO #:</td>
+                <td class="borderBottom borderRight" style="font-size: 12px; font-weight: bold;" align="center"
+                    valign="middle">{poNum}</td>
+                <td class="borderBottom borderRight" style="background-color: #D9D9D9; width: 5%; font-weight: bold;"
+                    align="center" valign="middle">Forex Rate</td>
+                <td class="borderBottom borderRight" style="width: 7%; font-weight: bold;" align="center"
+                    valign="middle">{forex_rate}
+                </td>
+            </tr>
+        </table>
+        <table width="130%" align="center">
+            <tr class="headers">
+                <td class="padding borderLeft borderRight borderBottom" rowspan="2" align="center" valign="middle"
+                    style="font-size: 8px;">ITEM CODE</td>
+                <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle"
+                    style="font-size: 8px;">ITEM DESCRIPTION</td>
+                <td class="padding borderRight" colspan="4" align="center" valign="middle" style="font-size: 8px;">
+                    MATERIAL REQUIREMENT</td>
+                <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle"
+                    style="font-size: 8px;">OUTS PER<br />SHEET</td>
+                <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle"
+                    style="font-size: 8px;">OUTS PER<br />BLADE</td>
+                <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle"
+                    style="font-size: 8px;">NEEDED<br />PER SET</td>
+                <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle"
+                    style="font-size: 8px;">SELLING<br />PRICE</td>
+                <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle"
+                    style="font-size: 8px;">MOQ<br />(Selling<br />Price)</td>
+                <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle"
+                    style="font-size: 8px;">RM UNIT<br />PRICE</td>
+                <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle"
+                    style="font-size: 8px;">PROCUREMENT</td>
+                <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle"
+                    style="font-size: 8px;">MOQ<br />(RM)</td>
+                <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle"
+                    style="font-size: 8px;">GPR</td>
+                <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle"
+                    style="font-size: 8px;">SUPPLIER</td>
+                <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle"
+                    style="font-size: 8px;">OPEN P.O.</td>
+                <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle"
+                    style="font-size: 8px;">CS<br />ENDORSEMENT</td>
+                <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle"
+                    style="font-size: 8px;">REMARKS</td>
+            </tr>
+            <tr class="headers">
+                <td class="padding borderRight borderBottom borderTop" align="center" style="font-size: 8px;">GROUP</td>
+                <td class="padding borderRight borderBottom borderTop" align="center" style="font-size: 8px;">SHEET SIZE
+                    (RM)</td>
+                <td class="padding borderRight borderBottom borderTop" align="center" style="font-size: 8px;">FLUTE</td>
+                <td class="padding borderRight borderBottom borderTop" align="center" style="font-size: 8px;">PAPER COM
+                </td>
+            </tr>
+            {body}
+            <tr style="height: 7px;"></tr>
+            <tr>
+                <td class="padding" align="left" colspan="6" style="font-size: 8px; font-weight: bold;">ATTACHMENTS:
+                </td>
+                <td class="padding border headers" colspan="2" align="center" style="font-size: 8px;">ENDORSED BY</td>
+                <td class="padding borderRight borderBottom borderTop headers" colspan="4" align="center"
+                    style="font-size: 8px;">CHECKED BY</td>
+                <td class="padding borderRight borderBottom borderTop headers" colspan="3" align="center"
+                    style="font-size: 8px;">APPROVED BY</td>
+                <td class="padding borderRight borderBottom borderTop headers" colspan="4" align="center"
+                    style="font-size: 8px;">ENDORSED TO</td>
+            </tr>
+            <tr>
+                <td class="softPadding" align="left" colspan="3" style="font-size: 8px; font-weight: bold;">☐ New P.O. /
+                    Initial Closed P.O. (if any)</td>
+                <td class="softPadding" align="left" colspan="3" style="font-size: 8px; font-weight: bold;">☐ Final
+                    Drawings</td>
+                <td class="softPadding borderLeft borderRight borderBottom" rowspan="3" colspan="2" align="center"
+                    style="font-size: 8px;" </td>
+                <td class="softPadding borderRight borderBottom" rowspan="3" colspan="2" align="center"
+                    style="font-size: 8px;"></td>
+                <td class="softPadding borderRight borderBottom" rowspan="3" colspan="2" align="center"
+                    style="font-size: 8px;"></td>
+                <td class="softPadding borderRight borderBottom" rowspan="3" colspan="3" align="center"
+                    style="font-size: 8px;"></td>
+                <td class="softPadding borderRight borderBottom" rowspan="3" colspan="2" align="center"
+                    style="font-size: 8px;"></td>
+                <td class="softPadding borderRight borderBottom" rowspan="3" colspan="2" align="center"
+                    style="font-size: 8px;"></td>
+            </tr>
+            <tr>
+                <td class="softPadding" align="left" colspan="3" style="font-size: 8px; font-weight: bold;">☐ Final
+                    Price Quotation</td>
+                <td class="softPadding" align="left" colspan="3" style="font-size: 8px; font-weight: bold;">☐ PR Copy
+                    (if applicable)</td>
+            </tr>
+            <tr>
+                <td class="softPadding" align="left" colspan="3" style="font-size: 8px; font-weight: bold;">☐ Supplier
+                    Procurement </td>
+                <td class="softPadding" align="left" colspan="3" style="font-size: 8px; font-weight: bold;">☐ Additional
+                    Attachments (if any) or Special Reminder for Delivery, etc.</td>
+            </tr>
+            <tr>
+                <td class="softPadding" align="left" colspan="3" style="font-size: 8px; font-weight: bold;"></td>
+                <td class="softPadding borderBottom" align="left" colspan="2"
+                    style="font-size: 8px; font-weight: bold;"></td>
+                <td class="softPadding" align="left" colspan="1" style="font-size: 8px; font-weight: bold;"></td>
+                <td class="softPadding borderLeft borderRight headers" colspan="2" valign="bottom" align="center"
+                    style="font-size: 9px; text-decoration: underline;">{endorsed_by}</td>
+                <td class="softPadding borderRight headers" colspan="2" align="center" valign="bottom"
+                    style="font-size: 9px; text-decoration: underline;"></td>
+                <td class="softPadding borderRight headers" colspan="2" align="center" valign="bottom"
+                    style="font-size: 9px; text-decoration: underline;">RHEA REGONDOLA</td>
+                <td class="softPadding borderRight headers" colspan="3" align="center" valign="bottom"
+                    style="font-size: 9px; text-decoration: underline;">SHEILA LUBAG</td>
+                <td class="softPadding borderRight headers" colspan="2" align="center" valign="bottom"
+                    style="font-size: 9px; text-decoration: underline;">RIZZA RAMOS</td>
+                <td class="softPadding borderRight headers" colspan="2" align="center" valign="bottom"
+                    style="font-size: 9px; text-decoration: underline;">{endorsed_to}</td>
+            </tr>
+            <tr>
+                <td class="softPadding" align="left" colspan="3" style="font-size: 8px; font-weight: bold;"></td>
+                <td class="softPadding" align="left" colspan="3" style="font-size: 8px; font-weight: bold;"></td>
+                <td class="softPadding borderLeft borderRight borderBottom headers" colspan="2" align="center"
+                    valign="top" style="font-size: 8px;">Sales Representative</td>
+                <td class="softPadding borderRight borderBottom headers" colspan="2" align="center" valign="top"
+                    style="font-size: 8px;">Sales Supervisor</td>
+                <td class="softPadding borderRight borderBottom headers" colspan="2" align="center" valign="top"
+                    style="font-size: 8px;">Sr. Sales Supervisor</td>
+                <td class="softPadding borderRight borderBottom headers" colspan="3" align="center" valign="top"
+                    style="font-size: 8px;">General Manager</td>
+                <td class="softPadding borderRight borderBottom headers" colspan="2" align="center" valign="top"
+                    style="font-size: 8px;">Manager (MPD/Logistics)</td>
+                <td class="softPadding borderRight borderBottom headers" colspan="2" align="center" valign="top"
+                    style="font-size: 8px;">CS In Charge / Planning</td>
+            </tr>
+        </table>
+    </body>
+
+    </html>
+</pdf>

@@ -300,7 +300,7 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 
                         // Search for employees with 'entityid' containing 'preparedBy'
                         var employeeSearchResults = search.load({
-                          id: 'customsearch_kppi_employee'
+                          id: 'customsearch_kplima_employees'
                         });
 
                         var employeeSearchFilters = employeeSearchResults.filters;
@@ -321,7 +321,7 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 
                         // Search for employees with 'entityid' containing 'inspectedBy'
                         employeeSearchResults = search.load({
-                          id: 'customsearch_kppi_employee'
+                          id: 'customsearch_kplima_employees'
                         });
 
                         employeeSearchFilters = employeeSearchResults.filters;

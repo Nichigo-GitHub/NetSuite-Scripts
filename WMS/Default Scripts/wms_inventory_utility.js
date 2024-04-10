@@ -1,7 +1,4 @@
 /**
- *    Copyright � 2019, Oracle and/or its affiliates. All rights reserved.
- */
-/**
  * @NApiVersion 2.x
  * @NModuleScope public
  */
@@ -90,8 +87,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			systemRule_AllowExpiredItems, itemType, processType) {
 			if (utility.isValueValid(getItemInternalId)) {
 				invtBinFilters.push(search.createFilter({
-					name:
-						'internalid',
+					name: 'internalid',
 					join: 'item',
 					operator: search.Operator.ANYOF,
 					values: getItemInternalId
@@ -99,16 +95,14 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			}
 			if (utility.isValueValid(strLocation)) {
 				invtBinFilters.push(search.createFilter({
-					name:
-						'location',
+					name: 'location',
 					operator: search.Operator.ANYOF,
 					values: strLocation
 				}));
 			}
 			if (processType == 'invtransfer' || processType == 'inventoryStatusChange') {
 				invtBinFilters.push(search.createFilter({
-					name:
-						'custrecord_wmsse_bin_stg_direction',
+					name: 'custrecord_wmsse_bin_stg_direction',
 					join: 'binnumber',
 					operator: search.Operator.ANYOF,
 					values: ['@NONE@', '1']
@@ -140,8 +134,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 		function gerPreferBinFilters(preferBinFilters, getItemInternalId, strLocation, getPreferBinId) {
 			if (utility.isValueValid(getItemInternalId)) {
 				preferBinFilters.push(search.createFilter({
-					name:
-						'internalid',
+					name: 'internalid',
 					join: 'item',
 					operator: search.Operator.ANYOF,
 					values: getItemInternalId
@@ -149,15 +142,13 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			}
 			if (utility.isValueValid(strLocation)) {
 				preferBinFilters.push(search.createFilter({
-					name:
-						'location',
+					name: 'location',
 					operator: search.Operator.ANYOF,
 					values: strLocation
 				}));
 			}
 			preferBinFilters.push(search.createFilter({
-				name:
-					'binnumber',
+				name: 'binnumber',
 				operator: search.Operator.ANYOF,
 				values: getPreferBinId
 			}));
@@ -205,29 +196,25 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			var preferBinSearch = search.load({ id: 'customsearch_wmsse_binsbypickzonesearch' });
 			var PreferBinFilters = preferBinSearch.filters;
 			PreferBinFilters.push(search.createFilter({
-				name:
-					'inactive',
+				name: 'inactive',
 				operator: search.Operator.IS,
 				values: false
 			}));
 			PreferBinFilters.push(search.createFilter({
-				name:
-					'binnumber',
+				name: 'binnumber',
 				operator: search.Operator.IS,
 				values: getPreferBin
 			}));
 			if (utility.isValueValid(strLocation)) {
 				PreferBinFilters.push(search.createFilter({
-					name:
-						'location',
+					name: 'location',
 					operator: search.Operator.ANYOF,
 					values: strLocation
 				}));
 			}
 			if (processType == 'invtransfer' || processType == 'inventoryStatusChange') {
 				PreferBinFilters.push(search.createFilter({
-					name:
-						'custrecord_wmsse_bin_stg_direction',
+					name: 'custrecord_wmsse_bin_stg_direction',
 					operator: search.Operator.ANYOF,
 					values: ['@NONE@', '1']
 				}));
@@ -708,32 +695,27 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							serialNameDtlArr = serialName.split("^");
 							if (serialNameDtlArr.length == 3) {
 								if (utility.isValueValid(processType) && processType == 'replen') {
-									if ((serialNameDtlArr[0] != "replen")
-										|| serialNameDtlArr[1] != currentUserId) {
+									if ((serialNameDtlArr[0] != "replen") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
 								}
 								else if (utility.isValueValid(processType) && processType == 'cartPutaway') {
-									if ((serialNameDtlArr[0] != "cartPutaway")
-										|| serialNameDtlArr[1] != currentUserId) {
+									if ((serialNameDtlArr[0] != "cartPutaway") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
 								}
 								else if (utility.isValueValid(processType) && processType == 'cart') {
-									if ((serialNameDtlArr[0] != "cartPutaway")
-										|| serialNameDtlArr[1] != currentUserId) {
+									if ((serialNameDtlArr[0] != "cartPutaway") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
 								}
 								else if (utility.isValueValid(processType) && processType == 'putAway') {
-									if ((serialNameDtlArr[0] != "putAway")
-										|| serialNameDtlArr[1] != currentUserId) {
+									if ((serialNameDtlArr[0] != "putAway") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
 								}
 								else if (utility.isValueValid(processType) && (processType == 'binTransfer' || processType == 'BinTransfer'))
-									if ((serialNameDtlArr[0] != "binTransfer" && serialNameDtlArr[0] != "BinTransfer")
-										|| serialNameDtlArr[1] != currentUserId) {
+									if ((serialNameDtlArr[0] != "binTransfer" && serialNameDtlArr[0] != "BinTransfer") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
 							}
@@ -792,32 +774,27 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							serialNameDtlArr = serialName.split("^");
 							if (serialNameDtlArr.length == 3) {
 								if (utility.isValueValid(processType) && processType == 'replen') {
-									if ((serialNameDtlArr[0] != "replen")
-										|| serialNameDtlArr[1] != currentUserId) {
+									if ((serialNameDtlArr[0] != "replen") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
 								}
 								else if (utility.isValueValid(processType) && processType == 'cartPutaway') {
-									if ((serialNameDtlArr[0] != "cartPutaway")
-										|| serialNameDtlArr[1] != currentUserId) {
+									if ((serialNameDtlArr[0] != "cartPutaway") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
 								}
 								else if (utility.isValueValid(processType) && processType == 'cart') {
-									if ((serialNameDtlArr[0] != "cart")
-										|| serialNameDtlArr[1] != currentUserId) {
+									if ((serialNameDtlArr[0] != "cart") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
 								}
 								else if (utility.isValueValid(processType) && processType == 'putAway') {
-									if ((serialNameDtlArr[0] != "putAway")
-										|| serialNameDtlArr[1] != currentUserId) {
+									if ((serialNameDtlArr[0] != "putAway") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
 								}
 								else if (utility.isValueValid(processType) && (processType == 'binTransfer' || processType == 'BinTransfer'))
-									if ((serialNameDtlArr[0] != "binTransfer" && serialNameDtlArr[0] != "BinTransfer")
-										|| serialNameDtlArr[1] != currentUserId) {
+									if ((serialNameDtlArr[0] != "binTransfer" && serialNameDtlArr[0] != "BinTransfer") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
 							}

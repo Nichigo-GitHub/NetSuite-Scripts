@@ -2,9 +2,9 @@
  * @NApiVersion 2.1
  * @NScriptType Suitelet
  */
-define(['N/runtime', 'N/record', 'N/file', 'N/xml', 'N/format'],
+define(['N/runtime', 'N/record', 'N/file', 'N/xml', 'N/format', 'N/query'],
 
-    (runtime, record, file, xml, format) => {
+    (runtime, record, file, xml, format, query) => {
 
         let PDF_TEMPLATE_FILE_ID = 1;
 
@@ -47,7 +47,6 @@ define(['N/runtime', 'N/record', 'N/file', 'N/xml', 'N/format'],
             let item = null;
             let desc = null;
             let quantity = null;
-            //let customer = null;
 
             var receiveMonth = date ? (new Date(date).getMonth() + 1) : "";
 
@@ -55,9 +54,9 @@ define(['N/runtime', 'N/record', 'N/file', 'N/xml', 'N/format'],
 
             for (let i = 0; i < lineCount; i++) {
                 item = trans.getSublistValue({ sublistId: 'item', fieldId: 'custcol_item_display_name', line: i }) || "";
+                itemUPC = trans.getSublistValue({ sublistId: 'item', fieldId: 'custcol241', line: i }) || "";
                 desc = trans.getSublistValue({ sublistId: 'item', fieldId: 'description', line: i }) || "";
                 quantity = trans.getSublistValue({ sublistId: 'item', fieldId: 'quantity', line: i }) || "";
-                //  customer = trans.getSublistValue({sublistId: 'item', fieldId: 'custcol227disp', line: i}) || "";
 
                 html = bodyTemplate;
 
@@ -66,12 +65,9 @@ define(['N/runtime', 'N/record', 'N/file', 'N/xml', 'N/format'],
                 }));
                 html = html.replace('{subsidiary}', subsidiary);
 
-                /*html = html.replace('{customer}', xml.escape({
-                    xmlText : customer })); */
-
                 html = html.replace('{part_name}', desc);
                 html = html.replace('{part_code}', item);
-                html = html.replace('{itemUPC}', item);
+                html = html.replace('{itemUPC}', itemUPC);
                 html = html.replace('{quantity}', quantity);
                 html = html.replace('{quantity2}', quantity);
 

@@ -328,6 +328,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			var statusArray = bintransferObj.statusArray;
 			var lotArray = bintransferObj.lotArray;
 			var processType = bintransferObj.processType;
+			var sheetQty = bintransferObj.sheetQty;
+			var manpower = bintransferObj.manpower;
+			var setupStart = bintransferObj.setupStart;
+			var setupEnd = bintransferObj.setupEnd;
+			var memo = batchno;
 			var batchnoArr = [];
 			var statusArr = [];
 			var quantityArr = [];
@@ -388,6 +393,26 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			binTransfer.setValue({
 				fieldId: 'trandate',
 				value: parsedCurrentDate
+			});
+			binTransfer.setValue({
+				fieldId: 'custbody475',
+				value: sheetQty
+			});
+			binTransfer.setValue({
+				fieldId: 'custbody476',
+				value: manpower
+			});
+			binTransfer.setValue({
+				fieldId: 'custbody477',
+				value: setupStart
+			});
+			binTransfer.setValue({
+				fieldId: 'custbody478',
+				value: setupEnd
+			});
+			binTransfer.setValue({
+				fieldId: 'memo',
+				value: memo
 			});
 			binTransfer.selectNewLine({
 				sublistId: 'inventory',
@@ -1303,8 +1328,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			var lotArray = invtransferObj.lotArray;
 			var department = invtransferObj.department.toLowerCase();
 			var customer = invtransferObj.customer.toLowerCase();
-			var employee = invtransferObj.preparedBy.toLowerCase().split(" ").join("");
-            var invTranID = invtransferObj.invTranID;
+			var employee = invtransferObj.preparedBy.toLowerCase();
 
 			var invTransfer = record.create({
 				type: record.Type.INVENTORY_TRANSFER,
@@ -1339,18 +1363,8 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				value: parsedCurrentDate
 			});
 
-            invTransfer.setValue({
-				fieldId: 'tranid',
-				value: invTranID
-			});
-
-            invTransfer.setValue({
-				fieldId: 'custbody23',
-				value: invTranID
-			});
-
 			var queryResult = query.runSuiteQL({
-				query: "SELECT (select id from department where lower(name) LIKE '" + department + "') as Department, (select id from customer where lower(companyname) like '" + customer + "') as Customer, (select id from employee where lower(concat(concat(firstname, middlename), lastname)) like '" + employee + "') as Employee",
+				query: "SELECT (select id from department where lower(name) LIKE '" + department + "') as Department, (select id from customer where lower(companyname) like '" + customer + "') as Customer, (select id from employee where entityid like '" + employee + "') as Employee",
 			});
 
 			log.debug('Employee', employee);

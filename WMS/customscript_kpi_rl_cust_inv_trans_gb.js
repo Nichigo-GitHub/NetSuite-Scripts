@@ -9,7 +9,7 @@
  */
 define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', './wms_inventory_utility_indo'],
 	/**
-	 * @param {search} search
+	 * @param {search} search``
 	 */
 	function (search, record, utility, Big, translator, invtUtility) {
 
@@ -63,14 +63,17 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			var barcodeQuantity = '';
 			var toBinInternalId = '';
 			var toBinInternalLoctype = '';
-			var department = '';
+			var department = '', customer = '';
             var memo = '';
+			var invTranID = '';
 
 
 			try {
 				if (utility.isValueValid(requestBody)) {
 					requestParams = requestBody.params;
+					invTranID = requestParams.lotName;
 					department = requestParams.department.label;
+					customer = requestParams.customer;
 					memo = requestParams.memo;
 					scannedQuantity = requestParams.scannedQuantity;
 					fromBinName = requestParams.fromBinName;
@@ -541,7 +544,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 												log.debug('tallyScanObj for inv transfer', tallyScanObj);
 											}
 											impactRec = fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId,
-												toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, memo);
+												toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, memo, invTranID);
 											log.debug('fninvtransfer', impactRec);
 
 
@@ -661,11 +664,13 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			return impactRec;
 		}
 
-		function fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, memo) {
+		function fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, memo, invTranID) {
 			var invtransferObj = {};
 			var impactRec = {};
 
 			invtransferObj.department = department;
+			invtransferObj.customer = customer;
+			invtransferObj.invTranID = invTranID;
 			invtransferObj.memo = memo;
 			invtransferObj.itemType = itemType;
 			invtransferObj.whLocation = warehouseLocationId;

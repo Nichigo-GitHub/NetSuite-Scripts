@@ -62,14 +62,25 @@ function suitelet(request, response) {
 
         var poRecord = nlapiLoadRecord("inventorytransfer", receiptId);
 
-        if (customform == 128 && subsidiary == 18) {
-            if (tag == 'RM') {
-                var receivingTagTemplateFile = nlapiLoadFile("290270"); //KPLima_Receiving_Tag.xml
-            } else {
-                var receivingTagTemplateFile = nlapiLoadFile("295850"); //KPLima_FG_Tag.xml
-            }
-        } else if (customform == 128 && subsidiary == 4) {
+        var customform = poRecord.getFieldValue("customform");
+        var subsidiary = poRecord.getFieldValue("subsidiary");
 
+        if (subsidiary == 18) {
+            if (customform == 650) {
+                if (tag == 'RM') {
+                    var receivingTagTemplateFile = nlapiLoadFile("290270"); //KPLima_Receiving_Tag.xml
+                } else {
+                    var receivingTagTemplateFile = nlapiLoadFile("295850"); //KPLima_FG_Tag.xml
+                }
+            } else if (customform == 710) {
+                if (tag == 'RM') {
+                    var receivingTagTemplateFile = nlapiLoadFile("301224"); //KPLima_Receiving_Tag(from_laguna).xml 
+                } else {
+                    var receivingTagTemplateFile = nlapiLoadFile("295850"); //KPLima_FG_Tag.xml
+                }
+            }
+        } else if (customform == 620 && subsidiary == 4) {
+            var receivingTagTemplateFile = nlapiLoadFile("300170"); //KPIN_FG_Tag.xml
         }
         var dataArray = getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, orderedBy);
 
@@ -79,8 +90,34 @@ function suitelet(request, response) {
 
         response.setContentType("PDF", "RECEIVING TAG", "inline");
         response.write(nlapiXMLToPDF(xml));
+    } else if (recType == "inventoryadjustment") {
+        if (!receiptId) {
+            // Log an error or handle the case where receiptId is missing
+            nlapiLogExecution('ERROR', 'receiptId', 'Receipt ID is missing.');
+            return;
+        }
+
+        var poRecord = nlapiLoadRecord("inventoryadjustment", receiptId);
+
+        var customform = poRecord.getFieldValue("customform");
+        var subsidiary = poRecord.getFieldValue("subsidiary");
+
+        if (subsidiary == 4 && customform == 133) {
+            var receivingTagTemplateFile = nlapiLoadFile("300170"); //KPIN_FG_Tag.xml
+        }
+        var dataArray = getReceivingTagDataJsonForInventoryAdjustment(poId, receiptId, lineNo, orderedBy);
+
+        var xml = juicer(receivingTagTemplateFile.getValue(), {
+            "dataArray": dataArray
+        });
+
+        response.setContentType("PDF", "RECEIVING TAG", "inline");
+        response.write(nlapiXMLToPDF(xml));
     }
 }
+
+
+// Function for item reciepts
 
 function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy) {
     var poRecord = poId ? nlapiLoadRecord("purchaseorder", poId
@@ -163,25 +200,11 @@ function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy) {
     return dataArray.length > 0 ? dataArray : "";
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// Function for inventory transfers
 
 function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, orderedBy) {
     var itRecord = nlapiLoadRecord("inventorytransfer", receiptId);
+
     var refJoNo = itRecord.getFieldValue("custbody23");
     //var refPoNo2 = itRecord.getFieldText("createdfrom");
     var dateDelivered = itRecord.getFieldValue("custbody397");
@@ -234,6 +257,96 @@ function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, or
             receivingTagDataJson["itemDescription"] = convertNullToEmpty(itemDescription);
             receivingTagDataJson["quantity"] = convertNullToEmpty(quantity);
             receivingTagDataJson["itemUPC"] = convertNullToEmpty(itemUPC);
+
+            nlapiLogExecution('ERROR', 'itemCode', itemCode);
+            nlapiLogExecution('ERROR', 'quantity', quantity);
+            nlapiLogExecution('ERROR', 'itemUPC', itemUPC);
+
+            dataArray.push(receivingTagDataJson);
+        } else {
+            var lineNo1 = itRecord.getLineItemValue("inventory", "line", i);
+            if (lineNo1 == lineNo) {
+                var itemId1 = itRecord.getLineItemValue("inventory", "inventory", i);
+                itemCode = nlapiLookupField("item", itemId1, "itemid");
+                quantity = itRecord.getLineItemValue("inventory", "quantity", i);
+                itemDescription = itRecord.getLineItemValue("inventory", "description", i);
+                itemUPC = itRecord.getLineItemValue("inventory", "custcol241", i);
+
+                receivingTagDataJson["itemCode"] = convertNullToEmpty(itemCode);
+                receivingTagDataJson["itemDescription"] = convertNullToEmpty(itemDescription);
+                receivingTagDataJson["quantity"] = convertNullToEmpty(quantity);
+                receivingTagDataJson["itemUPC"] = convertNullToEmpty(itemUPC);
+                dataArray.push(receivingTagDataJson);
+                break;
+            }
+        }
+    }
+
+    return dataArray.length > 0 ? dataArray : "";
+}
+
+// Function for inventory transfers
+
+function getReceivingTagDataJsonForInventoryAdjustment(poId, receiptId, lineNo, orderedBy) {
+    var itRecord = nlapiLoadRecord("inventoryadjustment", receiptId);
+
+    var refJoNo = itRecord.getFieldValue("custbody412");
+    //var refPoNo2 = itRecord.getFieldText("createdfrom");
+    var dateDelivered = itRecord.getFieldValue("custbody397");
+    var drNo = itRecord.getFieldValue("custbody396");
+
+
+    var reveivedBy = itRecord.getFieldText("custbody1"); //Prepared by (Custom)
+    var dateReceived = itRecord.getFieldValue("trandate"); //Date
+    var customer = itRecord.getFieldText("customer");//Customer (Custom)
+    var RrNo = itRecord.getFieldValue("custbody19");//KPLIMA RR #
+    var supplier2 = itRecord.getFieldText("custbodycust_sfli_vendor"); //supplier
+    //var supplier = nlapiLookupField("vendor", itRecord.getFieldValue("entity"), "companyname"); //COMPANY NAME
+
+    //month = getSimpleEnglishMonthJson(month, true);
+
+    var receivingTagCommonDataJson = {
+        "refJoNo": convertNullToEmpty(refJoNo),
+        //"refPoNo2": convertNullToEmpty(refPoNo2).substring(16, 40),
+        "orderedBy": convertNullToEmpty(orderedBy),
+        "RrNo": convertNullToEmpty(RrNo),
+        "drNo": convertNullToEmpty(drNo),
+        "reveivedBy": convertNullToEmpty(reveivedBy),
+        "dateReceived": convertNullToEmpty(dateReceived),
+        "customer": convertNullToEmpty(customer),
+        "dateDelivered": convertNullToEmpty(dateDelivered),
+        "supplier2": convertNullToEmpty(supplier2),
+        //"month": convertNullToEmpty(month),
+        "inspectedBy": ""
+    };
+    var receivingTagCommonDataString = JSON.stringify(receivingTagCommonDataJson);
+
+    var itemCode = "";
+    var itemDescription = "";
+    var quantity = "";
+    var itemUPC = "";
+
+    var dataArray = [];
+    var itemCounts = itRecord.getLineItemCount("inventory");
+
+    for (var i = 1; i <= itemCounts; i++) {
+        var receivingTagDataJson = JSON.parse(receivingTagCommonDataString);
+        if (!lineNo) {
+            itemId = itRecord.getLineItemValue("inventory", "item", i);
+            itemCode = nlapiLookupField("item", itemId, "itemid");
+            quantity = itRecord.getLineItemValue("inventory", "adjustqtyby", i);
+            itemDescription = itRecord.getLineItemValue("inventory", "description", i);
+            itemUPC = itRecord.getLineItemValue("inventory", "custcol242", i);
+
+            receivingTagDataJson["itemCode"] = convertNullToEmpty(itemCode);
+            receivingTagDataJson["itemDescription"] = convertNullToEmpty(itemDescription);
+            receivingTagDataJson["quantity"] = convertNullToEmpty(quantity);
+            receivingTagDataJson["itemUPC"] = convertNullToEmpty(itemUPC);
+
+            nlapiLogExecution('ERROR', 'itemCode', itemCode);
+            nlapiLogExecution('ERROR', 'quantity', quantity);
+            nlapiLogExecution('ERROR', 'itemUPC', itemUPC);
+
             dataArray.push(receivingTagDataJson);
         } else {
             var lineNo1 = itRecord.getLineItemValue("inventory", "line", i);

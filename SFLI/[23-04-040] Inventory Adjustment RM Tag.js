@@ -67,8 +67,6 @@ define(["N/record", "N/render", "N/query"], function (record, render, query) {
       jonum = !jonum ? "testqr" : jonum;
     }
 
-    var deduct = 0; // Initialize the deduction counter
-
     // Iterate over the sublist lines and generate PDF content
     for (var line = 0; line < sublistLength; line++) {
 
