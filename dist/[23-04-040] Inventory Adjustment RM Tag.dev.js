@@ -1,5 +1,4 @@
 "use strict";
-
 /**
  * @NApiVersion 2.x
  * @NScriptType Suitelet

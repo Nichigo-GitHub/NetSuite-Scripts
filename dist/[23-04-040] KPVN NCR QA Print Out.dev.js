@@ -1,5 +1,4 @@
 "use strict";
-
 /**
  * Module Description
  * 
@@ -7,7 +6,6 @@
  * 1.00       01 Oct 2020     Lenovo
  *
  */
-
 /**
  * @param {nlobjRequest} request Request object
  * @param {nlobjResponse} response Response object

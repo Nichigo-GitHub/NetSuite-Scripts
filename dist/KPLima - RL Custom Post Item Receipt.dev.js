@@ -1,5 +1,4 @@
 "use strict";
-
 /**
  * Copyright � 2018, Oracle and/or its affiliates. All rights reserved.
  * 
@@ -7,8 +6,7 @@
  * @NScriptType Restlet
  * @NModuleScope Public
  */
-define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime', 'N/task', './wms_inboundUtility', './wms_inbound_utility', 'N/query'],
-/**
+define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime', 'N/task', './wms_inboundUtility', './wms_inbound_utility', 'N/query'],/**
  * @param {search} search
  */
 function (search, utility, translator, record, runtime, task, inboundUtility, inboundLib, query) {

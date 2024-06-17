@@ -1,16 +1,11 @@
 "use strict";
 
 /**
- *    Copyright � 2018, Oracle and/or its affiliates. All rights reserved.
- */
-
-/**
  * @NApiVersion 2.x
  * @NScriptType Restlet
  * @NModuleScope public
  */
-define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', './wms_inventory_utility_2'],
-/**
+define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', './wms_inventory_utility_2'],/**
  * @param {search} search
  */
 function (search, record, utility, Big, translator, invtUtility) {

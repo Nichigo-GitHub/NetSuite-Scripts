@@ -7,8 +7,14 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 		function _getBinDetailsForItem(pickBinDetailsObj, processType) {
 			try {
-				log.debug({ title: 'pickBinDetailsObj', details: pickBinDetailsObj });
-				log.debug({ title: 'processType', details: processType });
+				log.debug({
+					title: 'pickBinDetailsObj',
+					details: pickBinDetailsObj
+				});
+				log.debug({
+					title: 'processType',
+					details: processType
+				});
 				var getItemInternalId = pickBinDetailsObj['itemInternalId'];
 				var strItemGrp = pickBinDetailsObj['strItemGrp'];
 				var strItemFam = pickBinDetailsObj['strItemFamily'];
@@ -42,18 +48,29 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					_getPreferBinInvtDetails(getPreferBin, getItemInternalId, strLocation, vmakeInvAvailFlag,
 						selectedConversionRate, vBinLocArr, vBinIntIdExcludeArr, itemType, currentConversionRate, processType);
 				}
-				log.debug({ title: 'vBinLocArr', details: vBinLocArr });
-				log.debug({ title: 'vBinIntIdExcludeArr', details: vBinIntIdExcludeArr });
+				log.debug({
+					title: 'vBinLocArr',
+					details: vBinLocArr
+				});
+				log.debug({
+					title: 'vBinIntIdExcludeArr',
+					details: vBinIntIdExcludeArr
+				});
 				var objBinInvtDetails = _getItemBinInvtDetails(getItemInternalId, strLocation,
 					inventoryStatusFeature, itemType, processType);
-				log.debug({ title: 'objBinInvtDetails', details: objBinInvtDetails });
+				log.debug({
+					title: 'objBinInvtDetails',
+					details: objBinInvtDetails
+				});
 				if (objBinInvtDetails.length > 0) {
 					_getInvtBinDetails(objBinInvtDetails, vBinLocArr, selectedConversionRate,
 						currentConversionRate, vmakeInvAvailFlag, vBinIntIdExcludeArr);
 				}
-				log.debug({ title: 'vBinLocArr', details: vBinLocArr });
-			}
-			catch (e) {
+				log.debug({
+					title: 'vBinLocArr',
+					details: vBinLocArr
+				});
+			} catch (e) {
 				log.error('expection in _getBinDetailsForItem', e);
 
 			}
@@ -70,11 +87,13 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			var searchName = 'customsearch_wms_item_inventorydetails';
 			if (itemType == "inventoryitem" || itemType == "assemblyitem") {
 				searchName = 'customsearch_wms_item_inventorydetails';
-			}
-			else {
+			} else {
 				searchName = 'customsearch_wms_item_inventory_lotser';
 			}
-			var objInvtSearch = search.load({ id: searchName, type: search.Type.INVENTORY_BALANCE });
+			var objInvtSearch = search.load({
+				id: searchName,
+				type: search.Type.INVENTORY_BALANCE
+			});
 			var invtBinFilters = objInvtSearch.filters;
 			invtBinFilters = getInvtBinFilters(invtBinFilters, getItemInternalId, strLocation,
 				systemRule_AllowExpiredItems, itemType, processType);
@@ -172,8 +191,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				vBinStatusID = objBinInvtDetails[invtBinItr]['status'];
 				if (vmakeInvAvailFlag) {
 					vBinQtyAvail = objBinInvtDetails[invtBinItr]['available'];
-				}
-				else {
+				} else {
 					vBinQtyAvail = objBinInvtDetails[invtBinItr]['onhand'];
 				}
 				vBinQtyAvail = parseFloat(vBinQtyAvail);
@@ -183,8 +201,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						vBinQtyAvail = utility.uomConversions(vBinQtyAvail, selectedConversionRate, currentConversionRate);
 					}
 					var currRow = {
-						'binnumber': vValidBin, 'availableqty': vBinQtyAvail, 'bininternalid': vValidBinId,
-						'zone': vZone, 'status': vBinStatus
+						'binnumber': vValidBin,
+						'availableqty': vBinQtyAvail,
+						'bininternalid': vValidBinId,
+						'zone': vZone,
+						'status': vBinStatus
 					};
 					vBinLocArr.push(currRow);
 				}
@@ -193,7 +214,9 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 		function _getPreferBinInvtDetails(getPreferBin, getItemInternalId, strLocation, vmakeInvAvailFlag,
 			selectedConversionRate, vBinLocArr, vBinIntIdExcludeArr, itemType, currentConversionRate, processType) {
-			var preferBinSearch = search.load({ id: 'customsearch_wmsse_binsbypickzonesearch' });
+			var preferBinSearch = search.load({
+				id: 'customsearch_wmsse_binsbypickzonesearch'
+			});
 			var PreferBinFilters = preferBinSearch.filters;
 			PreferBinFilters.push(search.createFilter({
 				name: 'inactive',
@@ -224,21 +247,29 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			if (objPrefBinIdDetails.length > 0 && objPrefBinIdDetails[0]['internalid'] != null &&
 				objPrefBinIdDetails[0]['internalid'] != '' && utility.isValueValid(getPreferBin)) {
 				var getPreferBinId = objPrefBinIdDetails[0]['internalid'];
-				log.debug({ title: 'getPreferBinId', details: getPreferBinId });
+				log.debug({
+					title: 'getPreferBinId',
+					details: getPreferBinId
+				});
 				var objPrefBinDetails = [];
 				var searchName = 'customsearch_wms_item_inventorydetails';
 				if (itemType == "inventoryitem" || itemType == "assemblyitem") {
 					searchName = 'customsearch_wms_item_inventorydetails';
-				}
-				else {
+				} else {
 					searchName = 'customsearch_wms_item_inventory_lotser';
 				}
-				var objPrefSearch = search.load({ id: searchName, type: search.Type.INVENTORY_BALANCE });
+				var objPrefSearch = search.load({
+					id: searchName,
+					type: search.Type.INVENTORY_BALANCE
+				});
 				var preferBinFilters = objPrefSearch.filters;
 				preferBinFilters = gerPreferBinFilters(preferBinFilters, getItemInternalId, strLocation, getPreferBinId);
 				objPrefSearch.filters = preferBinFilters;
 				var objPrefBinDetails = utility.getSearchResultInJSONForValidation(objPrefSearch, 4000);
-				log.debug({ title: 'objPrefBinDetails11', details: objPrefBinDetails });
+				log.debug({
+					title: 'objPrefBinDetails11',
+					details: objPrefBinDetails
+				});
 				if (objPrefBinDetails.length > 0) {
 					var vPrefBinQtyAvail = 0;
 					var vBinStatus = '';
@@ -247,8 +278,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					for (var prefBinIterator in objPrefBinDetails) {
 						if (vmakeInvAvailFlag) {
 							vPrefBinQtyAvail = objPrefBinDetails[prefBinIterator]['available'];
-						}
-						else {
+						} else {
 							vPrefBinQtyAvail = objPrefBinDetails[prefBinIterator]['onhand'];
 						}
 						vBinStatus = objPrefBinDetails[prefBinIterator]['statusText'];
@@ -263,8 +293,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 								vPrefBinQtyAvail = utility.uomConversions(vPrefBinQtyAvail, selectedConversionRate, currentConversionRate);
 							}
 							var currRow = {
-								'binnumber': getPreferBin, 'availableqty': vPrefBinQtyAvail, 'bininternalid':
-									objPrefBinIdDetails[0]['internalid'], 'zone': vZone, 'status': vBinStatus
+								'binnumber': getPreferBin,
+								'availableqty': vPrefBinQtyAvail,
+								'bininternalid': objPrefBinIdDetails[0]['internalid'],
+								'zone': vZone,
+								'status': vBinStatus
 							};
 							vBinIntIdExcludeArr.push(objPrefBinIdDetails[0]['internalid']);
 							vBinLocArr.push(currRow);
@@ -295,9 +328,12 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				type: 'unitstype',
 				filters: uomfilters,
 				columns: uomcolumns
-			}).run().getRange({ start: 0, end: 1000 });
+			}).run().getRange({
+				start: 0,
+				end: 1000
+			});
 			var vFromRate = 1;
-			if (uomresults != null && uomresults != '') {			// There will be only one record in the search result
+			if (uomresults != null && uomresults != '') { // There will be only one record in the search result
 				vFromRate = uomresults[0].getValue({
 					name: 'conversionrate'
 				});
@@ -308,7 +344,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 		}
 
 		function inventoryBinTransfer(bintransferObj) {
-			log.debug({ title: 'bintransferObj in inventoryBinTransfer', details: bintransferObj });
+			log.debug({
+				title: 'bintransferObj in inventoryBinTransfer',
+				details: bintransferObj
+			});
 			var itemType = bintransferObj.itemType;
 			var whLocation = bintransferObj.whLocation;
 			var itemId = bintransferObj.itemId;
@@ -332,6 +371,9 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			var manpower = bintransferObj.manpower;
 			var setupStart = bintransferObj.setupStart;
 			var setupEnd = bintransferObj.setupEnd;
+			var operatorName = bintransferObj.operatorName;
+			var downtime = bintransferObj.downtime;
+			var downtime_reason = bintransferObj.downtime_reason;
 			var memo = batchno;
 			var batchnoArr = [];
 			var statusArr = [];
@@ -358,7 +400,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						var lotQauntity = Number(Big(qtyArray[qtyItr]).mul(stockConversionRate));
 						quantityArr.push(lotQauntity);
 					}
-					log.debug({ title: 'totalQuantity', details: totalQuantity });
+					log.debug({
+						title: 'totalQuantity',
+						details: totalQuantity
+					});
 					quantity = Number((Big(totalQuantity).mul(stockConversionRate)).toFixed(8));
 					opentaskQty = quantity;
 				}
@@ -368,11 +413,23 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						statusArr.push(statusArray[statusItr]);
 					}
 				}
-				log.debug({ title: 'batchnoArr', details: batchnoArr });
-				log.debug({ title: 'quantityArray', details: quantityArray });
-				log.debug({ title: 'statusArr', details: statusArr });
+				log.debug({
+					title: 'batchnoArr',
+					details: batchnoArr
+				});
+				log.debug({
+					title: 'quantityArray',
+					details: quantityArray
+				});
+				log.debug({
+					title: 'statusArr',
+					details: statusArr
+				});
 			}
-			log.debug({ title: 'quantity', details: quantity });
+			log.debug({
+				title: 'quantity',
+				details: quantity
+			});
 
 			quantity = Number((Big(quantity).div(stockConversionRate)).toFixed(8));
 
@@ -411,6 +468,18 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				value: setupEnd
 			});
 			binTransfer.setValue({
+				fieldId: 'custbody486',
+				value: operatorName
+			});
+			binTransfer.setValue({
+				fieldId: 'custbody487',
+				value: downtime
+			});
+			binTransfer.setValue({
+				fieldId: 'custbody488',
+				value: downtime_reason
+			});
+			binTransfer.setValue({
 				fieldId: 'memo',
 				value: memo
 			});
@@ -429,12 +498,18 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			});
 			if (itemType == "inventoryitem" || itemType == "assemblyitem") {
 				if ((isTallyScanRequired) && (inventoryStatusFeature)) {
-					log.audit({ title: 'isTallyScanRequired', details: isTallyScanRequired });
+					log.audit({
+						title: 'isTallyScanRequired',
+						details: isTallyScanRequired
+					});
 					var compSubRecord = binTransfer.getCurrentSublistSubrecord({
 						sublistId: 'inventory',
 						fieldId: 'inventorydetail'
 					});
-					log.audit({ title: 'statusArray11', details: statusArray });
+					log.audit({
+						title: 'statusArray11',
+						details: statusArray
+					});
 					for (var statusvalue = 0; statusvalue < statusArray.length; statusvalue++) {
 						compSubRecord.selectNewLine({
 							sublistId: 'inventoryassignment'
@@ -469,8 +544,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 									fieldId: 'toinventorystatus',
 									value: statusArray[statusvalue]
 								});
-							}
-							else {
+							} else {
 								if (processType == 'cart') {
 									toStatus = statusArray[statusvalue];
 								}
@@ -486,12 +560,13 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 								});
 							}
 						}
-						compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+						compSubRecord.commitLine({
+							sublistId: 'inventoryassignment'
+						});
 					}
 
 
-				}
-				else {
+				} else {
 					var compSubRecord = binTransfer.getCurrentSublistSubrecord({
 						sublistId: 'inventory',
 						fieldId: 'inventorydetail'
@@ -499,7 +574,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					compSubRecord.selectNewLine({
 						sublistId: 'inventoryassignment'
 					});
-					compSubRecord.setCurrentSublistValue({ sublistId: 'inventoryassignment', fieldId: 'quantity', value: quantity });
+					compSubRecord.setCurrentSublistValue({
+						sublistId: 'inventoryassignment',
+						fieldId: 'quantity',
+						value: quantity
+					});
 					compSubRecord.setCurrentSublistValue({
 						sublistId: 'inventoryassignment',
 						fieldId: 'binnumber',
@@ -522,12 +601,16 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							value: toStatus
 						});
 					}
-					compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+					compSubRecord.commitLine({
+						sublistId: 'inventoryassignment'
+					});
 				}
-			}
-			else if (itemType == "lotnumberedinventoryitem" || itemType == "lotnumberedassemblyitem") {
+			} else if (itemType == "lotnumberedinventoryitem" || itemType == "lotnumberedassemblyitem") {
 				if (processType == "replen") {
-					log.debug({ title: 'batchnoArr.length', details: batchnoArr.length });
+					log.debug({
+						title: 'batchnoArr.length',
+						details: batchnoArr.length
+					});
 					var compSubRecord = binTransfer.getCurrentSublistSubrecord({
 						sublistId: 'inventory',
 						fieldId: 'inventorydetail'
@@ -568,11 +651,15 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 								value: statusArr[putawayall]
 							});
 						}
-						compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+						compSubRecord.commitLine({
+							sublistId: 'inventoryassignment'
+						});
 					}
-				}
-				else if (isTallyScanRequired) {
-					log.audit({ title: 'isTallyScanRequired', details: isTallyScanRequired });
+				} else if (isTallyScanRequired) {
+					log.audit({
+						title: 'isTallyScanRequired',
+						details: isTallyScanRequired
+					});
 					var compSubRecord = binTransfer.getCurrentSublistSubrecord({
 						sublistId: 'inventory',
 						fieldId: 'inventorydetail'
@@ -617,8 +704,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 									fieldId: 'toinventorystatus',
 									value: statusArray[lotvalue]
 								});
-							}
-							else {
+							} else {
 								if (processType == 'cart') {
 									toStatus = statusArray[lotvalue];
 								}
@@ -634,10 +720,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 								});
 							}
 						}
-						compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+						compSubRecord.commitLine({
+							sublistId: 'inventoryassignment'
+						});
 					}
-				}
-				else {
+				} else {
 					var compSubRecord = binTransfer.getCurrentSublistSubrecord({
 						sublistId: 'inventory',
 						fieldId: 'inventorydetail'
@@ -678,31 +765,61 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							value: toStatus
 						});
 					}
-					compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+					compSubRecord.commitLine({
+						sublistId: 'inventoryassignment'
+					});
 				}
-			}
-			else {
+			} else {
 				var filterssertemp = [];
-				filterssertemp.push(search.createFilter({ name: 'custrecord_wmsse_ser_status', operator: search.Operator.IS, values: false }));
+				filterssertemp.push(search.createFilter({
+					name: 'custrecord_wmsse_ser_status',
+					operator: search.Operator.IS,
+					values: false
+				}));
 				if (utility.isValueValid(processType) && processType == 'replen') {
-					filterssertemp.push(search.createFilter({ name: 'custrecord_wmsse_ser_tasktype', operator: search.Operator.ANYOF, values: [17] }));
-				}
-				else {
-					filterssertemp.push(search.createFilter({ name: 'custrecord_wmsse_ser_tasktype', operator: search.Operator.ANYOF, values: 9 }));
+					filterssertemp.push(search.createFilter({
+						name: 'custrecord_wmsse_ser_tasktype',
+						operator: search.Operator.ANYOF,
+						values: [17]
+					}));
+				} else {
+					filterssertemp.push(search.createFilter({
+						name: 'custrecord_wmsse_ser_tasktype',
+						operator: search.Operator.ANYOF,
+						values: 9
+					}));
 				}
 				if (utility.isValueValid(processType) && processType == 'replen') {
-					filterssertemp.push(search.createFilter({ name: 'custrecord_wmsse_ser_bin', operator: search.Operator.ANYOF, values: toBinId }));
+					filterssertemp.push(search.createFilter({
+						name: 'custrecord_wmsse_ser_bin',
+						operator: search.Operator.ANYOF,
+						values: toBinId
+					}));
+				} else {
+					filterssertemp.push(search.createFilter({
+						name: 'custrecord_wmsse_ser_bin',
+						operator: search.Operator.ANYOF,
+						values: fromBinId
+					}));
 				}
-				else {
-					filterssertemp.push(search.createFilter({ name: 'custrecord_wmsse_ser_bin', operator: search.Operator.ANYOF, values: fromBinId }));
-				}
-				filterssertemp.push(search.createFilter({ name: 'custrecord_wmsse_ser_item', operator: search.Operator.ANYOF, values: itemId }));
+				filterssertemp.push(search.createFilter({
+					name: 'custrecord_wmsse_ser_item',
+					operator: search.Operator.ANYOF,
+					values: itemId
+				}));
 				var columns = [];
 				columns.push(search.createColumn('custrecord_wmsse_ser_no'));
 				columns.push(search.createColumn('name'));
-				var SrchRecordTmpSeriaObj = search.create({ type: 'customrecord_wmsse_serialentry', filters: filterssertemp, columns: columns });
+				var SrchRecordTmpSeriaObj = search.create({
+					type: 'customrecord_wmsse_serialentry',
+					filters: filterssertemp,
+					columns: columns
+				});
 				var SrchRecordTmpSerial1 = utility.getSearchResultInJSON(SrchRecordTmpSeriaObj);
-				log.debug({ title: 'SrchRecordTmpSerial1', details: SrchRecordTmpSerial1 });
+				log.debug({
+					title: 'SrchRecordTmpSerial1',
+					details: SrchRecordTmpSerial1
+				});
 				if (SrchRecordTmpSerial1 != null && SrchRecordTmpSerial1 != '') {
 					var compSubRecord = binTransfer.getCurrentSublistSubrecord({
 						sublistId: 'inventory',
@@ -722,29 +839,23 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 									if ((serialNameDtlArr[0] != "replen") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
-								}
-								else if (utility.isValueValid(processType) && processType == 'cartPutaway') {
+								} else if (utility.isValueValid(processType) && processType == 'cartPutaway') {
 									if ((serialNameDtlArr[0] != "cartPutaway") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
-								}
-								else if (utility.isValueValid(processType) && processType == 'cart') {
+								} else if (utility.isValueValid(processType) && processType == 'cart') {
 									if ((serialNameDtlArr[0] != "cartPutaway") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
-								}
-								else if (utility.isValueValid(processType) && processType == 'putAway') {
+								} else if (utility.isValueValid(processType) && processType == 'putAway') {
 									if ((serialNameDtlArr[0] != "putAway") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
-								}
-								else if (utility.isValueValid(processType) && (processType == 'binTransfer' || processType == 'BinTransfer'))
+								} else if (utility.isValueValid(processType) && (processType == 'binTransfer' || processType == 'BinTransfer'))
 									if ((serialNameDtlArr[0] != "binTransfer" && serialNameDtlArr[0] != "BinTransfer") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
-							}
-							else {
-							}
+							} else {}
 						}
 						log.debug("serialMatchFound", serialMatchFound);
 						if (serialMatchFound) {
@@ -783,7 +894,9 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 									value: toStatus
 								});
 							}
-							compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+							compSubRecord.commitLine({
+								sublistId: 'inventoryassignment'
+							});
 						}
 					}
 					var serialMatchFound = true;
@@ -801,28 +914,23 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 									if ((serialNameDtlArr[0] != "replen") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
-								}
-								else if (utility.isValueValid(processType) && processType == 'cartPutaway') {
+								} else if (utility.isValueValid(processType) && processType == 'cartPutaway') {
 									if ((serialNameDtlArr[0] != "cartPutaway") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
-								}
-								else if (utility.isValueValid(processType) && processType == 'cart') {
+								} else if (utility.isValueValid(processType) && processType == 'cart') {
 									if ((serialNameDtlArr[0] != "cart") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
-								}
-								else if (utility.isValueValid(processType) && processType == 'putAway') {
+								} else if (utility.isValueValid(processType) && processType == 'putAway') {
 									if ((serialNameDtlArr[0] != "putAway") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
-								}
-								else if (utility.isValueValid(processType) && (processType == 'binTransfer' || processType == 'BinTransfer'))
+								} else if (utility.isValueValid(processType) && (processType == 'binTransfer' || processType == 'BinTransfer'))
 									if ((serialNameDtlArr[0] != "binTransfer" && serialNameDtlArr[0] != "BinTransfer") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
-							}
-							else {
+							} else {
 
 							}
 						}
@@ -832,19 +940,36 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 								type: 'customrecord_wmsse_serialentry',
 								id: TempRecord.id
 							});
-							serialRec.setValue({ fieldId: 'id', value: TempRecord.id });
-							serialRec.setValue({ fieldId: 'name', value: TempRecord.name });
-							serialRec.setValue({ fieldId: 'custrecord_wmsse_ser_note1', value: 'because of discontinue of serial number scanning we have marked this serial number as closed' });
-							serialRec.setValue({ fieldId: 'custrecord_wmsse_ser_status', value: true });
+							serialRec.setValue({
+								fieldId: 'id',
+								value: TempRecord.id
+							});
+							serialRec.setValue({
+								fieldId: 'name',
+								value: TempRecord.name
+							});
+							serialRec.setValue({
+								fieldId: 'custrecord_wmsse_ser_note1',
+								value: 'because of discontinue of serial number scanning we have marked this serial number as closed'
+							});
+							serialRec.setValue({
+								fieldId: 'custrecord_wmsse_ser_status',
+								value: true
+							});
 							serialRec.save();
 						}
 						TempRecord = null;
 					}
 				}
 			}
-			binTransfer.commitLine({ sublistId: 'inventory' });
+			binTransfer.commitLine({
+				sublistId: 'inventory'
+			});
 			var inventoryCountId = binTransfer.save();
-			log.debug({ title: 'inventoryCountId', details: inventoryCountId });
+			log.debug({
+				title: 'inventoryCountId',
+				details: inventoryCountId
+			});
 			var taskType = "MOVE";
 			var Qty = quantity;
 			if (opentaskQty != null && opentaskQty != '' && opentaskQty != 'null' && opentaskQty != 'undefined') {
@@ -880,8 +1005,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			return impactedRec;
 		}
 
-		function putawayallBinTransfer(bintransferObj) {	// for both bintransfer,binputaway same function
-			log.debug({ title: 'bintransferObj', details: bintransferObj });
+		function putawayallBinTransfer(bintransferObj) { // for both bintransfer,binputaway same function
+			log.debug({
+				title: 'bintransferObj',
+				details: bintransferObj
+			});
 			var itemType = bintransferObj.itemType;
 			var whLocation = bintransferObj.whLocation;
 			var itemId = bintransferObj.itemId;
@@ -910,7 +1038,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			var vstatus = "";
 			var objBinDetails = getPickBinDetailsLotWithExpiryDates(itemId, fromBinId, '', whLocation,
 				null, units, stockConversionRate, allowAllLots, null, null, null, batchno, itemType);
-			log.debug({ title: 'objBinDetails', details: objBinDetails.length });
+			log.debug({
+				title: 'objBinDetails',
+				details: objBinDetails.length
+			});
 			if (objBinDetails != null && objBinDetails.length > 0) {
 				for (var bindetail in objBinDetails) {
 					var binTransferQty = objBinDetails[bindetail]['availableqty'];
@@ -983,7 +1114,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						compSubRecord.selectNewLine({
 							sublistId: 'inventoryassignment'
 						});
-						compSubRecord.setCurrentSublistValue({ sublistId: 'inventoryassignment', fieldId: 'quantity', value: quantity });
+						compSubRecord.setCurrentSublistValue({
+							sublistId: 'inventoryassignment',
+							fieldId: 'quantity',
+							value: quantity
+						});
 						compSubRecord.setCurrentSublistValue({
 							sublistId: 'inventoryassignment',
 							fieldId: 'binnumber',
@@ -998,7 +1133,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							if (statusLength > 0) {
 								fromStatus = statusArr[len];
 								toStatus = statusArr[len];
-								compSubRecord.setCurrentSublistValue({ sublistId: 'inventoryassignment', fieldId: 'quantity', value: quantityArr[len] });
+								compSubRecord.setCurrentSublistValue({
+									sublistId: 'inventoryassignment',
+									fieldId: 'quantity',
+									value: quantityArr[len]
+								});
 							}
 							compSubRecord.setCurrentSublistValue({
 								sublistId: 'inventoryassignment',
@@ -1019,10 +1158,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 								});
 							}
 						}
-						compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+						compSubRecord.commitLine({
+							sublistId: 'inventoryassignment'
+						});
 					}
-				}
-				else if (itemType == "lotnumberedinventoryitem" || itemType == "lotnumberedassemblyitem" ||
+				} else if (itemType == "lotnumberedinventoryitem" || itemType == "lotnumberedassemblyitem" ||
 					itemType == "serializedinventoryitem" || itemType == "serializedassemblyitem") {
 					var compSubRecord = binTransfer.getCurrentSublistSubrecord({
 						sublistId: 'inventory',
@@ -1038,8 +1178,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 								fieldId: 'quantity',
 								value: 1
 							});
-						}
-						else {
+						} else {
 							compSubRecord.setCurrentSublistValue({
 								sublistId: 'inventoryassignment',
 								fieldId: 'quantity',
@@ -1081,13 +1220,20 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 								});
 							}
 						}
-						compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+						compSubRecord.commitLine({
+							sublistId: 'inventoryassignment'
+						});
 					}
 
 				}
-				binTransfer.commitLine({ sublistId: 'inventory' });
+				binTransfer.commitLine({
+					sublistId: 'inventory'
+				});
 				var inventoryCountId = binTransfer.save();
-				log.debug({ title: 'inventoryCountId', details: inventoryCountId });
+				log.debug({
+					title: 'inventoryCountId',
+					details: inventoryCountId
+				});
 				var taskType = "MOVE";
 				var Qty = quantity;
 				var opentaskObj = {};
@@ -1121,7 +1267,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 		}
 
 		function transferallInvTransfer(invtransferObj) {
-			log.debug({ title: 'bintransferObj', details: invtransferObj });
+			log.debug({
+				title: 'bintransferObj',
+				details: invtransferObj
+			});
 			var itemType = invtransferObj['itemType'];
 			var whLocation = invtransferObj['whLocation'];
 			var towhLocation = invtransferObj['towhLocation'];
@@ -1146,7 +1295,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			var vstatus = "";
 			var objBinDetails = getPickBinDetailsLotWithExpiryDates(itemId, fromBinId, '', whLocation,
 				null, units, stockConversionRate, allowAllLots, null, null, null, null, itemType, fromLocUseBinsFlag);
-			log.debug({ title: 'objBinDetails', details: objBinDetails.length });
+			log.debug({
+				title: 'objBinDetails',
+				details: objBinDetails.length
+			});
 			if (objBinDetails != null && objBinDetails.length > 0) {
 				for (var bindetail in objBinDetails) {
 					var binTransferQty = objBinDetails[bindetail]['availableqty'];
@@ -1163,7 +1315,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					vstatus = objBinDetails[bindetail]['statusid'];
 					quantityArr.push(binTransferQty);
 					batchnoArr.push(vlotNo);
-					log.debug({ title: 'vstatus', details: vstatus });
+					log.debug({
+						title: 'vstatus',
+						details: vstatus
+					});
 					if (inventoryStatusFeature) {
 						fromStatusarr.push(vstatus);
 						toStatusarr.push(vstatus);
@@ -1241,10 +1396,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						fieldId: 'tobinnumber',
 						value: toBinId
 					});
-					compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+					compSubRecord.commitLine({
+						sublistId: 'inventoryassignment'
+					});
 				}
-			}
-			else {
+			} else {
 				var compSubRecord = invTransfer.getCurrentSublistSubrecord({
 					sublistId: 'inventory',
 					fieldId: 'inventorydetail'
@@ -1273,12 +1429,19 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						fieldId: 'tobinnumber',
 						value: toBinId
 					});
-					compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+					compSubRecord.commitLine({
+						sublistId: 'inventoryassignment'
+					});
 				}
 			}
-			invTransfer.commitLine({ sublistId: 'inventory' });
+			invTransfer.commitLine({
+				sublistId: 'inventory'
+			});
 			var inventoryCountId = invTransfer.save();
-			log.debug({ title: 'inventoryCountId', details: inventoryCountId });
+			log.debug({
+				title: 'inventoryCountId',
+				details: inventoryCountId
+			});
 			var taskType = "XFER";
 			var Qty = quantity;
 			if (opentaskQty != null && opentaskQty != '' && opentaskQty != 'null' && opentaskQty != 'undefined') {
@@ -1308,7 +1471,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 		}
 
 		function inventoryInvTransfer(invtransferObj) {
-			log.debug({ title: 'invtransferObj', details: invtransferObj });
+			log.debug({
+				title: 'invtransferObj',
+				details: invtransferObj
+			});
 			var itemType = invtransferObj.itemType;
 			var whLocation = invtransferObj.whLocation;
 			var towhLocation = invtransferObj.towhLocation;
@@ -1434,7 +1600,9 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						sublistId: 'inventory',
 						fieldId: 'inventorydetail'
 					});
-					var complinelength = compSubRecord.getLineCount({ sublistId: 'inventoryassignment' });
+					var complinelength = compSubRecord.getLineCount({
+						sublistId: 'inventoryassignment'
+					});
 					if (complinelength > 0 && (itemType == "inventoryitem" || itemType == "assemblyitem")) {
 						for (var invtassignmentLine = 0; invtassignmentLine < complinelength; invtassignmentLine++) {
 							compSubRecord.removeLine({
@@ -1475,10 +1643,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 									value: toBinId
 								});
 							}
-							compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+							compSubRecord.commitLine({
+								sublistId: 'inventoryassignment'
+							});
 						}
-					}
-					else {
+					} else {
 
 
 						compSubRecord.selectNewLine({
@@ -1503,12 +1672,13 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 								value: toBinId
 							});
 						}
-						compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+						compSubRecord.commitLine({
+							sublistId: 'inventoryassignment'
+						});
 					}
 				}
 
-			}
-			else if (itemType == "lotnumberedinventoryitem" || itemType == "lotnumberedassemblyitem") {
+			} else if (itemType == "lotnumberedinventoryitem" || itemType == "lotnumberedassemblyitem") {
 
 				if (isTallyScanRequired == true) {
 					var compSubRecord = invTransfer.getCurrentSublistSubrecord({
@@ -1549,12 +1719,13 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							value: toBinId
 						});
 
-						compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+						compSubRecord.commitLine({
+							sublistId: 'inventoryassignment'
+						});
 
 
 					}
-				}
-				else {
+				} else {
 					var compSubRecord = invTransfer.getCurrentSublistSubrecord({
 						sublistId: 'inventory',
 						fieldId: 'inventorydetail'
@@ -1586,22 +1757,42 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							value: toBinId
 						});
 					}
-					compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+					compSubRecord.commitLine({
+						sublistId: 'inventoryassignment'
+					});
 				}
-			}
-			else {
+			} else {
 				var filterssertemp = [];
-				filterssertemp.push(search.createFilter({ name: 'custrecord_wmsse_ser_tasktype', operator: search.Operator.ANYOF, values: 9 }));
+				filterssertemp.push(search.createFilter({
+					name: 'custrecord_wmsse_ser_tasktype',
+					operator: search.Operator.ANYOF,
+					values: 9
+				}));
 				if (utility.isValueValid(fromBinId)) {
-					filterssertemp.push(search.createFilter({ name: 'custrecord_wmsse_ser_bin', operator: search.Operator.ANYOF, values: fromBinId }));
+					filterssertemp.push(search.createFilter({
+						name: 'custrecord_wmsse_ser_bin',
+						operator: search.Operator.ANYOF,
+						values: fromBinId
+					}));
 				}
-				filterssertemp.push(search.createFilter({ name: 'custrecord_wmsse_ser_item', operator: search.Operator.ANYOF, values: itemId }));
+				filterssertemp.push(search.createFilter({
+					name: 'custrecord_wmsse_ser_item',
+					operator: search.Operator.ANYOF,
+					values: itemId
+				}));
 				var columns = [];
 				columns.push(search.createColumn('custrecord_wmsse_ser_no'));
 				columns.push(search.createColumn('name'));
-				var SrchRecordTmpSeriaObj = search.create({ type: 'customrecord_wmsse_serialentry', filters: filterssertemp, columns: columns });
+				var SrchRecordTmpSeriaObj = search.create({
+					type: 'customrecord_wmsse_serialentry',
+					filters: filterssertemp,
+					columns: columns
+				});
 				var SrchRecordTmpSerial1 = utility.getSearchResultInJSON(SrchRecordTmpSeriaObj);
-				log.debug({ title: 'SrchRecordTmpSerial1', details: SrchRecordTmpSerial1 });
+				log.debug({
+					title: 'SrchRecordTmpSerial1',
+					details: SrchRecordTmpSerial1
+				});
 				if (SrchRecordTmpSerial1 != null && SrchRecordTmpSerial1 != '') {
 					var compSubRecord = invTransfer.getCurrentSublistSubrecord({
 						sublistId: 'inventory',
@@ -1618,8 +1809,8 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							serialNameDtlArr = serialName.split("^");
 
 							if (serialNameDtlArr.length == 3) {
-								if ((serialNameDtlArr[0] != "inventoryTransfer")
-									|| serialNameDtlArr[1] != currentUserId) {
+								if ((serialNameDtlArr[0] != "inventoryTransfer") ||
+									serialNameDtlArr[1] != currentUserId) {
 									serialMatchFound = false;
 								}
 							}
@@ -1652,7 +1843,9 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 									value: toBinId
 								});
 							}
-							compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+							compSubRecord.commitLine({
+								sublistId: 'inventoryassignment'
+							});
 						}
 					}
 					var serialName = "";
@@ -1666,8 +1859,8 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							serialNameDtlArr = serialName.split("^");
 							if (serialNameDtlArr.length == 3) {
 
-								if ((serialNameDtlArr[0] != "inventoryTransfer")
-									|| serialNameDtlArr[1] != currentUserId) {
+								if ((serialNameDtlArr[0] != "inventoryTransfer") ||
+									serialNameDtlArr[1] != currentUserId) {
 									serialMatchFound = false;
 								}
 							}
@@ -1677,8 +1870,14 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 								type: 'customrecord_wmsse_serialentry',
 								id: TempRecord.id
 							});
-							serialRec.setValue({ fieldId: 'id', value: TempRecord.id });
-							serialRec.setValue({ fieldId: 'name', value: TempRecord.name });
+							serialRec.setValue({
+								fieldId: 'id',
+								value: TempRecord.id
+							});
+							serialRec.setValue({
+								fieldId: 'name',
+								value: TempRecord.name
+							});
 							serialRec.setValue({
 								fieldId: 'custrecord_wmsse_ser_note1',
 								value: 'because of discontinue of serial number scanning we have marked this serial number as closed'
@@ -1689,9 +1888,14 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					}
 				}
 			}
-			invTransfer.commitLine({ sublistId: 'inventory' });
+			invTransfer.commitLine({
+				sublistId: 'inventory'
+			});
 			var inventoryCountId = invTransfer.save();
-			log.debug({ title: 'inventoryCountId', details: inventoryCountId });
+			log.debug({
+				title: 'inventoryCountId',
+				details: inventoryCountId
+			});
 			var taskType = "XFER";
 			var Qty = quantity;
 			if (opentaskQty != null && opentaskQty != '' && opentaskQty != 'null' && opentaskQty != 'undefined') {
@@ -1730,9 +1934,15 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 			var objBinDetails = [];
 			var vBinLocArr = [];
-			var invBalanceSearch = search.load({ id: 'customsearch_wmsse_invblnc_itemsqtyrslts', type: search.Type.INVENTORY_BALANCE });
+			var invBalanceSearch = search.load({
+				id: 'customsearch_wmsse_invblnc_itemsqtyrslts',
+				type: search.Type.INVENTORY_BALANCE
+			});
 			var filters = invBalanceSearch.filters;
-			log.debug({ title: 'batchno', details: batchno });
+			log.debug({
+				title: 'batchno',
+				details: batchno
+			});
 			if (getItemInternalId != null && getItemInternalId != '') {
 				filters.push(search.createFilter({
 					name: 'internalid',
@@ -1771,8 +1981,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						operator: search.Operator.IS,
 						values: makeInvAvailFlagFromSelect
 					}));
-				}
-				else {
+				} else {
 					if (makeInvAvailFlagFromSelect != 'All') {
 						filters.push(search.createFilter({
 							name: 'status',
@@ -1808,15 +2017,37 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				for (var binItr in objBinDetails) {
 					// No need to check status Makeavailable flag
 
-					var vBinQtyAvail = objBinDetails[binItr].getValue({ name: 'available', summary: 'SUM' });
+					var vBinQtyAvail = objBinDetails[binItr].getValue({
+						name: 'available',
+						summary: 'SUM'
+					});
 					vBinQtyAvail = parseFloat(vBinQtyAvail);
 					if (parseFloat(vBinQtyAvail) > 0) {
-						var vValidBinId = objBinDetails[binItr].getValue({ name: 'binnumber', summary: 'GROUP' });
-						var vValidBin = objBinDetails[binItr].getText({ name: 'binnumber', summary: 'GROUP' });
-						var vBinInvNum = objBinDetails[binItr].getText({ name: 'inventorynumber', summary: 'GROUP' });
-						var vBinStatus = objBinDetails[binItr].getText({ name: 'status', summary: 'GROUP' });
-						var vValidBinStatusId = objBinDetails[binItr].getValue({ name: 'status', summary: 'GROUP' });
-						var vLotExp = objBinDetails[binItr].getValue({ name: 'expirationdate', summary: 'GROUP', join: 'inventoryNumber' });
+						var vValidBinId = objBinDetails[binItr].getValue({
+							name: 'binnumber',
+							summary: 'GROUP'
+						});
+						var vValidBin = objBinDetails[binItr].getText({
+							name: 'binnumber',
+							summary: 'GROUP'
+						});
+						var vBinInvNum = objBinDetails[binItr].getText({
+							name: 'inventorynumber',
+							summary: 'GROUP'
+						});
+						var vBinStatus = objBinDetails[binItr].getText({
+							name: 'status',
+							summary: 'GROUP'
+						});
+						var vValidBinStatusId = objBinDetails[binItr].getValue({
+							name: 'status',
+							summary: 'GROUP'
+						});
+						var vLotExp = objBinDetails[binItr].getValue({
+							name: 'expirationdate',
+							summary: 'GROUP',
+							join: 'inventoryNumber'
+						});
 						if ((vValidBin != getPreferBin) || (locUseBinsFlag != 'undefined' && locUseBinsFlag != undefined && locUseBinsFlag == false)) {
 							var availableQuantityWithUOM = vBinQtyAvail + " " + (utility.isValueValid(selectedUOMText) ? selectedUOMText : stockConversionUnitname);
 
@@ -1825,8 +2056,14 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 								availableQuantityWithUOM = vBinQtyAvail + " " + selectedUOMText;
 							}
 							var currRow = {
-								'binnumber': vValidBin, 'availableqty': vBinQtyAvail, 'bininternalid': vValidBinId,
-								'lotnumber': vBinInvNum, 'lotexpirydate': vLotExp, 'status': vBinStatus, 'statusid': vValidBinStatusId, 'availableQuantityWithUOM': availableQuantityWithUOM
+								'binnumber': vValidBin,
+								'availableqty': vBinQtyAvail,
+								'bininternalid': vValidBinId,
+								'lotnumber': vBinInvNum,
+								'lotexpirydate': vLotExp,
+								'status': vBinStatus,
+								'statusid': vValidBinStatusId,
+								'availableQuantityWithUOM': availableQuantityWithUOM
 							};
 
 							vBinLocArr.push(currRow);
@@ -1834,11 +2071,17 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					}
 				}
 			}
-			log.debug({ title: 'vBinLocArr', details: vBinLocArr });
+			log.debug({
+				title: 'vBinLocArr',
+				details: vBinLocArr
+			});
 			return vBinLocArr;
 		}
+
 		function fnGetBinsbyZones(strPickZone, strLocation) {
-			var binSearchObj = search.load({ id: 'customsearch_wmsse_binssort_byinternalid' });
+			var binSearchObj = search.load({
+				id: 'customsearch_wmsse_binssort_byinternalid'
+			});
 			var binSearchFilters = binSearchObj.filters;
 			if (utility.isValueValid(strPickZone) && strPickZone != '-None-') {
 				binSearchFilters.push(search.createFilter({
@@ -1864,8 +2107,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 			return objBinByZoneDetails;
 		}
+
 		function fnGetBinsbyZonesAlongWithStage(strPickZone, strLocation) {
-			var binSearchObj = search.load({ id: 'customsearch_wmsse_binsbypickzonewithstg' });
+			var binSearchObj = search.load({
+				id: 'customsearch_wmsse_binsbypickzonewithstg'
+			});
 			var binSearchFilters = binSearchObj.filters;
 
 			if (utility.isValueValid(strPickZone) && strPickZone != '-None-') {
@@ -1896,7 +2142,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 		function _getItemWiseDetails(binInternalId, whLocationId, itemInternalId, lotInternalId) {
 
-			var searchObj = search.load({ id: 'customsearch_wmsse_itemwise_inventory', type: search.Type.ITEM });
+			var searchObj = search.load({
+				id: 'customsearch_wmsse_itemwise_inventory',
+				type: search.Type.ITEM
+			});
 			if (utility.isValueValid(itemInternalId)) {
 				searchObj.filters.push(search.createFilter({
 					name: 'internalid',
@@ -2042,8 +2291,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						fieldId: 'account',
 						value: vAccountNo
 					});
-				}
-				else {
+				} else {
 					adjInventory.setValue({
 						fieldId: 'account',
 						value: 1
@@ -2091,8 +2339,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						fieldId: 'unitcost',
 						value: vAvgCost
 					});
-				}
-				else {
+				} else {
 					adjInventory.setCurrentSublistValue({
 						sublistId: 'inventory',
 						fieldId: 'unitcost',
@@ -2103,18 +2350,33 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					var tempQty;
 					if (parseFloat(scannedQuantity) < 0) {
 						tempQty = -1;
-					}
-					else {
+					} else {
 						tempQty = 1;
 					}
 					var filterssertemp = [];
-					filterssertemp.push(search.createFilter({ name: 'custrecord_wmsse_ser_status', operator: search.Operator.IS, values: false }));
-					filterssertemp.push(search.createFilter({ name: 'custrecord_wmsse_ser_tasktype', operator: search.Operator.ANYOF, values: 10 }));
-					filterssertemp.push(search.createFilter({ name: 'custrecord_wmsse_ser_item', operator: search.Operator.ANYOF, values: itemInternalId }));
+					filterssertemp.push(search.createFilter({
+						name: 'custrecord_wmsse_ser_status',
+						operator: search.Operator.IS,
+						values: false
+					}));
+					filterssertemp.push(search.createFilter({
+						name: 'custrecord_wmsse_ser_tasktype',
+						operator: search.Operator.ANYOF,
+						values: 10
+					}));
+					filterssertemp.push(search.createFilter({
+						name: 'custrecord_wmsse_ser_item',
+						operator: search.Operator.ANYOF,
+						values: itemInternalId
+					}));
 					var columns = [];
 					columns.push(search.createColumn('custrecord_wmsse_ser_no'));
 					columns.push(search.createColumn('name'));
-					var SrchRecordTmpSeriaObj = search.create({ type: 'customrecord_wmsse_serialentry', filters: filterssertemp, columns: columns });
+					var SrchRecordTmpSeriaObj = search.create({
+						type: 'customrecord_wmsse_serialentry',
+						filters: filterssertemp,
+						columns: columns
+					});
 					var SrchRecordTmpSerial1 = utility.getSearchResultInJSON(SrchRecordTmpSeriaObj);
 					log.debug('SrchRecordTmpSerial1', SrchRecordTmpSerial1);
 					if (SrchRecordTmpSerial1 != null && SrchRecordTmpSerial1 != "") {
@@ -2133,8 +2395,8 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							if (serialName) {
 								serialNameDtlArr = serialName.split("^");
 								if (serialNameDtlArr.length == 3) {
-									if ((serialNameDtlArr[0] != "createInventory")
-										|| serialNameDtlArr[1] != currentUserId) {
+									if ((serialNameDtlArr[0] != "createInventory") ||
+										serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
 								}
@@ -2167,7 +2429,9 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 										value: inventoryStatus
 									});
 								}
-								compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+								compSubRecord.commitLine({
+									sublistId: 'inventoryassignment'
+								});
 							}
 						}
 						var serialName = "";
@@ -2180,8 +2444,8 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							if (serialName) {
 								serialNameDtlArr = serialName.split("^");
 								if (serialNameDtlArr.length == 3) {
-									if ((serialNameDtlArr[0] != "createInventory")
-										|| serialNameDtlArr[1] != currentUserId) {
+									if ((serialNameDtlArr[0] != "createInventory") ||
+										serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
 								}
@@ -2191,25 +2455,32 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 									type: 'customrecord_wmsse_serialentry',
 									id: TempRecord.id
 								});
-								serialRec.setValue({ fieldId: 'customrecord_wmsse_serialentry', value: TempRecord.id });
+								serialRec.setValue({
+									fieldId: 'customrecord_wmsse_serialentry',
+									value: TempRecord.id
+								});
 								serialRec.setValue({
 									fieldId: 'custrecord_wmsse_ser_note1',
 									value: 'because of discontinue of serial number scanning we have marked this serial number as closed'
 								});
-								serialRec.setValue({ fieldId: 'custrecord_wmsse_ser_status', value: true });
+								serialRec.setValue({
+									fieldId: 'custrecord_wmsse_ser_status',
+									value: true
+								});
 								serialRec.save();
 							}
 							TempRecord = null;
 						}
 					}
-				}
-				else if (itemType == "inventoryitem" || itemType == "lotnumberedinventoryitem" || itemType == "lotnumberedassemblyitem" || itemType == "assemblyitem") {
+				} else if (itemType == "inventoryitem" || itemType == "lotnumberedinventoryitem" || itemType == "lotnumberedassemblyitem" || itemType == "assemblyitem") {
 					try {
 						var compSubRecord = adjInventory.getCurrentSublistSubrecord({
 							sublistId: 'inventory',
 							fieldId: 'inventorydetail'
 						});
-						var complinelength = compSubRecord.getLineCount({ sublistId: 'inventoryassignment' });
+						var complinelength = compSubRecord.getLineCount({
+							sublistId: 'inventoryassignment'
+						});
 
 						if (complinelength > 0 && !utility.isValueValid(enterBin) && (itemType == "inventoryitem" || itemType == "assemblyitem")) {
 							for (var invtassignmentLine = 0; invtassignmentLine < complinelength; invtassignmentLine++) {
@@ -2264,7 +2535,6 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							value: scannedQuantity
 						});
 
-
 						log.debug('inventoryStatus inventoryStatus', inventoryStatus);
 						if (inventoryStatus != null && inventoryStatus != '') {
 							compSubRecord.setCurrentSublistValue({
@@ -2274,17 +2544,22 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							});
 						}
 						log.debug('inventoryStatusafter inventoryStatus', inventoryStatus);
-						compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
-					}
-					catch (e) {
-						log.error({ title: 'error', details: e });
+						compSubRecord.commitLine({
+							sublistId: 'inventoryassignment'
+						});
+					} catch (e) {
+						log.error({
+							title: 'error',
+							details: e
+						});
 					}
 				}
-				adjInventory.commitLine({ sublistId: 'inventory' });
+				adjInventory.commitLine({
+					sublistId: 'inventory'
+				});
 				adjInventoryId = adjInventory.save();
 				log.debug('into inv item adjInventoryId', adjInventoryId);
-			}
-			catch (e) {
+			} catch (e) {
 				//adjInventoryId = 'INVALID_KEY_OR_REF';
 				adjInventoryId = '';
 				errorMessage = e.message;
@@ -2429,7 +2704,12 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					errorMsg = translator.getTranslationString("CREATE_INVENTORY.INVALID_BIN");
 				}
 			}
-			var currRow = { 'isValid': isValid, 'useBins': useBins, 'mixLotFlag': mixLotFlag, 'errorMsg': errorMsg };
+			var currRow = {
+				'isValid': isValid,
+				'useBins': useBins,
+				'mixLotFlag': mixLotFlag,
+				'errorMsg': errorMsg
+			};
 			resultArray.push(currRow);
 			return resultArray;
 		}
@@ -2455,8 +2735,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				accountNo = searcObj['custrecord_wmsse_wms_account'];
 				if (utility.isValueValid(accountNo)) {
 					isValid = accountNo;
-				}
-				else {
+				} else {
 					var searchRec = search.load({
 						id: 'customsearch_wms_account_search'
 					});
@@ -2485,7 +2764,9 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 		}
 
 		function getReplenItemsList(warehouseLocationId, itemInternalId, toBinInternalId, currentUserId, recordInternalId) {
-			var replentaskDetailsSearch = search.load({ id: 'customsearch_wmsse_rpln_getopentask_srh' });
+			var replentaskDetailsSearch = search.load({
+				id: 'customsearch_wmsse_rpln_getopentask_srh'
+			});
 			var replenFilters = replentaskDetailsSearch.filters;
 			if (utility.isValueValid(warehouseLocationId)) {
 				replenFilters.push(search.createFilter({
@@ -2544,8 +2825,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						operator: search.Operator.IS,
 						values: whLocationId
 					}));
-			}
-			else if (utility.isValueValid(whLocationId)) {
+			} else if (utility.isValueValid(whLocationId)) {
 				getCycPlanTasks.filters.push(
 					search.createFilter({
 						join: 'binnumber',
@@ -2639,9 +2919,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				});
 				if (zeroQty == 'zeroQty') {
 					inventoryCountId = vInvRec.save();
-					return { 'inventoryCountId': inventoryCountId, 'errorMessage': errorMessage };
-				}
-				else if (itemType == "serializedinventoryitem" || itemType == "serializedassemblyitem") {
+					return {
+						'inventoryCountId': inventoryCountId,
+						'errorMessage': errorMessage
+					};
+				} else if (itemType == "serializedinventoryitem" || itemType == "serializedassemblyitem") {
 					var vBinOpenTaskSerialArr = [];
 					var vBinOpenTaskBinIdArr = [];
 					var vBinOpenTaskBinQtyArr = [];
@@ -2718,8 +3000,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 									if (statusArray == statusArr) {
 										if (!(utility.isValueValid(serialArray))) {
 											serialArray = SrchRecordTmpSerial1[n]['custrecord_wmsse_serial_no'];
-										}
-										else {
+										} else {
 											serialArray = serialArray + "," + SrchRecordTmpSerial1[n]['custrecord_wmsse_serial_no'];
 										}
 									}
@@ -2771,17 +3052,18 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 									});
 								}
 							}
-						}
-						else {
+						} else {
 							for (var n = 0; n < SrchRecordTmpSerial1.length; n++) {
 								if (!(utility.isValueValid(serialArray))) {
 									serialArray = SrchRecordTmpSerial1[n]['custrecord_wmsse_serial_no'];
-								}
-								else {
+								} else {
 									serialArray = serialArray + "," + SrchRecordTmpSerial1[n]['custrecord_wmsse_serial_no'];
 								}
 							}
-							log.debug({ title: 'in non inv serialArray', details: serialArray });
+							log.debug({
+								title: 'in non inv serialArray',
+								details: serialArray
+							});
 							var totalSerialArray = serialArray.split(',');
 							if (!(utility.isValueValid(invDtlSubRecord))) {
 								invDtlSubRecord = vInvRec.getSublistSubrecord({
@@ -2810,8 +3092,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							}
 						}
 					}
-				}
-				else if (itemType == "lotnumberedinventoryitem" || itemType == "lotnumberedassemblyitem") {
+				} else if (itemType == "lotnumberedinventoryitem" || itemType == "lotnumberedassemblyitem") {
 					var serialEntrySrch = search.load({
 						id: 'customsearch_wmsse_serialentry_details'
 					});
@@ -2902,8 +3183,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 								});
 						}
 					}
-				}
-				else if (itemType == "inventoryitem" || itemType == "assemblyitem") {
+				} else if (itemType == "inventoryitem" || itemType == "assemblyitem") {
 					if (inventoryStatusFeature == true) {
 						var serialEntrySrch = search.load({
 							id: 'customsearch_wmsse_serialdetails_search'
@@ -2985,13 +3265,15 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					}
 				}
 				inventoryCountId = vInvRec.save();
-			}
-			catch (e) {
+			} catch (e) {
 				inventoryCountId = 'INVALID_KEY_OR_REF';
 				errorMessage = e.message;
 				log.debug('e', e);
 			}
-			return { 'inventoryCountId': inventoryCountId, 'errorMessage': errorMessage };
+			return {
+				'inventoryCountId': inventoryCountId,
+				'errorMessage': errorMessage
+			};
 		}
 
 
@@ -3019,8 +3301,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 					});
 					enterQty = Number(Big(enterQty).plus(existingInvCountQuanity));
-				}
-				else if (invCountPostingObj.action == 'timeLinkClicked') {
+				} else if (invCountPostingObj.action == 'timeLinkClicked') {
 					var existingInvCountQuanity = vInvRec.getSublistValue({
 						sublistId: 'item',
 						fieldId: 'countquantity',
@@ -3046,25 +3327,27 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				if (parseFloat(enterQty) == 0) {
 					log.debug('in no stock');
 					inventoryCountId = vInvRec.save();
-					return { 'inventoryCountId': inventoryCountId, 'errorMessage': errorMessage };;
-				}
-				else if (invCountPostingObj.itemType == "serializedinventoryitem" || invCountPostingObj.itemType == "serializedassemblyitem") {
+					return {
+						'inventoryCountId': inventoryCountId,
+						'errorMessage': errorMessage
+					};;
+				} else if (invCountPostingObj.itemType == "serializedinventoryitem" || invCountPostingObj.itemType == "serializedassemblyitem") {
 					invCountPostingNoBinsforSerialItem(invCountPostingObj, inventoryStatusFeature, vInvRec, lineNo);
-				}
-				else if (invCountPostingObj.itemType == "lotnumberedinventoryitem" || invCountPostingObj.itemType == "lotnumberedassemblyitem") {
+				} else if (invCountPostingObj.itemType == "lotnumberedinventoryitem" || invCountPostingObj.itemType == "lotnumberedassemblyitem") {
 					invCountPostingNoBinsforLotItem(invCountPostingObj, inventoryStatusFeature, vInvRec, lineNo);
-				}
-				else if (invCountPostingObj.itemType == "inventoryitem" || invCountPostingObj.itemType == "assemblyitem") {
+				} else if (invCountPostingObj.itemType == "inventoryitem" || invCountPostingObj.itemType == "assemblyitem") {
 					invCountPostingNoBinsforInvItem(invCountPostingObj, inventoryStatusFeature, vInvRec, lineNo);
 				}
 				inventoryCountId = vInvRec.save();
-			}
-			catch (e) {
+			} catch (e) {
 				inventoryCountId = 'INVALID_KEY_OR_REF';
 				errorMessage = e.message;
 				log.debug('e', e);
 			}
-			return { 'inventoryCountId': inventoryCountId, 'errorMessage': errorMessage };
+			return {
+				'inventoryCountId': inventoryCountId,
+				'errorMessage': errorMessage
+			};
 		}
 
 		function createSerialEntry(lotName, cyclePlanInternalId, lineNum, itemInternalId, binInternalId, scannedQuantity, statusInternalId, inventoryStatusFeature) {
@@ -3208,7 +3491,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						var expDate = lotDetails['expirationdate'];
 						log.debug('expDate', expDate);
 						if (utility.isValueValid(expDate)) {
-							expDate = format.parse({ value: expDate, type: format.Type.DATE });
+							expDate = format.parse({
+								value: expDate,
+								type: format.Type.DATE
+							});
 							objRecord.setValue({
 								fieldId: 'custrecord_wmsse_expirydate',
 								value: expDate
@@ -3241,8 +3527,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					for (var i in SrchRecordTmpSerial1) {
 						if (utility.isValueValid(serialArray)) {
 							serialArray = serialArray + "," + SrchRecordTmpSerial1[i]['custrecord_wmsse_ser_no'];
-						}
-						else {
+						} else {
 							serialArray = SrchRecordTmpSerial1[i]['custrecord_wmsse_ser_no'];
 						}
 
@@ -3497,8 +3782,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							name: 'quantity',
 							operator: search.Operator.ISNOTEMPTY,
 						}));
-				}
-				else {
+				} else {
 					itemListSearch.filters.push(
 						search.createFilter({
 							name: 'quantity',
@@ -3526,93 +3810,181 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			var stockConversionRate = opentaskObj.stockConversionRate;
 			var fromStatus = opentaskObj.fromStatus;
 			var toStatus = opentaskObj.toStatus;
-			var customrecord = record.create({ type: 'customrecord_wmsse_trn_opentask' });
+			var customrecord = record.create({
+				type: 'customrecord_wmsse_trn_opentask'
+			});
 			var processType = opentaskObj.processType;
 			if (utility.isValueValid(inventoryCountId)) {
-				customrecord.setValue({ fieldId: 'name', value: inventoryCountId });
+				customrecord.setValue({
+					fieldId: 'name',
+					value: inventoryCountId
+				});
 			}
 			var currDate = utility.DateStamp();
 			var parsedCurrentDate = format.parse({
 				value: currDate,
 				type: format.Type.DATE
 			});
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_act_begin_date', value: parsedCurrentDate });
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_act_end_date', value: parsedCurrentDate });
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_act_qty', value: quantity });
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_sku', value: itemId });
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_expe_qty', value: quantity });
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_act_begin_date',
+				value: parsedCurrentDate
+			});
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_act_end_date',
+				value: parsedCurrentDate
+			});
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_act_qty',
+				value: quantity
+			});
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_sku',
+				value: itemId
+			});
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_expe_qty',
+				value: quantity
+			});
 			if (taskType == "MOVE") {
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_wms_status_flag', value: 19 });// storage
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_tasktype', value: 9 }); // For
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_wms_status_flag',
+					value: 19
+				}); // storage
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_tasktype',
+					value: 9
+				}); // For
 				// MOVE
 				if (utility.isValueValid(soInternalId)) {
-					customrecord.setValue({ fieldId: 'custrecord_wmsse_order_no', value: soInternalId });
+					customrecord.setValue({
+						fieldId: 'custrecord_wmsse_order_no',
+						value: soInternalId
+					});
 				}
-			}
-			else if (taskType == "XFER")// For inventory transfer
+			} else if (taskType == "XFER") // For inventory transfer
 			{
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_wms_status_flag', value: 19 });// storage
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_tasktype', value: 18 });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_wms_status_flag',
+					value: 19
+				}); // storage
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_tasktype',
+					value: 18
+				});
 				if (utility.isValueValid(actwhLocation)) {
-					customrecord.setValue({ fieldId: 'custrecord_wmsse_act_wms_location', value: actwhLocation });
+					customrecord.setValue({
+						fieldId: 'custrecord_wmsse_act_wms_location',
+						value: actwhLocation
+					});
 				}
 				if (utility.isValueValid(inventoryCountId)) {
-					customrecord.setValue({ fieldId: 'custrecord_wmsse_nsconfirm_ref_no', value: inventoryCountId });
+					customrecord.setValue({
+						fieldId: 'custrecord_wmsse_nsconfirm_ref_no',
+						value: inventoryCountId
+					});
 				}
 			}
 			if (utility.isValueValid(units)) {
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_uom', value: units });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_uom',
+					value: units
+				});
 			}
 			if (utility.isValueValid(stockConversionRate)) {
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_conversionrate', value: stockConversionRate });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_conversionrate',
+					value: stockConversionRate
+				});
 			}
 			if (utility.isValueValid(fromBinId)) {
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_actbeginloc', value: fromBinId });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_actbeginloc',
+					value: fromBinId
+				});
 			}
 			if (utility.isValueValid(toBinId)) {
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_actendloc', value: toBinId });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_actendloc',
+					value: toBinId
+				});
 			}
 			if (itemType == translator.getTranslationString("ITEMTYPE_LOT") ||
 				itemType == translator.getTranslationString("ITEMTYPE_LOT_ASSEMBLY")) {
 				if (utility.isValueValid(batchno)) {
-					customrecord.setValue({ fieldId: 'custrecord_wmsse_batch_num', value: batchno });
+					customrecord.setValue({
+						fieldId: 'custrecord_wmsse_batch_num',
+						value: batchno
+					});
 				}
 			}
 			if (utility.isValueValid(actualBeginTime)) {
 				var parsedBeginTime = utility.parseTimeString(actualBeginTime);
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_actualbegintime', value: parsedBeginTime });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_actualbegintime',
+					value: parsedBeginTime
+				});
 			}
 			var timeStamp = utility.getCurrentTimeStamp();
 			var parsedCurrentTime = utility.parseTimeString(timeStamp);
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_actualendtime', value: parsedCurrentTime });
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_wms_location', value: whLocation });
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_parent_sku_no', value: itemId });
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_actualendtime',
+				value: parsedCurrentTime
+			});
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_wms_location',
+				value: whLocation
+			});
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_parent_sku_no',
+				value: itemId
+			});
 			if (utility.isValueValid(inventoryCountId) && taskType != "XFER") {
 				if (taskType == "MOVE" && processType == 'cart') {
 					var reccommendedBinId = opentaskObj['recomendedBinId'];
 					var recomendedBinSequenceNo = opentaskObj['recomendedBinSequenceNo'];
 					if (utility.isValueValid(reccommendedBinId)) {
-						customrecord.setValue({ fieldId: 'custrecord_wmsse_reccommendedbin', value: reccommendedBinId });
+						customrecord.setValue({
+							fieldId: 'custrecord_wmsse_reccommendedbin',
+							value: reccommendedBinId
+						});
 					}
 					if (utility.isValueValid(recomendedBinSequenceNo)) {
-						customrecord.setValue({ fieldId: 'custrecord_wmsse_recomendedbinsequence', value: recomendedBinSequenceNo });
+						customrecord.setValue({
+							fieldId: 'custrecord_wmsse_recomendedbinsequence',
+							value: recomendedBinSequenceNo
+						});
 					}
 					var puStratagieId = opentaskObj['puStratagieId'];
 					if (utility.isValueValid(puStratagieId)) {
-						customrecord.setValue({ fieldId: 'custrecord_wmsse_put_strategy', value: puStratagieId });
+						customrecord.setValue({
+							fieldId: 'custrecord_wmsse_put_strategy',
+							value: puStratagieId
+						});
 					}
 
 				}
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_nsconfirm_ref_no', value: inventoryCountId });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_nsconfirm_ref_no',
+					value: inventoryCountId
+				});
 			}
 			if (utility.isValueValid(fromStatus)) {
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_inventorystatus', value: fromStatus });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_inventorystatus',
+					value: fromStatus
+				});
 			}
 			if (utility.isValueValid(toStatus)) {
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_inventorystatusto', value: toStatus });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_inventorystatusto',
+					value: toStatus
+				});
 			}
 			var currentUserID = runtime.getCurrentUser();
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_upd_user_no', value: currentUserID.id });
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_upd_user_no',
+				value: currentUserID.id
+			});
 			var recid = customrecord.save();
 			return recid;
 		}
@@ -3672,7 +4044,9 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 
 		function getCYCCCountCompletedList(inputParamObj) {
-			var CYCCCountCompletedSearch = search.load({ id: 'customsearch_wms_cycc_countcompl_tasks' });
+			var CYCCCountCompletedSearch = search.load({
+				id: 'customsearch_wms_cycc_countcompl_tasks'
+			});
 			var CYCCFilters = CYCCCountCompletedSearch.filters;
 			if (utility.isValueValid(inputParamObj.warehouseLocationId)) {
 				CYCCFilters.push(search.createFilter({
@@ -3736,8 +4110,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 					if (!(utility.isValueValid(serialArray))) {
 						serialArray = serialSearchResults[n]['custrecord_wmsse_serial_no'];
-					}
-					else {
+					} else {
 						serialArray = serialArray + "," + serialSearchResults[n]['custrecord_wmsse_serial_no'];
 					}
 
@@ -3831,8 +4204,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 								line: invdItr
 							});
 							break;
-						}
-						else if (invCountPostingObj.oldInvStatustimelink == invdStatus) {
+						} else if (invCountPostingObj.oldInvStatustimelink == invdStatus) {
 							compSubRecord.removeLine({
 								sublistId: 'inventorydetail',
 								line: invdItr
@@ -4014,8 +4386,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 									sublistId: 'inventorydetail',
 									line: invdtlLine
 								});
-							}
-							else {
+							} else {
 								invdtlLine++;
 							}
 							var length11 = invDtlSubRecord.getLineCount({
@@ -4102,8 +4473,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 											sublistId: 'inventorydetail',
 											line: invdtlLine
 										});
-									}
-									else {
+									} else {
 										invdtlLine++;
 									}
 									var length11 = invDtlSubRecord.getLineCount({
@@ -4124,8 +4494,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 								if (statusArray == statusArr) {
 									if (!(utility.isValueValid(serialArray))) {
 										serialArray = SrchRecordTmpSerial1[n]['custrecord_wmsse_serial_no'];
-									}
-									else {
+									} else {
 										serialArray = serialArray + "," + SrchRecordTmpSerial1[n]['custrecord_wmsse_serial_no'];
 									}
 								}
@@ -4178,17 +4547,18 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 								});
 							}
 						}
-					}
-					else {
+					} else {
 						for (var n = 0; n < SrchRecordTmpSerial1.length; n++) {
 							if (!(utility.isValueValid(serialArray))) {
 								serialArray = SrchRecordTmpSerial1[n]['custrecord_wmsse_serial_no'];
-							}
-							else {
+							} else {
 								serialArray = serialArray + "," + SrchRecordTmpSerial1[n]['custrecord_wmsse_serial_no'];
 							}
 						}
-						log.debug({ title: 'in non inv serialArray', details: serialArray });
+						log.debug({
+							title: 'in non inv serialArray',
+							details: serialArray
+						});
 						var totalSerialArray = serialArray.split(',');
 						if (!(utility.isValueValid(invDtlSubRecord))) {
 							invDtlSubRecord = vInvRec.getSublistSubrecord({
@@ -4220,6 +4590,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				}
 			}
 		}
+
 		function noCodeSolForCycleCount(inventoryCountRecId, openTaskIdArray) {
 			var inventoryCountRecIdArray = [];
 			var impactedRecords = {};
@@ -4236,6 +4607,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 			return impactedRecords;
 		}
+
 		function noCodeSolForCreateInv(adjInventoryId, openTaskId) {
 			var adjInventoryIdArray = [];
 			var openTaskIdArray = [];
@@ -4255,6 +4627,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			impactedRecords._ignoreUpdate = false;
 			return impactedRecords;
 		}
+
 		function postInventoryStatusChange(inputObj) {
 			log.debug('postInventoryStatusChange', inputObj);
 			var inventoryStatusChangeId = '';
@@ -4329,9 +4702,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						value: inputObj.binInternalId
 					});
 				}
-				compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
-			}
-			else if (inputObj.itemType == "serializedinventoryitem" || inputObj.itemType == "serializedassemblyitem") {
+				compSubRecord.commitLine({
+					sublistId: 'inventoryassignment'
+				});
+			} else if (inputObj.itemType == "serializedinventoryitem" || inputObj.itemType == "serializedassemblyitem") {
 				var SrchSerialEntryResults = getScannedSerials(inputObj);
 
 				if (SrchSerialEntryResults.length > 0) {
@@ -4349,8 +4723,8 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						if (serialName) {
 							serialNameDtlArr = serialName.split("^");
 							if (serialNameDtlArr.length == 3) {
-								if ((serialNameDtlArr[0] != "inventoryStatusChange")
-									|| serialNameDtlArr[1] != currentUserId) {
+								if ((serialNameDtlArr[0] != "inventoryStatusChange") ||
+									serialNameDtlArr[1] != currentUserId) {
 									serialMatchFound = false;
 								}
 							}
@@ -4376,7 +4750,9 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 									value: inputObj.binInternalId
 								});
 							}
-							compSubRecord.commitLine({ sublistId: 'inventoryassignment' });
+							compSubRecord.commitLine({
+								sublistId: 'inventoryassignment'
+							});
 						}
 					}
 					var serialMatchFound = true;
@@ -4388,8 +4764,8 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						if (serialName) {
 							serialNameDtlArr = serialName.split("^");
 							if (serialNameDtlArr.length == 3) {
-								if ((serialNameDtlArr[0] != "inventoryStatusChange")
-									|| serialNameDtlArr[1] != currentUserId) {
+								if ((serialNameDtlArr[0] != "inventoryStatusChange") ||
+									serialNameDtlArr[1] != currentUserId) {
 									serialMatchFound = false;
 								}
 							}
@@ -4401,9 +4777,14 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					}
 				}
 			}
-			invStatusChange.commitLine({ sublistId: 'inventory' });
+			invStatusChange.commitLine({
+				sublistId: 'inventory'
+			});
 			inventoryStatusChangeId = invStatusChange.save();
-			log.debug({ title: 'inventoryStatusChangeId', details: inventoryStatusChangeId });
+			log.debug({
+				title: 'inventoryStatusChangeId',
+				details: inventoryStatusChangeId
+			});
 			if (utility.isValueValid(inventoryStatusChangeId)) {
 				inputObj.taskType = "XFER";
 				inputObj.inventoryStatusChangeId = inventoryStatusChangeId;
@@ -4412,6 +4793,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 			return inventoryStatusChangeId;
 		}
+
 		function getScannedSerials(inputObj) {
 			var filterssertemp = [];
 			filterssertemp.push(search.createFilter({
@@ -4440,13 +4822,19 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			var SrchRecordTmpSeriaObj = search.load('customsearch_wms_get_all_serials');
 			SrchRecordTmpSeriaObj.filters = filterssertemp;
 			var SrchRecordTmpSerial = utility.getSearchResultInJSON(SrchRecordTmpSeriaObj);
-			log.debug({ title: 'SrchRecordTmpSerial1', details: SrchRecordTmpSerial });
+			log.debug({
+				title: 'SrchRecordTmpSerial1',
+				details: SrchRecordTmpSerial
+			});
 			return SrchRecordTmpSerial;
 		}
 
 		function getItemWiseStatusDetailsInBin(itemInternalId, warehouseLocationId, binInternalId, fromStatusInternalId, lotInternalId, inventoryStatusFeature) {
 
-			var searchObj = search.load({ id: 'customsearch_wmsse_srchres_statuswise', type: search.Type.INVENTORY_BALANCE });
+			var searchObj = search.load({
+				id: 'customsearch_wmsse_srchres_statuswise',
+				type: search.Type.INVENTORY_BALANCE
+			});
 
 
 			searchObj.filters.push(search.createFilter({
@@ -4488,7 +4876,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 			}
 			var alltaskresults = utility.getSearchResultInJSON(searchObj);
-			log.debug({ title: 'alltaskresults', details: alltaskresults });
+			log.debug({
+				title: 'alltaskresults',
+				details: alltaskresults
+			});
 			return alltaskresults;
 		}
 
@@ -4510,67 +4901,138 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			var toStatus = inputObj.revisedStatusInternalId;
 			var actualBeginTime = inputObj.actualBeginTime;
 
-			var customrecord = record.create({ type: 'customrecord_wmsse_trn_closedtask' });
+			var customrecord = record.create({
+				type: 'customrecord_wmsse_trn_closedtask'
+			});
 			log.debug('quantity', quantity);
 			if (utility.isValueValid(inventoryStatusChangeId)) {
-				customrecord.setValue({ fieldId: 'name', value: inventoryStatusChangeId });
+				customrecord.setValue({
+					fieldId: 'name',
+					value: inventoryStatusChangeId
+				});
 			}
 			var currDate = utility.DateStamp();
 			var parsedCurrentDate = format.parse({
 				value: currDate,
 				type: format.Type.DATE
 			});
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_act_begin_date_clt', value: parsedCurrentDate });
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_act_end_date_clt', value: parsedCurrentDate });
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_act_qty_clt', value: quantity });
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_sku_clt', value: itemId });
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_expe_qty_clt', value: quantity });
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_wms_status_flag_clt', value: 19 });// storage
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_tasktype_clt', value: 18 });
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_act_begin_date_clt',
+				value: parsedCurrentDate
+			});
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_act_end_date_clt',
+				value: parsedCurrentDate
+			});
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_act_qty_clt',
+				value: quantity
+			});
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_sku_clt',
+				value: itemId
+			});
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_expe_qty_clt',
+				value: quantity
+			});
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_wms_status_flag_clt',
+				value: 19
+			}); // storage
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_tasktype_clt',
+				value: 18
+			});
 			if (utility.isValueValid(actwhLocation)) {
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_act_wms_location_clt', value: actwhLocation });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_act_wms_location_clt',
+					value: actwhLocation
+				});
 			}
 			if (utility.isValueValid(units)) {
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_uom_clt', value: units });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_uom_clt',
+					value: units
+				});
 			}
 			if (utility.isValueValid(transactionUomConversionRate)) {
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_conversionrate_clt', value: transactionUomConversionRate });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_conversionrate_clt',
+					value: transactionUomConversionRate
+				});
 			}
 			if (utility.isValueValid(fromBinId)) {
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_actbeginloc_clt', value: fromBinId });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_actbeginloc_clt',
+					value: fromBinId
+				});
 			}
 			if (utility.isValueValid(toBinId)) {
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_actendloc_clt', value: toBinId });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_actendloc_clt',
+					value: toBinId
+				});
 			}
 			if (itemType == translator.getTranslationString("ITEMTYPE_LOT") ||
 				itemType == translator.getTranslationString("ITEMTYPE_LOT_ASSEMBLY")) {
 				if (utility.isValueValid(batchno)) {
-					customrecord.setValue({ fieldId: 'custrecord_wmsse_batch_num_clt', value: batchno });
+					customrecord.setValue({
+						fieldId: 'custrecord_wmsse_batch_num_clt',
+						value: batchno
+					});
 				}
 			}
 			if (utility.isValueValid(actualBeginTime)) {
 				var parsedBeginTime = utility.parseTimeString(actualBeginTime);
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_actualbegintime_clt', value: parsedBeginTime });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_actualbegintime_clt',
+					value: parsedBeginTime
+				});
 			}
 			var timeStamp = utility.getCurrentTimeStamp();
 			var parsedCurrentTime = utility.parseTimeString(timeStamp);
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_actualbegintime_clt', value: parsedCurrentTime });
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_actualendtime_clt', value: parsedCurrentTime });
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_wms_location_clt', value: whLocation });
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_parent_sku_no_clt', value: itemId });
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_actualbegintime_clt',
+				value: parsedCurrentTime
+			});
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_actualendtime_clt',
+				value: parsedCurrentTime
+			});
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_wms_location_clt',
+				value: whLocation
+			});
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_parent_sku_no_clt',
+				value: itemId
+			});
 
 			if (utility.isValueValid(fromStatus)) {
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_inventorystatus_clt', value: fromStatus });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_inventorystatus_clt',
+					value: fromStatus
+				});
 			}
 			if (utility.isValueValid(toStatus)) {
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_inventorystatusto_clt', value: toStatus });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_inventorystatusto_clt',
+					value: toStatus
+				});
 			}
 			if (utility.isValueValid(inventoryStatusChangeId)) {
-				customrecord.setValue({ fieldId: 'custrecord_wmsse_nstrn_ref_no_clt', value: inventoryStatusChangeId });
+				customrecord.setValue({
+					fieldId: 'custrecord_wmsse_nstrn_ref_no_clt',
+					value: inventoryStatusChangeId
+				});
 			}
 
 			var currentUserID = runtime.getCurrentUser();
-			customrecord.setValue({ fieldId: 'custrecord_wmsse_upd_user_no_clt', value: currentUserID.id });
+			customrecord.setValue({
+				fieldId: 'custrecord_wmsse_upd_user_no_clt',
+				value: currentUserID.id
+			});
 			var recId = customrecord.save();
 			return recId;
 		}
@@ -4591,7 +5053,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			if (itemType == "serializedinventoryitem" || itemType == "serializedassemblyitem") {
 				searchName = 'customsearch_wmsse_invtbalance_serialsrh';
 			}
-			var searchObj = search.load({ id: searchName, type: search.Type.INVENTORY_BALANCE });
+			var searchObj = search.load({
+				id: searchName,
+				type: search.Type.INVENTORY_BALANCE
+			});
 
 			if (utility.isValueValid(warehouseLocationId)) {
 				searchObj.filters.push(search.createFilter({
@@ -4623,8 +5088,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 					if (vmakeInvAvailFlag == true) {
 						locQtyAvail = objBinDetails[p]['available'];
-					}
-					else {
+					} else {
 						locQtyAvail = objBinDetails[p]['onhand'];
 					}
 					statusId = objBinDetails[p]['status'];
@@ -4641,14 +5105,19 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				inventoryStatusDetails.locAvailableQty = availableQty;
 				if (objBinDetails.length > 1) {
 					inventoryStatusDetails.showInvStatusPage = "Y";
-				}
-				else {
+				} else {
 					inventoryStatusDetails.showInvStatusPage = "N";
 				}
-				log.debug({ title: 'inventoryStatusDetails', details: inventoryStatusDetails });
+				log.debug({
+					title: 'inventoryStatusDetails',
+					details: inventoryStatusDetails
+				});
 
 			}
-			log.debug({ title: 'inventoryStatusDetails11', details: inventoryStatusDetails });
+			log.debug({
+				title: 'inventoryStatusDetails11',
+				details: inventoryStatusDetails
+			});
 			return inventoryStatusDetails;
 		}
 
@@ -4678,8 +5147,13 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 		}
 
 		function getCycleCountPlanDetails(parameters) {
-			log.debug({ title: 'parameters.planNumber getCycleCountPlanDetails', details: parameters.planNumber });
-			var generateAndReleaseSearch = search.load({ id: 'customsearch_wms_new_cycc_plan_srch' });//on cycle count plan custom record
+			log.debug({
+				title: 'parameters.planNumber getCycleCountPlanDetails',
+				details: parameters.planNumber
+			});
+			var generateAndReleaseSearch = search.load({
+				id: 'customsearch_wms_new_cycc_plan_srch'
+			}); //on cycle count plan custom record
 			if (utility.isValueValid(parameters)) {
 				generateAndReleaseSearch.filters.push(search.createFilter({
 					name: 'internalid',
@@ -4724,7 +5198,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 
 			if (utility.isValueValid(parameters.cycleCountPlanZone)) {
-				log.debug({ title: 'parameters.cycleCountPlanZone  in bin nquery--', details: parameters.cycleCountPlanZone });
+				log.debug({
+					title: 'parameters.cycleCountPlanZone  in bin nquery--',
+					details: parameters.cycleCountPlanZone
+				});
 				var binZoneCond = binsQuery.createCondition({
 					fieldId: 'zone',
 					operator: query.Operator.ANY_OF,
@@ -4734,7 +5211,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			}
 
 			if (utility.isValueValid(binArr)) {
-				log.debug({ title: 'parameters.binArr  in bin nquery--', details: binArr })
+				log.debug({
+					title: 'parameters.binArr  in bin nquery--',
+					details: binArr
+				})
 				var binInternalIdCond = binsQuery.createCondition({
 					fieldId: 'id',
 					operator: query.Operator.ANY_OF,
@@ -4742,14 +5222,16 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				});
 				if (utility.isValueValid(parameters.cycleCountPlanZone)) {
 					binsQuery.condition = binsQuery.and(isBinActiveCond, binTypeCond, whLocCond, binZoneCond, binInternalIdCond);
-				}
-				else {
+				} else {
 					binsQuery.condition = binsQuery.and(isBinActiveCond, binTypeCond, whLocCond, binInternalIdCond);
 				}
 			}
 
 			if (utility.isValueValid(parameters.cycleCountPlanAisle)) {
-				log.debug({ title: 'parameters.cycleCountPlanAisle  in bin nquery--', details: parameters.cycleCountPlanAisle });
+				log.debug({
+					title: 'parameters.cycleCountPlanAisle  in bin nquery--',
+					details: parameters.cycleCountPlanAisle
+				});
 				var binAileCond = binsQuery.createCondition({
 					fieldId: 'custrecord_wmsse_aisle',
 					operator: query.Operator.IS,
@@ -4757,14 +5239,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				});
 				if (utility.isValueValid(parameters.cycleCountPlanZone) && utility.isValueValid(binArr)) {
 					binsQuery.condition = binsQuery.and(isBinActiveCond, binTypeCond, whLocCond, binZoneCond, binInternalIdCond, binAileCond);
-				}
-				else if (utility.isValueValid(parameters.cycleCountPlanZone)) {
+				} else if (utility.isValueValid(parameters.cycleCountPlanZone)) {
 					binsQuery.condition = binsQuery.and(isBinActiveCond, binTypeCond, whLocCond, binZoneCond, binAileCond);
-				}
-				else if (utility.isValueValid(binArr)) {
+				} else if (utility.isValueValid(binArr)) {
 					binsQuery.condition = binsQuery.and(isBinActiveCond, binTypeCond, whLocCond, binInternalIdCond, binAileCond);
-				}
-				else {
+				} else {
 					binsQuery.condition = binsQuery.and(isBinActiveCond, binTypeCond, whLocCond, binAileCond);
 				}
 			}
@@ -4798,21 +5277,41 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				pageSize: 1000
 			});
 			//log.debug({title: 'objBinsDetails.length --', details: objBinsDetails.length});
-			log.debug({ title: 'objBinsDetails.length --', details: objBinsDetails.count });
-			log.debug({ title: 'objBinsDetails --', details: objBinsDetails });
+			log.debug({
+				title: 'objBinsDetails.length --',
+				details: objBinsDetails.count
+			});
+			log.debug({
+				title: 'objBinsDetails --',
+				details: objBinsDetails
+			});
 
 			return objBinsDetails;
 		}
 
 		function getCycleCountPlanItemDetails(parameters, itemArr, binArr, itemTypeArr) {
 
-			log.debug({ title: 'parameters in getCycleCountPlanItemDetails', details: parameters });
-			log.debug({ title: 'itemArr in getCycleCountPlanItemDetails', details: itemArr });
-			log.debug({ title: 'binArr in getCycleCountPlanItemDetails', details: binArr });
-			log.debug({ title: 'itemTypeArr in getCycleCountPlanItemDetails', details: itemTypeArr });
+			log.debug({
+				title: 'parameters in getCycleCountPlanItemDetails',
+				details: parameters
+			});
+			log.debug({
+				title: 'itemArr in getCycleCountPlanItemDetails',
+				details: itemArr
+			});
+			log.debug({
+				title: 'binArr in getCycleCountPlanItemDetails',
+				details: binArr
+			});
+			log.debug({
+				title: 'itemTypeArr in getCycleCountPlanItemDetails',
+				details: itemTypeArr
+			});
 			var itemTypeArr1 = [];
 
-			var planItemSearch = search.load({ id: 'customsearch_wmsse_cyccnt_items_srh' });//1
+			var planItemSearch = search.load({
+				id: 'customsearch_wmsse_cyccnt_items_srh'
+			}); //1
 
 			if (utility.isValueValid(itemArr)) {
 
@@ -4939,14 +5438,23 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					planItemSearchResult.push(result);
 				});
 			});
-			log.debug({ title: 'planItemSearchResult.length', details: planItemSearchResult.length });
+			log.debug({
+				title: 'planItemSearchResult.length',
+				details: planItemSearchResult.length
+			});
 			return planItemSearchResult;
 		}
 
 		function fnGetCyccDetails(parameters, binArrayId) {
 
-			log.debug({ title: 'parameters in fnGetCyccDetails', details: parameters });
-			log.debug({ title: 'binArrayId in fnGetCyccDetails', details: binArrayId });
+			log.debug({
+				title: 'parameters in fnGetCyccDetails',
+				details: parameters
+			});
+			log.debug({
+				title: 'binArrayId in fnGetCyccDetails',
+				details: binArrayId
+			});
 			log.debug('parameters.locUseBinsFlag check', parameters.locUseBinsFlag);
 			var sublistDetailArr = [];
 			if (parameters.locUseBinsFlag) {
@@ -5053,23 +5561,23 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					});
 					myPage.data.forEach(function (result) {
 						var objCyccItr = [result.getValue({
-							name: 'itemid',
-							join: 'item',
-							summary: 'group'
-						}),
-						result.getValue({
-							name: 'internalid',
-							join: 'item',
-							summary: 'group'
-						}),
-						result.getValue({
-							name: 'binnumber',
-							summary: 'group'
-						}),
-						result.getText({
-							name: 'binnumber',
-							summary: 'group'
-						})
+								name: 'itemid',
+								join: 'item',
+								summary: 'group'
+							}),
+							result.getValue({
+								name: 'internalid',
+								join: 'item',
+								summary: 'group'
+							}),
+							result.getValue({
+								name: 'binnumber',
+								summary: 'group'
+							}),
+							result.getText({
+								name: 'binnumber',
+								summary: 'group'
+							})
 						];
 						sublistDetailArr.push(objCyccItr);
 
@@ -5077,9 +5585,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				});
 
 
-			}
-			else {
-				var itemResult = search.load({ id: 'customsearch_wmsse_itemsrh_cyccnt_nobins', type: search.Type.ITEM });
+			} else {
+				var itemResult = search.load({
+					id: 'customsearch_wmsse_itemsrh_cyccnt_nobins',
+					type: search.Type.ITEM
+				});
 
 				if (utility.isValueValid(parameters.itemsArray)) {
 					itemResult.filters.push(search.createFilter({
@@ -5141,11 +5651,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					});
 					myPage.data.forEach(function (result) {
 						var objCyccItr = [result.getValue({
-							name: 'itemid',
-						}),
-						result.getValue({
-							name: 'internalid',
-						}),
+								name: 'itemid',
+							}),
+							result.getValue({
+								name: 'internalid',
+							}),
 						];
 						sublistDetailArr.push(objCyccItr);
 						log.debug('sublistDetailArr for nobins', sublistDetailArr);
@@ -5156,10 +5666,14 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 			return sublistDetailArr;
 		}
+
 		function fnGetCyccDetailsSortBin(parameters, binArrayId) {
 			log.debug('parameters in fetching fnGetCyccDetailsSort', parameters);
 			log.debug('binArrayId fetching fnGetCyccDetailsSort', binArrayId);
-			var itemResult = search.load({ id: 'customsearch_wms_cycc_count_sort_srh', type: search.Type.INVENTORY_BALANCE });
+			var itemResult = search.load({
+				id: 'customsearch_wms_cycc_count_sort_srh',
+				type: search.Type.INVENTORY_BALANCE
+			});
 
 			if (utility.isValueValid(parameters.itemsArray)) {
 				itemResult.filters.push(search.createFilter({
@@ -5224,8 +5738,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					operator: search.Operator.ANYOF,
 					values: binArrayId
 				}));
-			}
-			else {
+			} else {
 				if (parameters.cycleCountPlanLoction != null && parameters.cycleCountPlanLoction != '') {
 					var nonStorageBinsArr = getNonStorageBins(parameters.cycleCountPlanLoction);
 
@@ -5261,23 +5774,23 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				myPage.data.forEach(function (result) {
 
 					var objcyccItrSortBin = [result.getValue({
-						name: 'itemid',
-						join: 'item',
-						summary: 'group'
-					}),
-					result.getValue({
-						name: 'internalid',
-						join: 'item',
-						summary: 'group'
-					}),
-					result.getValue({
-						name: 'binnumber',
-						summary: 'group'
-					}),
-					result.getText({
-						name: 'binnumber',
-						summary: 'group'
-					})
+							name: 'itemid',
+							join: 'item',
+							summary: 'group'
+						}),
+						result.getValue({
+							name: 'internalid',
+							join: 'item',
+							summary: 'group'
+						}),
+						result.getValue({
+							name: 'binnumber',
+							summary: 'group'
+						}),
+						result.getText({
+							name: 'binnumber',
+							summary: 'group'
+						})
 					];
 					sublistDetailArr.push(objcyccItrSortBin);
 				});
@@ -5286,10 +5799,13 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 			return sublistDetailArr;
 		}
+
 		function fnGetCyccDetailsWithZeroQty(parameters, binArrayId) {
 			log.debug('parameters in fetching fnGetCyccDetailsWithZeroQty to display', parameters);
 			log.debug('binArrayId fetching fnGetCyccDetailsWithZeroQty to display', binArrayId);
-			var itemResult = search.load({ id: 'customsearch_wmsse_cyc_countbinszero' });
+			var itemResult = search.load({
+				id: 'customsearch_wmsse_cyc_countbinszero'
+			});
 
 			itemResult.filters.push(search.createFilter({
 				name: 'inactive',
@@ -5397,10 +5913,13 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 			return sublistDetailArr;
 		}
+
 		function fnGetCyccDetailsWithZeroQtyAndSort(parameters, binArrayId) {
 			log.debug('parameters in fetching fnGetCyccDetailsWithZeroQtyAndSort to display', parameters);
 			log.debug('binArrayId fetching fnGetCyccDetailsWithZeroQtyAndSort to display', binArrayId);
-			var itemResult = search.load({ id: 'customsearch_wmsse_cyc_csortbinszero' });
+			var itemResult = search.load({
+				id: 'customsearch_wmsse_cyc_csortbinszero'
+			});
 			itemResult.filters.push(search.createFilter({
 				name: 'inactive',
 				join: 'binnumber',
@@ -5479,21 +5998,21 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				myPage.data.forEach(function (result) {
 
 					var objcyccItrSortBinZeroQty = [result.getText({
-						name: 'item',
-						summary: 'group'
-					}),
-					result.getValue({
-						name: 'item',
-						summary: 'group'
-					}),
-					result.getValue({
-						name: 'binnumber',
-						summary: 'group'
-					}),
-					result.getText({
-						name: 'binnumber',
-						summary: 'group'
-					})
+							name: 'item',
+							summary: 'group'
+						}),
+						result.getValue({
+							name: 'item',
+							summary: 'group'
+						}),
+						result.getValue({
+							name: 'binnumber',
+							summary: 'group'
+						}),
+						result.getText({
+							name: 'binnumber',
+							summary: 'group'
+						})
 					];
 
 					sublistDetailArr.push(objcyccItrSortBinZeroQty);
@@ -5502,6 +6021,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 			return sublistDetailArr;
 		}
+
 		function getNonStorageBins(cycleCountPlanLocation) {
 
 			var nonStoragebinsLoadQuery = query.create({
@@ -5562,12 +6082,18 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			for (var objItr in objnonStorageLoadBinDetails) {
 				objnonStorageBinDetails.push(objnonStorageLoadBinDetails[objItr].values[1]);
 			}
-			log.debug({ title: 'objnonStorageBinDetails', details: objnonStorageBinDetails });
+			log.debug({
+				title: 'objnonStorageBinDetails',
+				details: objnonStorageBinDetails
+			});
 			return objnonStorageBinDetails;
 		}
+
 		function getInventoryCountDetails(cycleCountPlanLoction, items, bins) {
 			var locUseBinsFlag = utility.lookupOnLocationForUseBins(cycleCountPlanLoction);
-			var inventoryCountSearch = search.load({ id: 'customsearch_wms_invcount_existitems_det' });
+			var inventoryCountSearch = search.load({
+				id: 'customsearch_wms_invcount_existitems_det'
+			});
 			var inventoryCountFilters = inventoryCountSearch.filters;
 
 			if (locUseBinsFlag) {
@@ -5577,8 +6103,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					operator: search.Operator.ANYOF,
 					values: bins
 				}));
-			}
-			else {
+			} else {
 				inventoryCountFilters.push(search.createFilter({
 					name: 'location',
 					operator: search.Operator.ANYOF,
@@ -5633,14 +6158,25 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				}
 
 				var results = getInventoryCountDetails(cycleCountPlanLoction, itemArray, binArray);
-				log.debug({ title: 'inventory count already exists', details: results });
+				log.debug({
+					title: 'inventory count already exists',
+					details: results
+				});
 				if (results.length > 0) {
 					var resultLength = results.length;
 					for (var resItr = 0; resItr < resultLength; resItr++) {
-						var status = results[resItr].getValue({ name: 'statusref' });
-						InvCountRefNumber = results[resItr].getValue({ name: 'truedocnumber' });
-						existingBin = results[resItr].getValue({ name: 'binnumber' });
-						existingItem = results[resItr].getText({ name: 'item' });
+						var status = results[resItr].getValue({
+							name: 'statusref'
+						});
+						InvCountRefNumber = results[resItr].getValue({
+							name: 'truedocnumber'
+						});
+						existingBin = results[resItr].getValue({
+							name: 'binnumber'
+						});
+						existingItem = results[resItr].getText({
+							name: 'item'
+						});
 
 						if (status != 'approved') {
 							var binItem = existingItem + "/" + existingBin;
@@ -5659,20 +6195,39 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				var getCycleCountPlanResult = getCycleCountPlanDetails(invCountObj);
 				if (getCycleCountPlanResult.length > 0 && selectedCount > 0) {
 
-					var cycleCountPlansubsidiary = getCycleCountPlanResult[0].getValue({ name: 'custrecord_cycc_subsidiary' });
-					var cycleCountPlanName = getCycleCountPlanResult[0].getValue({ name: 'name' });
-					var cycleCountPlanDeparment = getCycleCountPlanResult[0].getValue({ name: 'custrecord_cycc_department' });
-					var cycleCountPlanClass = getCycleCountPlanResult[0].getValue({ name: 'custrecord_cycc_class' });
-					var cycleCountPlanMemo = getCycleCountPlanResult[0].getValue({ name: 'custrecord_cycc_memo' });
-					var cycleCountPlanAccount = getCycleCountPlanResult[0].getValue({ name: 'custrecord_cycc_account' });
-					var cycleCountPlanAssignedTo = getCycleCountPlanResult[0].getValue({ name: 'custrecord_cycc_assignedto' });
+					var cycleCountPlansubsidiary = getCycleCountPlanResult[0].getValue({
+						name: 'custrecord_cycc_subsidiary'
+					});
+					var cycleCountPlanName = getCycleCountPlanResult[0].getValue({
+						name: 'name'
+					});
+					var cycleCountPlanDeparment = getCycleCountPlanResult[0].getValue({
+						name: 'custrecord_cycc_department'
+					});
+					var cycleCountPlanClass = getCycleCountPlanResult[0].getValue({
+						name: 'custrecord_cycc_class'
+					});
+					var cycleCountPlanMemo = getCycleCountPlanResult[0].getValue({
+						name: 'custrecord_cycc_memo'
+					});
+					var cycleCountPlanAccount = getCycleCountPlanResult[0].getValue({
+						name: 'custrecord_cycc_account'
+					});
+					var cycleCountPlanAssignedTo = getCycleCountPlanResult[0].getValue({
+						name: 'custrecord_cycc_assignedto'
+					});
 					if (utility.isValueValid(assignedTo)) {
 						cycleCountPlanAssignedTo = assignedTo;
 					}
-					log.debug({ title: 'cycleCountPlanAssignedTo', details: cycleCountPlanAssignedTo });
+					log.debug({
+						title: 'cycleCountPlanAssignedTo',
+						details: cycleCountPlanAssignedTo
+					});
 
 					if (scrObj.getRemainingUsage() <= 500) {
-						var mapReducetask = task.create({ taskType: task.TaskType.MAP_REDUCE });
+						var mapReducetask = task.create({
+							taskType: task.TaskType.MAP_REDUCE
+						});
 						mapReducetask.scriptId = 'customscript_wms_mr_cycc_planrelease';
 						mapReducetask.params = {
 							"custscript_wms_mr_cycc_location_param": cycleCountPlanLoction,
@@ -5686,7 +6241,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							"custscript_wms_mr_cycc_memo_param": cycleCountPlanMemo,
 							"custscript_wms_mr_cycc_account_param": cycleCountPlanAccount
 						};
-						log.debug({ title: 'mapReducetask.params', details: mapReducetask.params });
+						log.debug({
+							title: 'mapReducetask.params',
+							details: mapReducetask.params
+						});
 						var mrTaskId = mapReducetask.submit();
 						var taskStatus = task.checkStatus(mrTaskId);
 						var currentUserID = runtime.getCurrentUser().id;
@@ -5716,34 +6274,59 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			var processedDetails = [recid, InvCountRefNumber]
 			return processedDetails;
 		}
+
 		function createInventoryCountRecord(invCountObj) {
 			var invCountRecord = record.create({
 				type: 'inventorycount',
 				isDynamic: true
 			});
-			log.debug({ title: 'invCountObj', details: invCountObj });
+			log.debug({
+				title: 'invCountObj',
+				details: invCountObj
+			});
 			if (utility.isValueValid(invCountObj.cycleCountPlanName)) {
-				invCountRecord.setValue({ fieldId: 'name', value: invCountObj.cycleCountPlanName });
+				invCountRecord.setValue({
+					fieldId: 'name',
+					value: invCountObj.cycleCountPlanName
+				});
 			}
 			if (utility.isValueValid(invCountObj.cycleCountPlansubsidiary)) {
-				invCountRecord.setValue({ fieldId: 'subsidiary', value: invCountObj.cycleCountPlansubsidiary });
+				invCountRecord.setValue({
+					fieldId: 'subsidiary',
+					value: invCountObj.cycleCountPlansubsidiary
+				});
 			}
 			if (utility.isValueValid(invCountObj.cycleCountPlanClass)) {
-				invCountRecord.setValue({ fieldId: 'class', value: invCountObj.cycleCountPlanClass });
+				invCountRecord.setValue({
+					fieldId: 'class',
+					value: invCountObj.cycleCountPlanClass
+				});
 			}
 
 			if (utility.isValueValid(invCountObj.cycleCountPlanAccount)) {
-				invCountRecord.setValue({ fieldId: 'account', value: invCountObj.cycleCountPlanAccount });
+				invCountRecord.setValue({
+					fieldId: 'account',
+					value: invCountObj.cycleCountPlanAccount
+				});
 			}
 
 			if (utility.isValueValid(invCountObj.cycleCountPlanMemo)) {
-				invCountRecord.setValue({ fieldId: 'memo', value: invCountObj.cycleCountPlanMemo });
+				invCountRecord.setValue({
+					fieldId: 'memo',
+					value: invCountObj.cycleCountPlanMemo
+				});
 			}
 			if (utility.isValueValid(invCountObj.cycleCountPlanLoction)) {
-				invCountRecord.setValue({ fieldId: 'location', value: invCountObj.cycleCountPlanLoction });
+				invCountRecord.setValue({
+					fieldId: 'location',
+					value: invCountObj.cycleCountPlanLoction
+				});
 			}
 			if (utility.isValueValid(invCountObj.cycleCountPlanDeparment)) {
-				invCountRecord.setValue({ fieldId: 'department', value: invCountObj.cycleCountPlanDeparment });
+				invCountRecord.setValue({
+					fieldId: 'department',
+					value: invCountObj.cycleCountPlanDeparment
+				});
 			}
 			for (var itr = 0; itr < invCountObj.lineCount; itr++) {
 
@@ -5766,10 +6349,15 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						value: invCountObj.binId[itr]
 					});
 				}
-				invCountRecord.commitLine({ sublistId: 'item' });
+				invCountRecord.commitLine({
+					sublistId: 'item'
+				});
 
 			}
-			log.debug({ title: 'created inventory count record', details: invCountRecord });
+			log.debug({
+				title: 'created inventory count record',
+				details: invCountRecord
+			});
 			var recid = invCountRecord.save();
 
 			if (recid != null && recid != '') {
@@ -5803,11 +6391,13 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			}
 			return recid;
 		}
+
 		function _getStageInventory(stageBinId, warehouseLocationId) {
 			var result = [];
 			if (utility.isValueValid(stageBinId)) {
 				var searchRec = search.load({
-					id: 'customsearch_wmsse_invtbalance_serialsrh', type: search.Type.INVENTORY_BALANCE
+					id: 'customsearch_wmsse_invtbalance_serialsrh',
+					type: search.Type.INVENTORY_BALANCE
 				});
 
 				var savedFilter = searchRec.filters;
@@ -5842,8 +6432,8 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			tallyscanObj.isTallyScanRequired = isTallyScanRequired;
 			tallyscanObj.tallyScanBarCodeQty = tallyScanBarCodeQty;
 			if (utility.isValueValid(tallyLoopObj)) {
-				if ((((itemType == "inventoryitem" || itemType == "assemblyitem"))
-					|| (itemType == 'lotnumberedinventoryitem' || itemType == 'lotnumberedassemblyitem'))) {
+				if ((((itemType == "inventoryitem" || itemType == "assemblyitem")) ||
+						(itemType == 'lotnumberedinventoryitem' || itemType == 'lotnumberedassemblyitem'))) {
 
 					for (var tallyObjIndex in tallyLoopObj) {
 						if (utility.isValueValid(tallyLoopObj[tallyObjIndex].lotName) && lotArray.indexOf(tallyLoopObj[tallyObjIndex].lotName) == -1) {
@@ -5866,9 +6456,9 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			return tallyscanObj;
 		}
 		/**
- * This function is to cycle count plan details
- * 
- */
+		 * This function is to cycle count plan details
+		 * 
+		 */
 
 		function getPlanDetails(planid, itemId, binLocationId, whLocation, locUseBinsFlag, lineNumber) {
 
@@ -5909,7 +6499,8 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			}
 			if (utility.isValueValid(whLocation)) {
 				filter.push(search.createFilter({
-					name: 'location', operator: search.Operator.ANYOF,
+					name: 'location',
+					operator: search.Operator.ANYOF,
 					values: whLocation
 				}));
 			}
@@ -5917,6 +6508,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			var searchrecordResult = utility.getSearchResultInJSON(searchrecord);
 			return searchrecordResult;
 		}
+
 		function getSerialEntryDetails(serialNumber, lineNum, cyccPlanInternalId, binInternalId) {
 			var serialSearch = search.load({
 				id: 'customsearch_wmsse_serialentry_details'
@@ -5955,10 +6547,13 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			var SrchRecordSerialResults = utility.getSearchResultInJSON(serialSearch);
 			return SrchRecordSerialResults;
 		}
+
 		function isInventoryNumberExistsCYCCbystatus(item, serial, location, binlocation, invStatusInternalId) {
 			var boolfound = false;
 
-			var itemSearchObj = search.load({ id: 'customsearch_wmsse_itemwise_lots' });
+			var itemSearchObj = search.load({
+				id: 'customsearch_wmsse_itemwise_lots'
+			});
 			var itemSearchFilters = itemSearchObj.filters;
 
 			if (utility.isValueValid(binlocation)) {
@@ -6008,7 +6603,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 					var vinventoryNumberBinOnHand = objBinDetails_id[0]['inventorynumber'];
 
-					var invBalanceSearch = search.load({ id: 'customsearch_wmsse_inventorybalance', type: search.Type.INVENTORY_BALANCE });
+					var invBalanceSearch = search.load({
+						id: 'customsearch_wmsse_inventorybalance',
+						type: search.Type.INVENTORY_BALANCE
+					});
 					var filters = invBalanceSearch.filters;
 
 					filters.push(search.createFilter({
@@ -6043,15 +6641,13 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							var status = objBinDetails[i]['status'];
 							if (bin == binlocation && status != invStatusInternalId) {
 								boolfound = true;
-							}
-							else if (bin != binlocation) {
+							} else if (bin != binlocation) {
 								boolfound = true;
 							}
 						}
 					}
 				}
-			}
-			else {
+			} else {
 				boolfound = isInventoryNumberExistsCYCC(item, serial, location, binlocation);
 			}
 
@@ -6061,7 +6657,9 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 		function isInventoryNumberExistsCYCC(item, serial, location, binlocation) {
 			var boolfound = false;
 
-			var itemSearchObj = search.load({ id: 'customsearch_wmsse_itemwise_lots' });
+			var itemSearchObj = search.load({
+				id: 'customsearch_wmsse_itemwise_lots'
+			});
 			var itemSearchFilters = itemSearchObj.filters;
 
 			if (utility.isValueValid(binlocation)) {
@@ -6118,6 +6716,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 			return boolfound;
 		}
+
 		function getSerialItemdataforCYCCtallyscan(cyccPlanData) {
 			var arrOpenTaskId = [];
 			var serialArrayArr = [];
@@ -6159,8 +6758,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 						vSerialQtyArr.push(vSerialQty);
 						serialArrayArr.push(vSerialNum);
 						vSerialStatustextArr.push(vStatusText);
-					}
-					else {
+					} else {
 						if (vStatusIDArr.length > 0 && vStatusIDArr.indexOf(vStatus) != -1) {
 							var ind = vStatusIDArr.indexOf(vStatus);
 							var tempQty = vSerialQtyArr[ind];
@@ -6171,8 +6769,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							serialArrayArr[ind] = totalSerial;
 							vStatusIDArr[ind] = vStatus;
 							vSerialStatustextArr[ind] = vStatusText;
-						}
-						else {
+						} else {
 							vStatusIDArr.push(vStatus);
 							vSerialQtyArr.push(vSerialQty);
 							serialArrayArr.push(vSerialNum);

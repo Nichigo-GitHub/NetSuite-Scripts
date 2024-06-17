@@ -1,5 +1,4 @@
 "use strict";
-
 /**
  * Module Description
  * 
@@ -7,7 +6,6 @@
  * 1.00       11 Mar 2016     Administrator
  *
  */
-
 /**
  * @param {nlobjRequest} request Request object
  * @param {nlobjResponse} response Response object
@@ -102,8 +100,7 @@ function getReceivingTagDataJson(poId, receiptId, lineNo) {
 
   nlapiLogExecution('ERROR', 'Month Value', receivingTagDataJson.month);
   return dataArray.length > 0 ? dataArray : "";
-}
-/**
+}/**
  * 
  * @param poId
  * @returns
@@ -116,7 +113,6 @@ var results = nlapiSearchRecord("transaction", "customsearch_transac_body_fields
 if (results)
 	return convertNullToEmpty(results[0].getText("custbody49"));
 */
-
 /**
  * 
  * @param monthNum
@@ -166,8 +162,7 @@ function getSimpleEnglishMonthJson(monthNum, upper, lower) {
   }
 
   return simpleMonthJson;
-}
-/**
+}/**
  * 把null和undefined 转为""
  * @param parameter
  * @returns

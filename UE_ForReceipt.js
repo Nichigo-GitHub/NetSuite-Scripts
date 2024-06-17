@@ -2,10 +2,10 @@
  * Module Description
  * 
  * Version    Date            Author           Remarks
+
  * 1.00       18 Apr 2016     Administrator
  *
  */
-
 /**
  * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
  * @appliedtorecord recordType
@@ -18,58 +18,72 @@
 
 function userEventBeforeLoad(type, form, request) {
   if (type == "view") {
-    var subId = nlapiGetSubsidiary();
+    var subId = nlapiGetFieldValue("subsidiary");
     var recieveTagUrl = nlapiResolveURL("SUITELET", "customscript_kpg_sl_receiving_tag", "customdeploy_kpg_sl_receiving_tag", null);
     var transferlocation = nlapiGetFieldValue("transferlocation");
     var recordId = nlapiGetRecordId();
     var itemReceiptRecordType = nlapiLookupField('itemreceipt', recordId, 'recordtype');
     var inventoryTransferRecordType = nlapiLookupField('inventorytransfer', recordId, 'recordtype');
     var inventoryAdjustmentRecordType = nlapiLookupField('inventoryadjustment', recordId, 'recordtype');
+    var location = nlapiGetFieldValue("location");
     var rectype = '';
 
     if (itemReceiptRecordType) {
       rectype = itemReceiptRecordType;
-      //nlapiLogExecution('ERROR', 'Record Type and Sub', itemReceiptRecordType + ' ' + subId);
     } else if (inventoryTransferRecordType) {
       rectype = inventoryTransferRecordType;
-      //nlapiLogExecution('DEBUG', 'Record Type and Sub ', inventoryTransferRecordType + ' ' + subId); 
     } else if (inventoryAdjustmentRecordType) {
       rectype = inventoryAdjustmentRecordType;
-      //nlapiLogExecution('DEBUG', 'Record Type and Sub ', inventoryAdjustmentRecordType + ' ' + subId); 
     }
 
     nlapiLogExecution('ERROR', 'recordId', recordId);
     nlapiLogExecution('ERROR', 'rectype', rectype);
     nlapiLogExecution('ERROR', 'subId', subId);
+    nlapiLogExecution('ERROR', 'location', location);
 
     var url_1 = recieveTagUrl + "&Id=" + recordId + "&recType=" + rectype;
     var url_2 = recieveTagUrl + "&Id=" + recordId + "&recType=" + rectype + "&printOutTag=RM";
     var url_3 = recieveTagUrl + "&Id=" + recordId + "&recType=" + rectype + "&printOutTag=FG";
+    var url_4 = recieveTagUrl + "&Id=" + recordId + "&recType=" + rectype + "&location=Branch";
+    var url_5 = recieveTagUrl + "&Id=" + recordId + "&recType=" + rectype + "&location=Trade";
+    var url_6 = recieveTagUrl + "&Id=" + recordId + "&recType=" + rectype + "&location=" + location;
 
     if (rectype == "inventorytransfer") {
-      if (subId == 18 || subId == 5) {
-        if (transferlocation == 792) {
+      if (subId == 18 || subId == 5) { //KPLima
+        if (transferlocation == 792 || transferlocation == 825) {
           form.addButton("custpage_receiving_tag", " Print Receiving Tag", "window.open('" + url_2 + "')");
         }
         form.addButton("custpage_receiving_tag", "Print FG Tag", "window.open('" + url_3 + "')");
-      } else {
-        form.addButton("custpage_receiving_tag", "Print FG Tag", "window.open('" + url_1 + "')");
+      } else if (subId == 14) {
+        form.addButton("custpage_receiving_tag", " Print Receiving Tag", "window.open('" + url_2 + "')");
+      } else if (subId == 15) {
+        form.addButton("custpage_receiving_tag", " Print Receiving Tag", "window.open('" + url_1 + "')");
+      } else if (subId == 4) {
+        form.addButton("custpage_receiving_tag", " Print FG Tag", "window.open('" + url_1 + "')");
       }
     } else if (rectype == "inventoryadjustment") {
       if (subId == 4) {
         for (var i = 1; i <= 1; i++) {
           var locationDisplay = nlapiGetLineItemValue('inventory', 'location_display', i);
-          // Process locationDisplay value as needed
         }
-
-        nlapiLogExecution('ERROR', 'locationDisplay', locationDisplay);
 
         if (locationDisplay == "KPI Finished Goods") {
-          form.addButton("custpage_receiving_tag", "Print FG Tag", "window.open('" + url_1 + "')");
+          form.addButton("custpage_receiving_tag", "Print FG Tag", "window.open('" + url_1 + "')"); // KPIndonesia
         }
       }
-    } else {
-      form.addButton("custpage_receiving_tag", "Print Receiving Tag", "window.open('" + url_1 + "')");
+    } else if (rectype == "itemreceipt") {
+      if (subId == 15) {
+        if (location == 866) {
+          form.addButton("custpage_receiving_tag", "Print HCM Receiving Tag", "window.open('" + url_4 + "')"); //KPVN_AMATA_Branch
+        } else if (location == 873 || location == 897) {
+          form.addButton("custpage_receiving_tag", "Print HCM Receiving Tag", "window.open('" + url_5 + "')"); //KPVN_AMATA_Trade
+        } else if (location == 781 || location == 785 || location == 776 || location == 855) {
+          form.addButton("custpage_receiving_tag", "Print Hanoi Receiving Tag", "window.open('" + url_6 + "')"); //KPVN_HANOI
+        }
+
+      } else {
+        form.addButton("custpage_receiving_tag", "Print Receiving Tag", "window.open('" + url_1 + "')");
+      }
     }
   }
 }

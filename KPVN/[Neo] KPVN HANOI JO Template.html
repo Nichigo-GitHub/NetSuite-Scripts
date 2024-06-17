@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pdf>
+  <html>
+
+  <head>
+    <style type="text/css">
+      * {
+        border-spacing: 0;
+        font-family: Sans-serif;
+        font-size: 13px;
+        margin: 0;
+      }
+
+      body {
+        height: 297mm;
+        width: 210mm;
+        margin: 3px;
+        padding: 0;
+      }
+
+      h1 {
+        font-size: 26px;
+        font-family: Sans-serif;
+        font-weight: lighter;
+        letter-spacing: 1px;
+      }
+
+      h3 {
+        font-size: 15px;
+        font-family: Sans-serif;
+        letter-spacing: 1px;
+      }
+
+      h5 {
+        font-size: 12px;
+        font-family: Sans-serif;
+        letter-spacing: 1px;
+      }
+
+      .fix {
+        letter-spacing: 1px;
+      }
+
+      .border {
+        border-left: 1px solid;
+        border-right: 1px solid;
+        border-top: 1px solid;
+        border-bottom: 1px solid;
+      }
+
+      .borderBold {
+        border-left: 2px solid;
+        border-right: 2px solid;
+        border-top: 2px solid;
+        border-bottom: 2px solid;
+      }
+
+      .img {
+        float: right;
+        margin-top: -25px;
+      }
+
+      .floatRight {
+        padding-top: 20px;
+        float: right;
+      }
+
+      .joborder {
+        display: block;
+        font-size: 2em;
+        font-weight: bold;
+      }
+
+      .address {
+        font-size: 8px;
+      }
+
+      .bold {
+        font-weight: bold;
+      }
+
+      .paddingTop {
+        padding-left: 100px;
+      }
+
+      .paddingLeft {
+        padding-left: 100px;
+      }
+
+      .paddingRight {
+        padding-right: 70px;
+      }
+
+      .paddingBottom {
+        padding-bottom: 25px;
+      }
+
+      .paddingSFLIadd {
+        margin-left: 600px;
+      }
+
+      .borderLeft {
+        border-left: 1px solid;
+      }
+
+      .borderRight {
+        border-right: 1px solid;
+      }
+
+      .borderTop {
+        border-top: 1px solid;
+      }
+
+      .borderBottom {
+        border-bottom: 1px solid;
+      }
+
+      .tableMarginTop {
+        margin-top: 3px;
+        height: auto;
+      }
+
+      .tableColor {
+        background-color: #5A5A5A;
+        color: #ffffff;
+      }
+
+      .padding {
+        padding-top: 5px;
+        padding-bottom: 5px;
+      }
+
+      .paddingLR {
+        padding-left: 5px;
+        padding-right: 5px;
+      }
+
+      .grey {
+        background-color: #C0C0C0;
+      }
+
+      footer {
+        width: 100%;
+        height: 20px;
+      }
+
+      .floatLeft1 {
+        padding-top: 10px;
+        float: left;
+        border-left: 1px solid;
+        border-right: 1px solid;
+        border-top: 1px solid;
+        border-bottom: 1px solid;
+      }
+
+      .tab {
+        display: inline-block;
+        margin-left: 450px;
+      }
+
+      .custom-cell {
+        width: 60px;
+      }
+
+      .custom-cell2 {
+        width: 140px;
+      }
+
+      .tdTable {
+        colspan: 1;
+        rowspan: 1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <table style="width: 100%;" align="left">
+      <tr>
+        <td align="left">
+          <img
+            src="https://3389427.app.netsuite.com/core/media/media.nl?id=591&c=3389427&h=e_d0joUP8_NDSRzCrwUd_1WYoJmF-GswOr4_pBQv3vSnSfhA&fcts=20120930202450&whence="
+            style="width: 58px; height: 58px; margin-bottom: 10px; margin-top: 15px; padding-top: -5px;" />
+        </td>
+        <td height="30" width="15px" align="left" valign="middle">
+          <h1>KANEPACKAGE VIETNAM CO.,LTD</h1></td>
+        <td align="right" style="width: 200px;">
+          <table cellpadding="0" cellspacing="0">
+            <tr>
+              <td valign="middle">
+                <h3>{joNum2}</h3>
+              </td>
+              <td>
+                <barcode codetype="qrcode" style="height: 75px; width: 75px;" showtext="false" value="{joNum3}" />
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <table width="100%">
+      <tr>
+        <td class="joborder" align="left">JOB ORDER</td>
+        <td align="right">LPR-004-F04-REV.01</td>
+      </tr>
+    </table>
+    <table class="borderBold" width="100%" align="center">
+      <tr>
+        <td>Prepared By :</td>
+        <td align="left" width="50%" class="bold">{preparedBy}</td>
+        <td>
+          <p>Date Needed: {DateNeed}</p>
+        </td>
+      </tr>
+      <tr>
+        <td>Date Prepared :</td>
+        <td align="left" width="50%">{date}</td>
+        <td>
+          <p>Time Needed: {TimeNeed}</p>
+        </td>
+      </tr>
+    </table>
+
+    <table class="borderBold tableMarginTop" width="100%" align="center">
+      <tr>
+        <td class="bold">Customer:<br /><br />{cust}</td>
+        <td class="borderRight">
+        </td>
+        <td width="33%">
+          Finished Goods:
+          <p><span style="font-size: 18px; font-weight: bold;">{assemblyItem}</span><br />
+            {assemblyItemDesc}</p>
+        </td>
+        <td width="33%">
+          <p><span style="font-size: 18px; font-weight: bold;">Quantity: {qty}</span><br /><br />
+          Department Location: <br /><span style="font-size: 18px; font-weight: bold;">{deptLocation}</span></p>
+        </td>
+      </tr>
+    </table>
+
+    <!-- tableMarginTop -->
+
+    <p>Materials Required <span class="tab">Issued By: _______________</span></p>
+    <table class="borderBold" width="100%">
+      <tr>
+        <td class="padding borderRight borderBottom" width="15%" align="center">CODE</td>
+        <td class="padding borderRight borderBottom" align="center">DESCRIPTION</td>
+        <td class="padding borderRight borderBottom" align="center">QUANTITY</td>
+        <td class="padding borderRight borderBottom" align="center">ISSUED QTY</td>
+        <td class="padding custom-cell borderRight borderBottom" align="center">DR NO.</td>
+        <td class="padding borderRight borderBottom" align="center">SUPPLIER</td>
+        <td class="padding borderBottom" align="center">RECEIVED ON</td>
+      </tr>
+      {body}
+    </table>
+    <table class="borderBold tableMarginTop" width="100%" align="center">
+      <tr>
+        <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle" width="20%">
+          PROCESS</td>
+        <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle" width="10%">DATE
+        </td>
+        <td class="padding borderRight" colspan="2" align="center" width="20%">TIME</td>
+        <td class="padding borderRight" colspan="2" align="center" width="15%">GOOD QTY</td>
+        <td class="padding borderRight" colspan="2" align="center" width="15%">REJECT QTY</td>
+        <td class="padding borderBottom" rowspan="2" align="center" valign="middle" width="20%">Incharge</td>
+      </tr>
+      <tr>
+        <td class="padding borderRight borderBottom borderTop" align="center">Start</td>
+        <td class="padding borderRight borderBottom borderTop" align="center">End</td>
+        <td class="padding borderRight borderBottom borderTop" align="center">A</td>
+        <td class="padding borderRight borderBottom borderTop" align="center">B</td>
+        <td class="padding borderRight borderBottom borderTop" align="center">In-house</td>
+        <td class="padding borderRight borderBottom borderTop" align="center">Supplier</td>
+      </tr>
+      {226}
+      {227}
+      {228}
+      {229}
+      {230}
+      {231}
+      {232}
+      {233}
+      {234}
+      {235}
+      {241}
+      {242}
+      {243}
+      {244}
+      {245}
+      {258}
+      {259}
+      {260}
+      {261}
+      {262}
+      {263}
+      {264}
+      {265}
+      {266}
+      {267}
+      {extra}
+      {extra2}
+      {extra3}
+    </table>
+
+    <p></p>
+
+    <footer>
+      <table width="100%" align="center">
+        <tr>
+          <td>
+            <p>Special Instructions:______________________________________________________</p>
+          </td>
+          <!-- <td class="borderRight borderTop">Noted By:</td>
+<td class="borderRight borderTop">Approved By:</td>
+<td class="borderRight borderTop">Issued By:</td>
+<td class="borderRight borderTop">Received By:</td>
+<td class="borderLeft borderRight borderTop" align="center">{joNum2}</td> -->
+        </tr>
+        <tr>
+          <!-- <td class="borderLeft borderRight borderBottom">
+<p></p>
+</td>
+<td class="borderRight borderBottom">
+<p></p>
+</td>
+<td class="borderRight borderBottom">
+<p></p>
+</td>
+<td class="borderRight borderBottom">
+<p></p>
+</td>
+<td class="borderRight borderBottom">
+</td>
+<td class="borderLeft borderRight borderBottom" align="center">
+<barcode codetype="qrcode" style="height: 75px; width: 75px;" showtext="false"
+value="{joNum3}" />
+</td> -->
+        </tr>
+
+      </table>
+    </footer>
+  </body>
+
+  </html>
+</pdf>

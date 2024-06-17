@@ -17,12 +17,14 @@ function suitelet(request, response) {
     var receiptId = request.getParameter("Id");
     var recType = request.getParameter("recType");
     var tag = request.getParameter("printOutTag");
+    var location = request.getParameter("location");
 
     nlapiLogExecution('ERROR', 'poId', poId);
     nlapiLogExecution('ERROR', 'lineNo', lineNo);
     nlapiLogExecution('ERROR', 'receiptId', receiptId);
     nlapiLogExecution('ERROR', 'recType', recType);
     nlapiLogExecution('ERROR', 'tag', tag);
+    nlapiLogExecution('ERROR', 'location', location);
 
     if (recType == "itemreceipt") {
         if (!poId && !receiptId)
@@ -31,15 +33,30 @@ function suitelet(request, response) {
 
         var customform = poRecord.getFieldValue("customform");
         var subsidiary = poRecord.getFieldValue("subsidiary");
+        nlapiLogExecution('ERROR', 'customform', customform);
+        nlapiLogExecution('ERROR', 'subsidiary', subsidiary);
 
         if (customform == 128 && subsidiary == 18) {
             var receivingTagTemplateFile = nlapiLoadFile("290270"); //KPLima_Receiving_Tag.xml
             var orderedBy = poRecord.getFieldText("custbody382");
-        } else if (customform == 486 && subsidiary == 15) {
-            var receivingTagTemplateFile = nlapiLoadFile("290270"); //KPVN_Receiving_Tag.xml
         } else if (customform == 503 && subsidiary == 4) {
             var receivingTagTemplateFile = nlapiLoadFile("299436"); //KPIN_Receiving_Tag.xml
             var orderedBy = "-----"; //getOrderedBy(poId);
+        } else if (customform == 486 && subsidiary == 15) {
+            if (location == 'Branch') {
+                nlapiLogExecution('ERROR', 'print', 'amata branch');
+                var receivingTagTemplateFile = nlapiLoadFile("311521"); //KPVN_AMATA_BRANCH_Receiving_Tag.xml
+                var orderedBy = " "; //getOrderedBy(poId);
+            } else if (location == 'Trade') {
+                nlapiLogExecution('ERROR', 'print', 'amata trade');
+                var receivingTagTemplateFile = nlapiLoadFile("311522"); //KPVN_AMATA_TRADE_Receiving_Tag.xml
+                var orderedBy = " "; //getOrderedBy(poId);
+            } else {
+                nlapiLogExecution('ERROR', 'print', 'hanoi');
+                var receivingTagTemplateFile = nlapiLoadFile("312905"); //KPVN_HANOI_Receiving_Tag.xml
+                var orderedBy = " "; //getOrderedBy(poId);
+            }
+
         } else {
             var receivingTagTemplateFile = nlapiLoadFile("22162"); //(SFLI) receivingTagTemplate.xml
             var orderedBy = "Ian and Ms Weng"; //getOrderedBy(poId);
@@ -72,7 +89,7 @@ function suitelet(request, response) {
                 } else {
                     var receivingTagTemplateFile = nlapiLoadFile("295850"); //KPLima_FG_Tag.xml
                 }
-            } else if (customform == 710) {
+            } else if (customform == 710 || customform == 650) {
                 if (tag == 'RM') {
                     var receivingTagTemplateFile = nlapiLoadFile("301224"); //KPLima_Receiving_Tag(from_laguna).xml 
                 } else {
@@ -81,6 +98,11 @@ function suitelet(request, response) {
             }
         } else if (customform == 620 && subsidiary == 4) {
             var receivingTagTemplateFile = nlapiLoadFile("300170"); //KPIN_FG_Tag.xml
+        } else if (customform == 694 && subsidiary == 15) {
+            var receivingTagTemplateFile = nlapiLoadFile("309110"); //KPVN_FG_Tag.xml
+        } else if (customform == 707 && subsidiary == 14) {
+            var receivingTagTemplateFile = nlapiLoadFile("22162"); //(SFLI) receivingTagTemplate.xml
+            var orderedBy = "Ian and Ms Weng"; //getOrderedBy(poId);
         }
         var dataArray = getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, orderedBy);
 
@@ -120,18 +142,24 @@ function suitelet(request, response) {
 // Function for item reciepts
 
 function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy) {
-    var poRecord = poId ? nlapiLoadRecord("purchaseorder", poId
-    ) : nlapiLoadRecord("itemreceipt", receiptId);
+    var poRecord = poId ? nlapiLoadRecord("purchaseorder", poId) : nlapiLoadRecord("itemreceipt", receiptId);
     var refPoNo = poRecord.getFieldValue("custbody92"); //External PO No. (Custom)   
     var refPoNo2 = poRecord.getFieldText("createdfrom");
     var dateDelivered = poRecord.getFieldValue("custbody328");
     var drNo = poRecord.getFieldValue("custbody28"); //DR No. (Custom)
     var reveivedBy = poRecord.getFieldText("custbody1"); //Prepared by (Custom)
     var dateReceived = poRecord.getFieldValue("trandate"); //Date
-    var customer = poRecord.getFieldText("custbody41");//Customer (Custom)
-    var RrNo = poRecord.getFieldValue("custbody19");//KPLIMA RR #
-    var supplier = nlapiLookupField("vendor"
-        , poRecord.getFieldValue("entity"), "companyname"); //COMPANY NAME
+    var customer = poRecord.getFieldText("custbody41"); //Customer (Custom)
+    var RrNo = poRecord.getFieldValue("custbody19"); //KPLIMA RR #
+    if (!RrNo) {
+        RrNo = poRecord.getFieldValue("tranid");
+    }
+    var supplier = nlapiLookupField("vendor", poRecord.getFieldValue("entity"), "companyname"); //COMPANY NAME
+    var location = poRecord.getFieldText("location");
+    var tolocation = location.replace(/^KPVN HANOI : /, '').trim();
+    tolocation = tolocation.replace(/^KPVN AMATA : AMATA BRANCH - Main Location : /, '').trim();
+    tolocation = tolocation.replace(/^KPVN AMATA : AMATA EPE - Main Location : /, '').trim();
+    tolocation = tolocation.replace(/^KPVN AMATA : AMATA TRADING - Main Location : /, '').trim();
 
     var receiveMonth = dateReceived ? (nlapiStringToDate(dateReceived).getMonth() + 1) : "";
     var month = poId ? nlapiCreateRecord("customrecord_kpj_date").getFieldValue("custrecord_current_month") : receiveMonth; //当前月
@@ -150,7 +178,8 @@ function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy) {
         "dateDelivered": convertNullToEmpty(dateDelivered),
         "supplier": convertNullToEmpty(supplier),
         "month": convertNullToEmpty(month),
-        "inspectedBy": ""
+        "inspectedBy": "",
+        "location": convertNullToEmpty(tolocation)
     };
     var receivingTagCommonDataString = JSON.stringify(receivingTagCommonDataJson);
 
@@ -174,8 +203,7 @@ function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy) {
             receivingTagDataJson["itemCode"] = convertNullToEmpty(itemCode);
             receivingTagDataJson["itemDescription"] = convertNullToEmpty(itemDescription);
             receivingTagDataJson["quantity"] = convertNullToEmpty(quantity);
-            receivingTagDataJson["itemUPC"] = convertNullToEmpty(itemUPC
-            );
+            receivingTagDataJson["itemUPC"] = convertNullToEmpty(itemUPC);
             dataArray.push(receivingTagDataJson);
         } else {
             var lineNo1 = poRecord.getLineItemValue("item", "line", i);
@@ -209,12 +237,34 @@ function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, or
     //var refPoNo2 = itRecord.getFieldText("createdfrom");
     var dateDelivered = itRecord.getFieldValue("custbody397");
     var drNo = itRecord.getFieldValue("custbody396");
-
-
     var reveivedBy = itRecord.getFieldText("custbody1"); //Prepared by (Custom)
+    if (!reveivedBy) {
+        reveivedBy = itRecord.getFieldText("custbody365");
+    }
+    var location = itRecord.getFieldText("transferlocation");
+    var tolocation = location.replace(/^KPVN HANOI : /, '').trim();
+    tolocation = tolocation.replace(/^KPVN AMATA : AMATA BRANCH - Main Location : /, '').trim();
+    tolocation = tolocation.replace(/^KPVN AMATA : AMATA EPE - Main Location : /, '').trim();
+    tolocation = tolocation.replace(/^KPVN AMATA : AMATA TRADING - Main Location : /, '').trim();
     var dateReceived = itRecord.getFieldValue("trandate"); //Date
-    var customer = itRecord.getFieldText("custbody41");//Customer (Custom)
-    var RrNo = itRecord.getFieldValue("custbody19");//KPLIMA RR #
+    var customer = itRecord.getFieldText("custbody41"); //Customer (Custom)
+    if (!customer && refJoNo) {
+        var filters = [
+            new nlobjSearchFilter('tranid', null, 'is', refJoNo)
+        ];
+        var columns = [
+            new nlobjSearchColumn('internalid')
+        ];
+
+        var searchResults = nlapiSearchRecord('workorder', null, filters, columns);
+
+        if (searchResults && searchResults.length > 0) {
+            var internalId = searchResults[0].getValue('internalid');
+            var workOrder = nlapiLoadRecord('workorder', internalId);
+            customer = workOrder.getFieldValue('entityname');
+        }
+    }
+    var RrNo = itRecord.getFieldValue("custbody19"); //KPLIMA RR #
     var supplier2 = itRecord.getFieldText("custbodycust_sfli_vendor"); //supplier
     //var supplier = nlapiLookupField("vendor", itRecord.getFieldValue("entity"), "companyname"); //COMPANY NAME
 
@@ -231,11 +281,13 @@ function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, or
         "customer": convertNullToEmpty(customer),
         "dateDelivered": convertNullToEmpty(dateDelivered),
         "supplier2": convertNullToEmpty(supplier2),
+        "location": convertNullToEmpty(tolocation),
         //"month": convertNullToEmpty(month),
         "inspectedBy": ""
     };
     var receivingTagCommonDataString = JSON.stringify(receivingTagCommonDataJson);
 
+    var itemId = '';
     var itemCode = "";
     var itemDescription = "";
     var quantity = "";
@@ -285,7 +337,7 @@ function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, or
     return dataArray.length > 0 ? dataArray : "";
 }
 
-// Function for inventory transfers
+// Function for inventory adjustment
 
 function getReceivingTagDataJsonForInventoryAdjustment(poId, receiptId, lineNo, orderedBy) {
     var itRecord = nlapiLoadRecord("inventoryadjustment", receiptId);
@@ -298,8 +350,8 @@ function getReceivingTagDataJsonForInventoryAdjustment(poId, receiptId, lineNo, 
 
     var reveivedBy = itRecord.getFieldText("custbody1"); //Prepared by (Custom)
     var dateReceived = itRecord.getFieldValue("trandate"); //Date
-    var customer = itRecord.getFieldText("customer");//Customer (Custom)
-    var RrNo = itRecord.getFieldValue("custbody19");//KPLIMA RR #
+    var customer = itRecord.getFieldText("customer"); //Customer (Custom)
+    var RrNo = itRecord.getFieldValue("custbody19"); //KPLIMA RR #
     var supplier2 = itRecord.getFieldText("custbodycust_sfli_vendor"); //supplier
     //var supplier = nlapiLookupField("vendor", itRecord.getFieldValue("entity"), "companyname"); //COMPANY NAME
 

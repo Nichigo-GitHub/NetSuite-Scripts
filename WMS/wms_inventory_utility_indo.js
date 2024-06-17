@@ -1,7 +1,4 @@
 /**
- *    Copyright � 2019, Oracle and/or its affiliates. All rights reserved.
- */
-/**
  * @NApiVersion 2.x
  * @NModuleScope public
  */
@@ -1504,14 +1501,14 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             });
 
             invTransfer.setValue({
-				fieldId: 'tranid',
-				value: invTranID
-			});
+                fieldId: 'tranid',
+                value: invTranID
+            });
 
             invTransfer.setValue({
-				fieldId: 'custbody23',
-				value: invTranID
-			});
+                fieldId: 'custbody23',
+                value: invTranID
+            });
 
             var queryResult = query.runSuiteQL({
                 query: "SELECT (select id from department where lower(name) LIKE '" + department + "') as Department",
@@ -1533,7 +1530,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             });
             invTransfer.selectNewLine({
                 sublistId: 'inventory',
-            });            
+            });
             invTransfer.setCurrentSublistValue({
                 sublistId: 'inventory',
                 fieldId: 'item',
@@ -2152,7 +2149,8 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                     values: warehouseLocationId
                 }));
             searchrecordSearch.filters = filter;
-            var binSearchResults = utility.getSearchResultInJSON(searchrecordSearch);notes
+            var binSearchResults = utility.getSearchResultInJSON(searchrecordSearch);
+            notes
             return binSearchResults;
         }
 

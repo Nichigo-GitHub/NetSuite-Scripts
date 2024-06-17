@@ -1,0 +1,366 @@
+<?xml version="1.0"?>
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf lang="ja" xml:lang="ja">
+
+    <head>
+        <meta name="my pdf" value="My First Report" />
+        <macrolist>
+            <macro id="myFooter">
+            </macro>
+        </macrolist>
+        <style type="text/css">
+            .head_tab {
+                text-align: left;
+            }
+
+            h2 {
+                letter-spacing: 1px;
+            }
+
+            h1 {
+                letter-spacing: 1px;
+                font-size: 42px;
+            }
+
+
+            .htab_tdw1 {
+                padding: 0 0 0 35px;
+            }
+
+            .text_alr {
+                margin: 10px 0 0 0;
+                text-align: right;
+            }
+
+            .htab_tdm {
+                margin: 15px 0 0 0;
+                text-align: center;
+            }
+
+            .podate01 {}
+
+            .podate02 {
+                margin: 0 0 0 10px;
+            }
+
+            .htl_tdmt10 {
+                margin: 10px 0 0 0;
+            }
+
+            .body_tab {
+                border: 2px solid #333 !important;
+                border-bottom: 1px solid #333;
+                text-align: left;
+            }
+
+            .body_tab tr td {
+                border-bottom: 1px solid #333;
+                border-left: 1px solid #333;
+            }
+
+            .top_solid {
+                border-top: 1px solid #333;
+            }
+
+            .left_solid {
+                border-left: 1px solid #333;
+            }
+
+            .bottom_solid {
+                border-bottom: 1px solid #333;
+            }
+
+            .right_solid {
+                border-right: 1px solid #333;
+            }
+
+            .size12 {
+                font-size: 12px;
+            }
+
+            .size14 {
+                font-size: 14px;
+            }
+
+            .size26 {
+                font-size: 16px;
+            }
+
+            .size18 {
+                font-size: 18px;
+            }
+
+            .size20 {
+                font-size: 20px;
+            }
+
+            .size22 {
+                font-size: 22px;
+            }
+
+            .size24 {
+                font-size: 24px;
+            }
+
+            .size26 {
+                font-size: 26px;
+            }
+
+            .size28 {
+                font-size: 28px;
+            }
+
+            .size38 {
+                font-size: 38px;
+            }
+
+            .size58 {
+                font-size: 58px;
+            }
+
+            .size75 {
+                font-size: 75px;
+            }
+
+            .bold-text {
+                font-weight: bold;
+            }
+
+            .borderAll {
+                border-left: 2px solid #000000;
+                border-right: 2px solid #000000;
+                border-top: 2px solid #000000;
+                border-bottom: 2px solid #000000;
+            }
+
+            .ht_head td {
+                text-align: center;
+                padding: 2px 0;
+            }
+
+            .ht_body td {
+                padding: 5px;
+                height: 50px;
+                vertical-align: middle;
+            }
+
+            .body_tab tr td.bdno_l {
+                border-left: none;
+            }
+
+            .body_tab tr td.bdno_b {
+                border-bottom: none;
+            }
+
+            .bdline_b {
+                border-bottom: 1px solid #333 !important;
+            }
+
+            .ht_tdf {
+                vertical-align: middle;
+                text-align: center;
+            }
+
+            .promt {
+                margin: 20px 0 0 0;
+                text-align: left;
+            }
+
+            .hr0 {
+                height: 1px;
+                border: none;
+                border-top: 1px dashed #0066CC;
+            }
+
+            .next_page {
+                page-break-after: always;
+            }
+        </style>
+    </head>
+
+    <body padding="0.5in 0.5in 0.5in 0.5in" size="A3" class="next_page">
+        {@if dataArray}
+        {@each dataArray as receivingTagDataJson,index}
+        <table width="100%" border="0">
+            <tr>
+                <td align="left">
+                    <img src="https://3389427.app.netsuite.com/core/media/media.nl?id=591&amp;c=3389427&amp;h=e_d0joUP8_NDSRzCrwUd_1WYoJmF-GswOr4_pBQv3vSnSfhA&amp;fcts=20120930202450&amp;whence="
+                        style="width: 55px; height: 58px; margin-bottom: 10px; margin-top: 15px; padding-top: -5px;" />
+                </td>
+                <td height="30" width="460px" align="left" class="size28"
+                    style="display: inline-block; margin-right: 400px;" valign="middle">KANEPACKAGE VIETNAM CO.,LTD</td>
+            </tr>
+            <tr>
+                <td height="20" colspan="2" align="center">&nbsp;</td>
+            </tr>
+            <tr>
+                <td class="bottom_solid top_solid left_solid right_solid size58" colspan="2" width="100%" height="35"
+                    align="center" valign="bottom">FINISHED GOOD TAG
+                </td>
+            </tr>
+        </table>
+        <table width="100%" border="0">
+            <tr>
+                <td width="4%" height="30" colspan="2" class="bottom_solid top_solid left_solid size20" valign="top">
+                    <barcode style="width: 100; height: 100;" codetype="qrcode" showtext="false"
+                        value="${receivingTagDataJson.itemUPC}" />
+                </td>
+                <td width="80%" height="30" colspan="2"
+                    class="bottom_solid top_solid left_solid right_solid size75 bold-text" align="left" valign="middle">
+                    ${receivingTagDataJson.itemCode}</td>
+            </tr>
+        </table>
+        <table width="100%" border="0">
+            <tr>
+                <td height="30" colspan="2" class="top_solid left_solid right_solid" valign="bottom"><span
+                        style="font-size: 28px;">ITEM DESCRIPTION</span></td>
+            </tr>
+            <tr>
+                <td height="70" colspan="2" class="bottom_solid left_solid right_solid">
+                    <h1>
+                        ${receivingTagDataJson.itemDescription} </h1>
+                </td>
+            </tr>
+            <tr>
+                <td width="50%" height="30" class="top_solid left_solid right_solid" valign="bottom"><span
+                        style="font-size: 28px;">CUSTOMER</span></td>
+                <td width="50%" valign="bottom" class="top_solid right_solid"><span
+                        style="font-size: 28px;">LOCATION</span></td>
+            </tr>
+            <tr>
+                <td height="70" class="bottom_solid left_solid right_solid" align="left" valign="middle">
+                    <h2>${receivingTagDataJson.customer}</h2>
+                </td>
+                <td class="bottom_solid right_solid size20" align="left" valign="middle">
+                    <h2>${receivingTagDataJson.location}</h2>
+                </td>
+            </tr>
+        </table>
+        <table width="100%" border="0">
+            <tr>
+                <td width="20%" height="10" class="top_solid bottom_solid left_solid right_solid" valign="bottom"
+                    align="center"><span style="font-size: 28px; text-align: center;">Quantity<br></br>received</span>
+                </td>
+                <td width="20%" height="10" class="top_solid bottom_solid left_solid right_solid" valign="bottom"
+                    align="center"><span style="font-size: 28px; text-align: center;">Quantity<br></br>per pallet</span>
+                </td>
+                <td width="60%" colspan="4" height="10" class="top_solid bottom_solid left_solid right_solid"
+                    style="text-align: center;" valign="top" align="center">
+                    <p><span style="font-size: 28px;">Actual Quantity</span></p>
+                    <p><span style="font-size: 20px;">(Note: Please indicate remaining qty after partial)</span></p>
+                </td>
+            </tr>
+            <tr>
+                <td width="20%" height="10" class="left_solid right_solid size20"></td>
+                <td width="20%" height="10" class="left_solid right_solid size20"></td>
+                <td width="20%" height="10" class="bottom_solid left_solid right_solid size20" align="center">1st</td>
+                <td width="20%" height="10" class="bottom_solid left_solid right_solid size20" align="center">2nd</td>
+                <td width="20%" height="10" class="bottom_solid left_solid right_solid size20" align="center">3rd</td>
+                <td width="20%" height="10" class="bottom_solid left_solid right_solid size20" align="center">4th</td>
+            </tr>
+            <tr>
+                <td height="10" align="center" class="left_solid right_solid" style="font-size: 22px;">
+                    <barcode style="width: 125; height: 30;" codetype="code128" showtext="false"
+                        value="${receivingTagDataJson.quantity}" />${receivingTagDataJson.quantity}
+                </td>
+                <td height="10" align="center" class="left_solid right_solid size20">&nbsp;</td>
+                <td height="10" align="center" class="left_solid right_solid size20">&nbsp;</td>
+                <td height="10" align="center" class="left_solid right_solid size20">&nbsp;</td>
+                <td height="10" align="center" class="left_solid right_solid size20">&nbsp;</td>
+                <td height="10" align="center" class="left_solid right_solid size20">&nbsp;</td>
+
+            </tr>
+            <tr>
+                <td height="10" align="center" class="bottom_solid left_solid right_solid size20">&nbsp;</td>
+                <td height="10" align="center" class="bottom_solid  left_solid right_solid size20">&nbsp;</td>
+                <td height="10" align="center" class="bottom_solid  left_solid right_solid size20">&nbsp;</td>
+                <td height="10" align="center" class="bottom_solid  left_solid right_solid size20">&nbsp;</td>
+                <td height="10" align="center" class="bottom_solid  left_solid right_solid size20">&nbsp;</td>
+                <td height="10" align="center" class="bottom_solid  left_solid right_solid size20">&nbsp;</td>
+            </tr>
+        </table>
+        <table width="100%" border="0">
+            <tr height="30">
+                <td width="50%" align="center" class="top_solid left_solid" valign="bottom" style="font-size: 28px;">
+                    Inspected by</td>
+                <td width="18%" valign="bottom" class="top_solid left_solid" style="font-size: 24px;">Date Received</td>
+                <td width="32%" valign="bottom" class="top_solid left_solid right_solid" style="font-size: 28px;">
+                    ${receivingTagDataJson.dateReceived}</td>
+            </tr>
+            <tr height="30">
+                <td rowspan="6" class="top_solid left_solid bottom_solid">
+                    <img src="https://3389427.app.netsuite.com/core/media/media.nl?id=313887&amp;c=3389427&amp;h=jDzFJ_CehAEbprkLoHwW1imyC2jj83_uIeLHcSeDytp_rCkl&amp;fcts=20240605022431&amp;whence="
+                        width="250px" height="250px" align="center" style="vertical-align:middle"></img>
+                </td>
+                <td valign="bottom" class="top_solid left_solid"><span style="font-size: 28px;">Received by</span></td>
+                <td valign="bottom" class="top_solid left_solid right_solid"><span
+                        style="font-size: 20px;">${receivingTagDataJson.reveivedBy}</span></td>
+            </tr>
+             <tr height="30">
+                <td width="18%" valign="bottom" class="top_solid left_solid" style="font-size: 28px;">Delivery Date</td>
+                <td width="32%" valign="bottom" class="top_solid left_solid right_solid" style="font-size: 28px;">
+                    ${receivingTagDataJson.dateDelivered}</td>
+            </tr>
+            <tr height="30">
+                <td valign="bottom" class="top_solid left_solid" style="font-size: 28px;">DR #</td>
+                <td valign="bottom" class="top_solid left_solid right_solid" style="font-size: 28px;">
+                    {@if receivingTagDataJson.drNo}
+                    <table cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td>${receivingTagDataJson.drNo}</td>
+                            <td>
+                                <barcode style="width: 125; height: 25;" codetype="code128" showtext="false"
+                                    value="${receivingTagDataJson.drNo}"></barcode>
+                            </td>
+                        </tr>
+                    </table>
+                    {@/if}
+                </td>
+            </tr>
+            <tr height="30">
+                <td width="18%" valign="bottom" class="top_solid left_solid" style="font-size: 28px;">Batch #</td>
+                <td width="32%" valign="bottom" class="top_solid left_solid right_solid" style="font-size: 28px;">
+                    ${receivingTagDataJson.dateReceived}</td>
+            </tr>
+            <tr height="30">
+                <td valign="bottom" class="top_solid left_solid" style="font-size: 28px;">Control #</td>
+                <td valign="bottom" class="top_solid left_solid right_solid" style="font-size: 28px;">
+                    ${receivingTagDataJson.RrNo}
+                </td>
+            </tr>
+            <tr height="30">
+                <td valign="bottom" class="top_solid left_solid bottom_solid" style="font-size: 28px;">Ref. JO #</td>
+                <td valign="middle" align="center" class="top_solid left_solid right_solid bottom_solid"
+                    style="font-size: 20px;" rowspan="2">
+                    <table cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td>${receivingTagDataJson.refJoNo}</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <barcode style="width: 125; height: 125;" codetype="qrcode" showtext="false"
+                                    value="${receivingTagDataJson.refJoNo}"></barcode>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr height="100">
+                <td valign="top" class="left_solid bottom_solid"><span style="font-size: 24px;">Remarks:</span></td>
+                <td class="bottom_solid"></td>
+            </tr>
+        </table>
+        <!-- A simple HTML footer example -->
+        <footer id="footer">
+            <!-- A container to hold the footer content -->
+            <div class="container">
+
+            </div>
+        </footer>
+        <!-- Add a page break at the end of the PDF document -->
+        <div class="next_page"></div>
+        {@/each}
+        {@else}
+        {@/if}
+    </body>
+</pdf>

@@ -542,8 +542,7 @@ function Numtwentyfour(twentyfour, a, b, c, d, e, f, g, h, i) {
 
 function Numtwentyfive(twentyfive, a, b, c, d, e, f, g, h, i) {
   return row1 = "<tr>" + "<td class='padding borderRight borderBottom'>15." + twentyfive + "</td>" + "<td class='padding borderRight borderBottom'>" + a + "</td>" + "<td class='padding borderRight borderBottom'>" + b + "</td>" + "<td class='padding borderRight borderBottom'>" + c + "</td>" + "<td class='padding borderRight borderBottom'>" + d + "</td>" + "<td class='padding borderRight borderBottom'>" + e + "</td>" + "<td class='padding borderRight borderBottom'>" + f + "</td>" + "<td class='padding borderRight borderBottom'>" + g + "</td>" + "<td class='padding borderRight borderBottom'>" + h + "</td>" + "<td class='padding borderRight borderBottom'>" + i + "</td>" + "</tr>";
-}
-/*********************INDO JO PROCESS FUNCTION**************************/
+}/*********************INDO JO PROCESS FUNCTION**************************/
 
 
 function Numone1(onetext, a, b, c, d, e, f, g, h, i, j) {

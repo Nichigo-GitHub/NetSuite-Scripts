@@ -1,10 +1,6 @@
 "use strict";
 
 /**
- *    Copyright � 2019, Oracle and/or its affiliates. All rights reserved.
- */
-
-/**
  * @NApiVersion 2.x
  * @NModuleScope public
  */
