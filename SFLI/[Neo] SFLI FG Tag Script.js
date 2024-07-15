@@ -61,12 +61,16 @@ function suitelet(request, response) {
     custm = (custm == null) ? "" : custm;
     JoNum = (JoNum == null) ? "" : JoNum;
 
-    dateValue = new Date(date);
+    // Split the date string into day, month, and year
+    var parts = date.split('/');
+    var day = parseInt(parts[0], 10);
+    var month = parseInt(parts[1], 10) - 1; // Months are 0-based in JavaScript
+    var year = parseInt(parts[2], 10);
 
-    var month = dateValue.getMonth();
+    // Create a new Date object with the correct values
+    var dateValue = new Date(year, month, day);
 
-    // Convert month to a more human-friendly format (e.g., 1 for January)
-    var actualMonth = month + 1;
+    var actualMonth = dateValue.getMonth() + 1; // Convert to 1-based month
 
     var color = actualMonth == 1 ? 'january-background' :
         actualMonth == 2 ? 'february-background' :

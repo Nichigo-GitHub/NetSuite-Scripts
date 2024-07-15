@@ -51,6 +51,7 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 			}*/
 
 			var workOrdListResults = utility.getSearchResultInJSON(workOrdListSearch);
+			log.error('workOrdListResults', workOrdListResults);
 
 			return workOrdListResults;
 		}
@@ -71,7 +72,7 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 				search.createFilter({
 					name: 'mainline',
 					operator: search.Operator.IS,
-					values: 'F'
+					values: 'T'
 				})
 			);
 
@@ -3302,7 +3303,7 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 							});
 							if (transactionUomName.toUpperCase() == unitName.toUpperCase() ||
 								transactionUomName.toUpperCase() == pluralName.toUpperCase()) {
-								log.debug('unitName', unitName);
+								log.error('unitName', unitName);
 								uomValue = uomRecord.getSublistValue({
 									sublistId: 'uom',
 									fieldId: 'internalid',
@@ -4349,7 +4350,7 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 				}
 			});
 
-			log.debug('openTaskDetailsArr', openTaskDetailsArr);
+			log.error('openTaskDetailsArr', openTaskDetailsArr);
 			return openTaskDetailsArr;
 		}
 
@@ -4984,26 +4985,27 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 							values: woInternalId
 						})
 					);
-					log.debug({
-						title: 'backorder woInternalId',
-						details: woInternalId
-					});
 				}
 				// Add formula to handle phantom items
 				workOrderListSearch.filters.push(search.createFilter({
 					name: 'formulanumeric',
 					operator: search.Operator.GREATERTHAN,
 					values: [0],
-					formula: "(CASE WHEN {item.type} = 'Phantom' THEN 1 ELSE ({quantity} - (NVL2({quantitycommitted}, {quantitycommitted}, 0) + NVL2({quantityshiprecv}, {quantityshiprecv}, 0))) END)"
+					formula: "(CASE " +
+						"WHEN {itemsource} = 'PHANTOM' THEN 0 " +
+						"WHEN {quantitycommitted} > 0 THEN 0 " +
+						"WHEN ({quantity} - (NVL2({quantitycommitted}, {quantitycommitted}, 0) + NVL2({quantityshiprecv}, {quantityshiprecv}, 0))) >= 1 THEN 1 " +
+						"ELSE 0 " +
+						"END)"
 				}));
 				var backOrderWOListResults = utility.getSearchResultInJSON(workOrderListSearch);
 				if (backOrderWOListResults.length > 0) {
 					for (var orderListIndex = 0; orderListIndex < backOrderWOListResults.length; orderListIndex++) {
-						var woOrderInternalId = backOrderWOListResults[orderListIndex][woInternalId];
+						var woOrderInternalId = backOrderWOListResults[orderListIndex]['internalid'];
 						backOrderedWOinternalIdArr.push(woOrderInternalId);
 						log.debug({
 							title: 'backOrderWOListResults[' + orderListIndex + '][' + woInternalId + ']',
-							details: backOrderWOListResults[orderListIndex][woInternalId]
+							details: backOrderWOListResults[orderListIndex]['internalid']
 						});
 					}
 				}
@@ -5330,6 +5332,14 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 			return convertedQuantity;
 		}
 
+		function onRequest(context) {
+			log.debug({
+				title: 'onRequest',
+				details: 'Executing onRequest'
+			});
+			// Your Suitelet logic here
+		}
+
 		return {
 			getWOList: getWOList,
 			getWODetails: getWODetails,
@@ -5387,7 +5397,7 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 			getBackOrderedWOlist: getBackOrderedWOlist,
 			getOpenTaskDetailsForWorkOrder: getOpenTaskDetailsForWorkOrder,
 			moveOpentaskRecordToClosedTask: moveOpentaskRecordToClosedTask,
-			convertQuantityInStockUnits: convertQuantityInStockUnits
-
+			convertQuantityInStockUnits: convertQuantityInStockUnits,
+			onRequest: onRequest
 		}
 	});

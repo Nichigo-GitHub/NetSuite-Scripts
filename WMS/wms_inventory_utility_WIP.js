@@ -459,14 +459,53 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				fieldId: 'custbody476',
 				value: manpower
 			});
-			binTransfer.setValue({
-				fieldId: 'custbody477',
-				value: setupStart
-			});
-			binTransfer.setValue({
-				fieldId: 'custbody478',
-				value: setupEnd
-			});
+
+			try {
+				// Function to parse time string and create a date object with the current date
+				function parseTimeString(timeString) {
+					var parts = timeString.split(':');
+					var hours = parseInt(parts[0], 10);
+					var minutes = parseInt(parts[1], 10);
+
+					// Get the current date
+					var currentDate = new Date();
+					// Set the hours and minutes to the current date
+					currentDate.setHours(hours);
+					currentDate.setMinutes(minutes);
+					currentDate.setSeconds(0);
+					currentDate.setMilliseconds(0);
+
+					return currentDate;
+				}
+
+				// Parse time strings into Date objects
+				var setupStartDate = parseTimeString(setupStart);
+				var setupEndDate = parseTimeString(setupEnd);
+
+				// Format dates as time of day (HH:mm)
+				var formattedSetupStart = format.format({
+					value: setupStartDate,
+					type: format.Type.TIMEOFDAY
+				});
+
+				var formattedSetupEnd = format.format({
+					value: setupEndDate,
+					type: format.Type.TIMEOFDAY
+				});
+
+				binTransfer.setText({
+					fieldId: 'custbody477',
+					text: formattedSetupStart
+				});
+				binTransfer.setText({
+					fieldId: 'custbody478',
+					text: formattedSetupEnd
+				});
+
+			} catch (e) {
+				log.error('Error in script:', e.toString());
+				throw e;
+			}
 			binTransfer.setValue({
 				fieldId: 'custbody486',
 				value: operatorName

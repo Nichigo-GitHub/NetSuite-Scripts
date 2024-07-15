@@ -29,6 +29,7 @@ function suitelet(request, response) {
     if (recType == "itemreceipt") {
         if (!poId && !receiptId)
             return "";
+
         var poRecord = poId ? nlapiLoadRecord("purchaseorder", poId) : nlapiLoadRecord("itemreceipt", receiptId);
 
         var customform = poRecord.getFieldValue("customform");
@@ -56,7 +57,6 @@ function suitelet(request, response) {
                 var receivingTagTemplateFile = nlapiLoadFile("312905"); //KPVN_HANOI_Receiving_Tag.xml
                 var orderedBy = " "; //getOrderedBy(poId);
             }
-
         } else {
             var receivingTagTemplateFile = nlapiLoadFile("22162"); //(SFLI) receivingTagTemplate.xml
             var orderedBy = "Ian and Ms Weng"; //getOrderedBy(poId);
@@ -83,13 +83,13 @@ function suitelet(request, response) {
         var subsidiary = poRecord.getFieldValue("subsidiary");
 
         if (subsidiary == 18) {
-            if (customform == 650) {
+            if (customform == 650 || customform == 452) {
                 if (tag == 'RM') {
                     var receivingTagTemplateFile = nlapiLoadFile("290270"); //KPLima_Receiving_Tag.xml
                 } else {
                     var receivingTagTemplateFile = nlapiLoadFile("295850"); //KPLima_FG_Tag.xml
                 }
-            } else if (customform == 710 || customform == 650) {
+            } else if (customform == 710 || customform == 650 || customform == 678) {
                 if (tag == 'RM') {
                     var receivingTagTemplateFile = nlapiLoadFile("301224"); //KPLima_Receiving_Tag(from_laguna).xml 
                 } else {
@@ -234,12 +234,18 @@ function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, or
     var itRecord = nlapiLoadRecord("inventorytransfer", receiptId);
 
     var refJoNo = itRecord.getFieldValue("custbody23");
-    //var refPoNo2 = itRecord.getFieldText("createdfrom");
+    if (!refJoNo)
+        refJoNo = "----"
     var dateDelivered = itRecord.getFieldValue("custbody397");
     var drNo = itRecord.getFieldValue("custbody396");
+    if (!drNo)
+        drNo = "----"
     var reveivedBy = itRecord.getFieldText("custbody1"); //Prepared by (Custom)
     if (!reveivedBy) {
         reveivedBy = itRecord.getFieldText("custbody365");
+    if (!reveivedBy) {
+            reveivedBy = itRecord.getFieldText("custbody11");
+        }
     }
     var location = itRecord.getFieldText("transferlocation");
     var tolocation = location.replace(/^KPVN HANOI : /, '').trim();
@@ -265,6 +271,9 @@ function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, or
         }
     }
     var RrNo = itRecord.getFieldValue("custbody19"); //KPLIMA RR #
+    if (!RrNo) {
+        RrNo = itRecord.getFieldValue("custbody54");
+    }
     var supplier2 = itRecord.getFieldText("custbodycust_sfli_vendor"); //supplier
     //var supplier = nlapiLookupField("vendor", itRecord.getFieldValue("entity"), "companyname"); //COMPANY NAME
 

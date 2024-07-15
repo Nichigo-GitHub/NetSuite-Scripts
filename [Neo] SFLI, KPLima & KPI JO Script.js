@@ -11,17 +11,30 @@ function suitelet(request, response) {
 	for (var i = 1; i <= lineCount; i++) {
 		code = (subsidary == "4" ? workorder.getLineItemValue('item', 'item_display', i) : workorder.getLineItemText('item', 'item', i)),
 			desc = (subsidary == "4" ? (workorder.getLineItemValue('item', 'description', i) || " ") : (workorder.getLineItemValue('item', 'description', i) == null) ? 0 : workorder.getLineItemValue('item', 'description', i)),
-			nlapiLogExecution('ERROR', 'desc', desc);
-		qty = (workorder.getLineItemValue('item', 'quantity', i) == null) ? 0 : workorder.getLineItemValue('item', 'quantity', i),
+			qty = (workorder.getLineItemValue('item', 'quantity', i) == null) ? 0 : workorder.getLineItemValue('item', 'quantity', i),
 			unit = (workorder.getLineItemText('item', 'units', i) == null) ? 0 : workorder.getLineItemText('item', 'units', i),
 			excess = (workorder.getLineItemValue('item', 'custcol244', i) == null) ? 0 : workorder.getLineItemValue('item', 'custcol244', i),
-			excess = (excess == 0) ? "" : excess + ' ' + unit;
-
+			excess = (excess == 0) ? "" : excess + ' ' + unit,
+			outs = (workorder.getFieldValue('custbody489') == null) ? 0 : workorder.getFieldValue('custbody489');
 
 		if (subsidary == "4") {
-			tablerow += addRmRow_KPI(code, desc, qty + ' ' + unit, '', '');
+			var itemId = workorder.getLineItemValue('item', 'item', i);
+			var itemRecord = nlapiLoadRecord('inventoryitem', itemId);
+
+			var preferredVendor = null;
+			var vendorCount = itemRecord.getLineItemCount('itemvendor');
+
+			for (var j = 1; j <= vendorCount; j++) {
+				var isPreferred = itemRecord.getLineItemValue('itemvendor', 'preferredvendor', j);
+				if (isPreferred === 'T') {
+					preferredVendor = itemRecord.getLineItemValue('itemvendor', 'vendor_display', j);
+					break;
+				}
+			}
+
+			tablerow += addRmRow_KPI(code, preferredVendor, qty + ' ' + unit, '', '');
 		} else if (subsidary == "15" && custfrm == "692") {
-			itemId = workorder.getLineItemValue('item', 'item', i);
+			var itemId = workorder.getLineItemValue('item', 'item', i);
 
 			var itemRecord = nlapiLoadRecord('inventoryitem', itemId);
 			var vendor = itemRecord.getLineItemValue('itemvendor', 'vendor_display', 1);
@@ -32,8 +45,10 @@ function suitelet(request, response) {
 			tablerow += addRmRow_KPVN_AMATA(code, desc, qty + ' ' + unit, '', vendor);
 		} else if (subsidary == "15" && custfrm == "719") {
 			tablerow += addRmRow_KPVN_HANOI(code, desc, qty + ' ' + unit, '', '', '', '');
+		} else if (subsidary == "14") {
+			tablerow += addRmRow_SFLI(code, desc, qty + ' ' + unit, outs, '', '', '', '');
 		} else {
-			tablerow += addRmRow_SFLI(code, desc, qty + ' ' + unit, excess, '', '', '', '');
+			tablerow += addRmRow_KPLima(code, desc, qty + ' ' + unit, excess, '', '', '', '');
 		}
 	}
 
@@ -68,7 +83,7 @@ function suitelet(request, response) {
 	html = html.replace('{assemblyItem}', workorder.getFieldText('assemblyitem'));
 	html = html.replace('{assemblyItemDesc}', workorder.getFieldValue('custbody240') || "");
 	html = html.replace('{qty}', workorder.getFieldValue('quantity') + ' ' + workorder.getFieldText('units'));
-	html = html.replace('{DateNeed}', dada2); 
+	html = html.replace('{DateNeed}', dada2);
 	html = html.replace('{TimeNeed}', workorder.getFieldValue('custbody237') || "");
 	html = html.replace('{name1}', workorder.getFieldText('custbody220') || "");
 	html = html.replace('{upcCode}', workorder.getFieldValue('custbody_upccode'));
@@ -125,7 +140,7 @@ function suitelet(request, response) {
 
 			if (SOid) {
 				var SOrecord = nlapiLoadRecord('salesorder', SOid);
-				POnum = SOrecord.getFieldValue('custbodyrefdoc');				
+				POnum = SOrecord.getFieldValue('custbodyrefdoc');
 			} else {
 				var POfield = workorder.getFieldValue('custbody92');
 				if (POfield)
@@ -351,7 +366,20 @@ function suitelet(request, response) {
 	}
 
 	// Functions for RM rows
-	function addRmRow_SFLI(code, desc, qty, excess, a, b, c, d) {
+	function addRmRow_SFLI(code, desc, qty, outs, a, b, c, d) {
+		return row1 = "<tr style='letter-spacing: 1px;'>" +
+			"<td class='padding borderBottom borderRight' align='left'>" + code + "</td>" +
+			"<td class='padding borderBottom borderRight' align='left' style='text-align: left;'>" + desc + "</td>" +
+			"<td class='padding borderBottom borderRight' align='center'>" + qty + "</td>" +
+			"<td class='padding borderBottom borderRight' align='center'>" + outs + "</td>" +
+			"<td class='padding borderBottom borderRight'>" + a + "</td>" +
+			"<td class='padding borderBottom borderRight'>" + b + "</td>" +
+			"<td class='padding borderBottom borderRight'>" + c + "</td>" +
+			"<td class='padding borderBottom'>" + d + "</td>" +
+			"</tr>";
+	}
+
+	function addRmRow_KPLima(code, desc, qty, excess, a, b, c, d) {
 		return row1 = "<tr style='letter-spacing: 1px;'>" +
 			"<td class='padding borderBottom borderRight' align='left'>" + code + "</td>" +
 			"<td class='padding borderBottom borderRight' align='left' style='text-align: left;'>" + desc + "</td>" +
@@ -386,10 +414,10 @@ function suitelet(request, response) {
 			"</tr>";
 	}
 
-	function addRmRow_KPI(code, desc, qty, a, b) {
+	function addRmRow_KPI(code, preferredVendor, qty, a, b) {
 		return row1 = "<tr class='spacing' align='left'>" +
 			"<td class='padding borderBottom borderRight' align='left'>" + code + "</td>" +
-			"<td class='padding borderBottom borderRight' align='left' style='text-align: left;'>" + desc + "</td>" +
+			"<td class='padding borderBottom borderRight' align='left' style='text-align: left;'>" + preferredVendor + "</td>" +
 			"<td class='padding borderBottom borderRight' align='center'>" + qty + "</td>" +
 			"<td class='padding borderBottom borderRight' align='center'>" + a + "</td>" +
 			"<td class='padding borderBottom borderRight'>" + b + "</td>" +

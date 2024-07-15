@@ -10,6 +10,7 @@ function userEventBeforeLoad(type, form) {
         var SFLIJO = "printJO = window.open('" + nlapiResolveURL('SUITELET', 'customscript_sfli_woprint', 'customdeploy1') + "&internalid=" + newId + "&l=t', 'printJO'); printJO.focus();"; //, 'height=1056, width=1100, resizable=yes, scrollbars=yes, toolbar=no'
         var KPIJO = "KPIJO = window.open('" + nlapiResolveURL('SUITELET', 'customscript_sfli_woprint', 'customdeploy1') + "&internalid=" + newId + "&l=t', 'printJO'); KPIJO.focus();";
         var KPLIMAJO = "KPLIMAJO = window.open('" + nlapiResolveURL('SUITELET', 'customscript_sfli_woprint', 'customdeploy1') + "&internalid=" + newId + "&l=t', 'printJO'); KPLIMAJO.focus();";
+        var userRole = nlapiGetRole();
 
         if (sub == '14') { // Superflex Logistic Inc.
             nlapiLogExecution('ERROR', 'Subsidiary', 'SFLI');
@@ -21,7 +22,12 @@ function userEventBeforeLoad(type, form) {
 
         } else if (sub == '5' || sub == '18' || custfrm == '656') { // Kanepackage Philippine Inc
             nlapiLogExecution('ERROR', 'Subsidiary', 'KPPI');
-            form.addButton("custpage_ppo2", "KPLIMA JO Printout", KPLIMAJO);
+
+            if (userRole == '1239') {
+                form.addButton("custpage_ppo2", "KP FPIP JO Printout", KPLIMAJO);
+            } else {
+                form.addButton("custpage_ppo2", "KPLIMA JO Printout", KPLIMAJO);
+            }
 
         } else if (sub == '15') { // Kanepackage Vietnam Co.,Ltd
             nlapiLogExecution('ERROR', 'Subsidiary', 'KPVN');

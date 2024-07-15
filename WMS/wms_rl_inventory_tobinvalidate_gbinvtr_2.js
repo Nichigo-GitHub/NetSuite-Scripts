@@ -59,15 +59,17 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			var barcodeQuantity = '';
 			var toBinInternalId = '';
 			var toBinInternalLoctype = '';
-			var department = '', customer = '', preparedBy = '';
+			var department = '',
+				customer = '',
+				preparedBy = '';
 			var deliveryDate = '';
-            var invTranID = '';
+			var invTranID = '';
 
 
 			try {
 				if (utility.isValueValid(requestBody)) {
 					requestParams = requestBody.params;
-                    invTranID = requestParams.lotName;
+					invTranID = requestParams.lotName;
 					department = requestParams.department.label;
 					customer = requestParams.customer;
 					preparedBy = requestParams.preparedBy;
@@ -101,21 +103,22 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					isTallyScanRequired = requestParams.isTallyScanRequired;
 					tallyScanBarCodeQty = requestParams.tallyScanBarCodeQty;
 
-					log.debug({ title: 'requestParams', details: requestParams });
+					log.debug({
+						title: 'requestParams',
+						details: requestParams
+					});
 					var objInvDetails = [];
 					if (!utility.isValueValid(binName)) {
 						log.debug('error 108', 'error');
 						binValidateArray.errorMessage = translator.getTranslationString('BINTRANSFER_ITEMORBINVALIDATE.EMPTY_INPUT');
 						binValidateArray.isValid = false;
 						isValidBin = false;
-					}
-					else if (fromBinName == binName && processType != 'inventoryTransfer') {
+					} else if (fromBinName == binName && processType != 'inventoryTransfer') {
 						log.debug('error 114', 'error');
 						binValidateArray.errorMessage = translator.getTranslationString('INVENTORY_TOBINVALIDATE.SAME_FROMANDTOBINS');
 						binValidateArray.isValid = false;
 						isValidBin = false;
-					}
-					else {
+					} else {
 						tallyScanBarCodeQty = utility.isValueValid(tallyScanBarCodeQty) ? tallyScanBarCodeQty : 0;
 						tallyLoopObj = utility.isValueValid(tallyLoopObj) ? tallyLoopObj : {};
 						if (!utility.isValueValid(stockConversionRate)) {
@@ -155,8 +158,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 								}));
 							}
 
-						}
-						else {
+						} else {
 							if (utility.isValueValid(warehouseLocationId)) {
 								binSearchFilters.push(search.createFilter({
 									name: 'location',
@@ -165,7 +167,10 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 								}));
 							}
 						}
-						log.debug({ title: 'processType', details: processType });
+						log.debug({
+							title: 'processType',
+							details: processType
+						});
 						if (processType == 'BinTransfer') {
 							var stgDirection = '';
 							var binLookUp = search.lookupFields({
@@ -205,7 +210,10 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 									operator: search.Operator.ANYOF,
 									values: stageLocArr
 								}));
-								log.debug({ title: 'stgDirection', details: stgDirection });
+								log.debug({
+									title: 'stgDirection',
+									details: stgDirection
+								});
 								if (stgDirection != null && stgDirection != '' && stgDirection != 'null' &&
 									stgDirection != undefined && stgDirection == 'Out') {
 									binSearchFilters.push(search.createFilter({
@@ -213,16 +221,14 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 										operator: search.Operator.ANYOF,
 										values: ['2']
 									}));
-								}
-								else {
+								} else {
 									binSearchFilters.push(search.createFilter({
 										name: 'custrecord_wmsse_bin_stg_direction',
 										operator: search.Operator.ANYOF,
 										values: ['@NONE@', '1']
 									}));
 								}
-							}
-							else {
+							} else {
 								binSearchFilters.push(search.createFilter({
 									name: 'custrecord_wmsse_bin_loc_type',
 									operator: search.Operator.ANYOF,
@@ -235,8 +241,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 								}));
 							}
 
-						}
-						else {
+						} else {
 							binSearchFilters.push(search.createFilter({
 								name: 'custrecord_wmsse_bin_loc_type',
 								operator: search.Operator.ANYOF,
@@ -259,27 +264,34 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 							toBinInternalLoctype = binSearchResultsvalues[0].getText('custrecord_wmsse_bin_loc_type');
 						}
 
-						log.debug({ title: 'toBinInternalLoctype ' + toBinInternalId, details: toBinInternalLoctype });
+						log.debug({
+							title: 'toBinInternalLoctype ' + toBinInternalId,
+							details: toBinInternalLoctype
+						});
 
 						if (!utility.isValueValid(toBinInternalId) || (processType == 'BinTransfer' && toBinInternalLoctype == 'Stage' && fromBinLocationType != null && fromBinLocationType.length == 0)) {
 							log.debug('error 266', 'error');
 							binValidateArray.errorMessage = translator.getTranslationString('INVENTORY_TOBINVALIDATE.INVALID_BIN');
 							binValidateArray.isValid = false;
 							isValidBin = false;
-							log.debug({ title: 'isValidBin', details: isValidBin });
-						}
-						else {
+							log.debug({
+								title: 'isValidBin',
+								details: isValidBin
+							});
+						} else {
 
 							var objInvDetails = [];
 							var binLocArr = [];
 							if (binName != preferedBinName) {
 								if (blnMixItem == false || blnMixItem == "false") {
-									log.debug({ title: 'processType', details: processType });
+									log.debug({
+										title: 'processType',
+										details: processType
+									});
 
 									if (processType == 'inventoryTransfer') {
 										objInvDetails = utility.fnGetInventoryBins(toWarehouseLocationId, itemInternalId, toBinInternalId);
-									}
-									else if ((processType == 'BinTransfer' && toBinInternalLoctype != 'Stage') || processType != 'BinTransfer') {
+									} else if ((processType == 'BinTransfer' && toBinInternalLoctype != 'Stage') || processType != 'BinTransfer') {
 										objInvDetails = utility.fnGetInventoryBins(warehouseLocationId, itemInternalId, toBinInternalId);
 									}
 
@@ -292,8 +304,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 								} else {
 									if (processType == 'inventoryTransfer') {
 										objInvDetails = utility.getItemMixFlagDetails(toWarehouseLocationId, itemInternalId, toBinInternalId, true, null);
-									}
-									else if ((processType == 'BinTransfer' && toBinInternalLoctype != 'Stage') || processType != 'BinTransfer') {
+									} else if ((processType == 'BinTransfer' && toBinInternalLoctype != 'Stage') || processType != 'BinTransfer') {
 										objInvDetails = utility.getItemMixFlagDetails(warehouseLocationId, itemInternalId, toBinInternalId, true, null);
 									}
 									if (objInvDetails.length > 0) {
@@ -308,8 +319,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 
 									if (processType == 'inventoryTransfer') {
 										binLocArr = utility.fnGetInventoryBinsForLot(toWarehouseLocationId, lotName, itemInternalId, toBinInternalId);
-									}
-									else if ((processType == 'BinTransfer' && toBinInternalLoctype != 'Stage') || processType != 'BinTransfer') {
+									} else if ((processType == 'BinTransfer' && toBinInternalLoctype != 'Stage') || processType != 'BinTransfer') {
 										binLocArr = utility.fnGetInventoryBinsForLot(warehouseLocationId, lotName, itemInternalId, toBinInternalId);
 									}
 
@@ -326,12 +336,12 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 									}
 								}
 								if (isValidBin && ((objInvDetails.length == 0 && (blnMixItem == false || blnMixItem == "false")) ||
-									(blnMixItem == true || blnMixItem == 'true'))) {
+										(blnMixItem == true || blnMixItem == 'true'))) {
 									if (itemType == "serializedinventoryitem" || itemType == "serializedassemblyitem") {
 										binValidateArray.errorMessage = '';
 										binValidateArray.isValid = true;
 										binValidateArray.custparam_enterToBin = toBinInternalId;
-										binValidateArray.custparam_enterQty = Number(Big(scannedQuantity) * (stockConversionRate));//convert the calculated value to Number,since when we keep this value into custparam_enterQty array invalid string is passing to next screen other than acutal value
+										binValidateArray.custparam_enterQty = Number(Big(scannedQuantity) * (stockConversionRate)); //convert the calculated value to Number,since when we keep this value into custparam_enterQty array invalid string is passing to next screen other than acutal value
 
 										var serialSearch = search.load({
 											id: 'customsearch_wmsse_serialdetails_search',
@@ -363,10 +373,22 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 													type: 'customrecord_wmsse_serialentry',
 													id: TempRecord.id
 												});
-												serialRec.setValue({ fieldId: 'id', value: TempRecord.id });
-												serialRec.setValue({ fieldId: 'name', value: TempRecord.name });
-												serialRec.setValue({ fieldId: 'custrecord_wmsse_ser_note1', value: 'because of discontinue of serial number scanning we have marked this serial number as closed' });
-												serialRec.setValue({ fieldId: 'custrecord_wmsse_ser_status', value: true });
+												serialRec.setValue({
+													fieldId: 'id',
+													value: TempRecord.id
+												});
+												serialRec.setValue({
+													fieldId: 'name',
+													value: TempRecord.name
+												});
+												serialRec.setValue({
+													fieldId: 'custrecord_wmsse_ser_note1',
+													value: 'because of discontinue of serial number scanning we have marked this serial number as closed'
+												});
+												serialRec.setValue({
+													fieldId: 'custrecord_wmsse_ser_status',
+													value: true
+												});
 												serialRec.save();
 											}
 
@@ -417,8 +439,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 										}
 										impactedRecords.inventorytransfer = invTransferArr;
 										impactedRecords.customrecord_wmsse_trn_opentask = openTaskArr;
-									}
-									else {
+									} else {
 										impactRec = fnPutawayallBinTransfer(itemType, warehouseLocationId, itemInternalId, fromBinInternalId, toBinInternalId, actualBeginTime, stockUnitName, stockConversionRate, lotInternalId, lotName);
 
 										if (utility.isValueValid(impactRec.inventoryCountId)) {
@@ -435,15 +456,13 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 										impactedRecords.bintransfer = binTransferArr;
 										impactedRecords.customrecord_wmsse_trn_opentask = openTaskArr;
 									}
-								}
-								else {
+								} else {
 									log.debug('error 440', 'error');
 									binValidateArray.errorMessage = translator.getTranslationString('INVENTORY_TOBINVALIDATE.INVALID_BIN');
 									binValidateArray.isValid = false;
 								}
 							}
-						}
-						else {
+						} else {
 
 							if (utility.isValueValid(scannedQuantity) && (utility.isValueValid(fromBinName) || utility.isValueValid(fromLocUseBinsFlag)) && utility.isValueValid(binName) &&
 								utility.isValueValid(itemType) && utility.isValueValid(blnMixItem) &&
@@ -460,8 +479,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 												var serialObj = JSON.parse(serialString);
 												serialarr.push(serialObj.serial_number);
 
-											}
-											else {
+											} else {
 												for (var serialIndex in serialString) {
 													var serialObj = JSON.parse(serialString[serialIndex]);
 													serialarr.push(serialObj.serial_number);
@@ -502,20 +520,42 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 													serialSearch.filters = serailFilters;
 													var SrchRecordTmpSerial = utility.getSearchResultInJSON(serialSearch);
 													if (SrchRecordTmpSerial.length > 0) {
-														binValidateArray.errorMessage = translator.getTranslationString("Serial# already scanned"); log.debug('error 506', 'error');
+														binValidateArray.errorMessage = translator.getTranslationString("Serial# already scanned");
+														log.debug('error 506', 'error');
 														binValidateArray.isValid = false;
 														return binValidateArray;
 													}
 													var customrecord = record.create({
 														type: 'customrecord_wmsse_serialentry'
 													});
-													customrecord.setValue({ fieldId: 'name', value: getSerialNo });
-													customrecord.setValue({ fieldId: 'custrecord_wmsse_ser_item', value: itemInternalId });
-													customrecord.setValue({ fieldId: 'custrecord_wmsse_ser_qty', value: 1 });
-													customrecord.setValue({ fieldId: 'custrecord_wmsse_ser_no', value: getSerialNo });
-													customrecord.setValue({ fieldId: 'custrecord_wmsse_ser_status', value: false });
-													customrecord.setValue({ fieldId: 'custrecord_wmsse_ser_bin', value: toBinInternalId });
-													customrecord.setValue({ fieldId: 'custrecord_wmsse_ser_tasktype', value: 9 });
+													customrecord.setValue({
+														fieldId: 'name',
+														value: getSerialNo
+													});
+													customrecord.setValue({
+														fieldId: 'custrecord_wmsse_ser_item',
+														value: itemInternalId
+													});
+													customrecord.setValue({
+														fieldId: 'custrecord_wmsse_ser_qty',
+														value: 1
+													});
+													customrecord.setValue({
+														fieldId: 'custrecord_wmsse_ser_no',
+														value: getSerialNo
+													});
+													customrecord.setValue({
+														fieldId: 'custrecord_wmsse_ser_status',
+														value: false
+													});
+													customrecord.setValue({
+														fieldId: 'custrecord_wmsse_ser_bin',
+														value: toBinInternalId
+													});
+													customrecord.setValue({
+														fieldId: 'custrecord_wmsse_ser_tasktype',
+														value: 9
+													});
 													customrecord.save({
 														enableSourcing: false,
 														ignoreMandatoryFields: true
@@ -524,12 +564,21 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 												}
 											}
 										}
-										log.debug({ title: 'itemType', details: itemType });
+										log.debug({
+											title: 'itemType',
+											details: itemType
+										});
 										//below code commented, because Scannedquantity is already converted in previous screen.
 										//var binTransferQty = Number((Big(scannedQuantity).mul(stockConversionRate)).toFixed(8));
 										var binTransferQty = Number((Big(scannedQuantity)).toFixed(8));
-										log.debug({ title: 'binTransferQty', details: binTransferQty });
-										log.debug({ title: 'scannedQuantity', details: scannedQuantity });
+										log.debug({
+											title: 'binTransferQty',
+											details: binTransferQty
+										});
+										log.debug({
+											title: 'scannedQuantity',
+											details: scannedQuantity
+										});
 										var tallyScanObj = {};
 										if (processType == 'inventoryTransfer') {
 											binTransferQty = Number((Big(scannedQuantity).div(stockConversionRate)).toFixed(8));
@@ -559,8 +608,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 											impactedRecords._ignoreUpdate = false;
 											impactedRecords.inventorytransfer = invTransferArr;
 											impactedRecords.customrecord_wmsse_trn_opentask = openTaskArr;
-										}
-										else {
+										} else {
 
 											var openTaskQty = Number((Big(scannedQuantity).div(stockConversionRate)).toFixed(8));
 
@@ -590,14 +638,12 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 
 									}
 
-								}
-								else {
+								} else {
 									log.debug('error 596', 'error');
 									binValidateArray.errorMessage = translator.getTranslationString('INVENTORY_TOBINVALIDATE.INVALID_BIN');
 									binValidateArray.isValid = false;
 								}
-							}
-							else {
+							} else {
 								log.debug('error 602', 'error');
 								binValidateArray.errorMessage = translator.getTranslationString('INVENTORY_TOBINVALIDATE.INVALID_BIN');
 								binValidateArray.isValid = false;
@@ -612,27 +658,33 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 
 						binValidateArray.impactedRecords = impactedRecords;
 						binValidateArray.isValid = true;
-						log.debug({ title: 'impactedRecords :', details: impactedRecords });
-					}
-					else {
+						log.debug({
+							title: 'impactedRecords :',
+							details: impactedRecords
+						});
+					} else {
 						log.debug('else error 619', 'error');
 						if (!utility.isValueValid(binValidateArray.errorMessage))
 							binValidateArray.errorMessage = translator.getTranslationString('INVENTORY_TOBINVALIDATE.INVALID_BIN');
 						binValidateArray.isValid = false;
 					}
-				}
-				else {
+				} else {
 					log.debug('else error 626', 'error');
 					binValidateArray.errorMessage = translator.getTranslationString('INVENTORY_TOBINVALIDATE.INVALID_BIN');
 					binValidateArray.isValid = false;
 				}
-			}
-			catch (e) {
+			} catch (e) {
 				log.debug('final catch', e);
 				binValidateArray.isValid = false;
 				binValidateArray.errorMessage = e.message;
-				log.error({ title: 'errorMessage', details: e.message + " Stack :" + e.stack });
-				log.error({ title: 'debugString', details: debugString });
+				log.error({
+					title: 'errorMessage',
+					details: e.message + " Stack :" + e.stack
+				});
+				log.error({
+					title: 'debugString',
+					details: debugString
+				});
 			}
 
 			return binValidateArray;
@@ -653,8 +705,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			bintransferObj.stockConversionRate = stockConversionRate;
 			if (utility.isInvStatusFeatureEnabled()) {
 				bintransferObj.batchno = lotInternalId;
-			}
-			else {
+			} else {
 				bintransferObj.batchno = lotName;
 			}
 			impactRec = invtUtility.putawayallBinTransfer(bintransferObj);
@@ -668,7 +719,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			invtransferObj.department = department;
 			invtransferObj.customer = customer;
 			invtransferObj.preparedBy = preparedBy;
-            invtransferObj.invTranID = invTranID;
+			invtransferObj.invTranID = invTranID;
 			invtransferObj.deliveryDate = deliveryDate.value;
 			invtransferObj.itemType = itemType;
 			invtransferObj.whLocation = warehouseLocationId;

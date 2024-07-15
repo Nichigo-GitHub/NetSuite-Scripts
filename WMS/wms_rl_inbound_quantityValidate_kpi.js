@@ -6,7 +6,7 @@
  * @NScriptType Restlet
  * @NModuleScope Public
  */
-define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big', './wms_translator', './wms_inboundUtility', './wms_tallyScan_utility', './wms_inbound_utility', './wms_labelPrinting_utility'],
+define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big', './wms_translator', './wms_inboundUtility_kpi', './wms_tallyScan_utility', './wms_inbound_utility_kpi', './wms_labelPrinting_utility'],
 	/**
 	 * @param {search} search
 	 */
@@ -38,6 +38,7 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 					var itemInternalId = requestParams.itemInternalId;
 					var transactionLineNo = requestParams.transactionLineNo;
 					var scannedQuantity = requestParams.scannedQuantity;
+					var declaredQty = requestParams.declaredQty;
 					var statusInternalId = requestParams.statusInternalId;
 					var lotName = requestParams.lotName;
 					var lotExpiryDate = requestParams.lotExpiryDate;
@@ -98,35 +99,42 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 					});
 					if (!utility.isValueValid(isTallyScanRequired)) {
 						isTallyScanRequired = false;
+						log.debug('Condition 1, Line 101', 'isTallyScanRequired: ' + isTallyScanRequired);
 					}
 					var overageReceiveEnabled = false;
 					if (transactionType != 'transferorder') {
 						overageReceiveEnabled = inboundUtility.getPoOverage(transactionType);
+						log.debug('Condition 2, Line 107', 'transactionType: ' + transactionType + ' | overageReceiveEnabled: ' + overageReceiveEnabled);
 					}
-
 
 					if (!utility.isValueValid(transactionUomConversionRate) && utility.isValueValid(transactionUomName)) {
 						transactionUomConversionRate = getTransactionConversionRate(itemInternalId, transactionUomName);
+						log.debug('Condition 3, Line 112', 'transactionUomConversionRate: ' + transactionUomConversionRate + ', transactionUomName: ' + transactionUomName + ' | transactionUomConversionRate: ' + transactionUomConversionRate);
 					}
 					if (!utility.isValueValid(transactionUomConversionRate)) {
 						transactionUomConversionRate = 1;
+						log.debug('Condition 4, Line 116', 'transactionUomConversionRate: ' + transactionUomConversionRate);
 					}
 					var tallyScanRemainingQty = 0;
 
 					if (!utility.isValueValid(randomTallyScanRule)) {
 						randomTallyScanRule = 'F';
+						log.debug('Condition 5, Line 122', 'randomTallyScanRule: ' + randomTallyScanRule);
 					}
 					if (randomTallyScanRule == 'T') {
 						quantityScanned = remainingQuantity;
 						tallyScanRemainingQty = remainingQuantity;
 						var barcodeQtyObject = utility.isValueValid(requestParams.barcodeQuantity) ? requestParams.barcodeQuantity[0] : '';
+						log.debug('Condition 6, Line 128', 'randomTallyScanRule: ' + randomTallyScanRule + ' | barcodeQtyObject: ' + barcodeQtyObject);
 						if (utility.isValueValid(barcodeQtyObject)) {
 							scannedQuantity = barcodeQtyObject.value;
+							log.debug('Condition 7, Line 131', 'scannedQuantity: ' + scannedQuantity);
 						}
 					}
 
 					if (utility.isValueValid(requestParams.barcodeQuantity)) {
 						transactionDetailsArray.barcodeQuantity = requestParams.barcodeQuantity[0];
+						log.debug('Condition 8, Line 137', 'transactionDetailsArray.barcodeQuantity: ' + transactionDetailsArray.barcodeQuantity);
 					}
 					var selectedConversionRate = 1;
 					var useitemcostflag = false;
@@ -136,16 +144,21 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 					if (utility.isValueValid(remainingQuantity) && randomTallyScanRule != "T") {
 						remainingQuantity = parseFloat(remainingQuantity);
 						var quantityScanned = scannedQuantity;
+						log.debug('Condition 9, Line 147', 'remainingQuantity: ' + remainingQuantity + ', randomTallyScanRule: ' + randomTallyScanRule);
 						if (isTallyScanRequired == true) {
+							log.debug('Condition 10, Line 149', 'isTallyScanRequired: ' + isTallyScanRequired);
 
 							var barcodeQtyObject = utility.isValueValid(requestParams.barcodeQuantity) ? requestParams.barcodeQuantity[0] : '';
 							if (utility.isValueValid(barcodeQtyObject)) {
 								scannedQuantity = barcodeQtyObject.value;
+								log.debug('Condition 11, Line 154', 'barcodeQtyObject: ' + barcodeQtyObject);
 							}
 							if (utility.isValueValid(requestParams.qtyUomSelected)) {
 								var qtyUomSelected = requestParams.qtyUomSelected;
+								log.debug('Condition 12, Line 158', 'qtyUomSelected: ' + qtyUomSelected);
 								if (utility.isValueValid(requestParams.qtyUomSelected[0].unit) && itemType != "serializedinventoryitem" && itemType != "serializedassemblyitem") {
 									selectedConversionRate = qtyUomSelected[0].conversionrate;
+									log.debug('Condition 13, Line 161', 'selectedConversionRate: ' + selectedConversionRate);
 								}
 								var remianingQtyWithConversionRate = Number(Big(remainingQuantity).mul(transactionUomConversionRate));
 								remianingQtyWithConversionRate = Number(Big(parseFloat(remianingQtyWithConversionRate)).minus(selectedConversionRate));
@@ -183,8 +196,11 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 						transactionDetailsArray.isLastScanForItem = false;
 						transactionDetailsArray.itemAliasObject = requestParams.itemAliasObject;
 
+						log.debug('Condition 14, Line 199', 'transactionDetailsArray: ' + JSON.stringify(transactionDetailsArray));
+
 
 						if (isTallyScanRequired == true) {
+							log.debug('Condition 15, Line 203', 'isTallyScanRequired: ' + isTallyScanRequired);
 
 							tallyLoopObj = utility.isValueValid(tallyLoopObj) ? tallyLoopObj : {};
 							if (itemType != "serializedinventoryitem" && itemType != "serializedassemblyitem") {
@@ -340,9 +356,12 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 						}
 						if (transactionDetailsArray.isValid != false && transactionDetailsArray.lotPageNavigationRequiredForTS != 'T' &&
 							transactionDetailsArray.serialPageNavigationRequiredForTS != 'T' && tempBtnClicked != "PrintAction") {
+							log.debug('Condition 16, Line 359');
+
 							var inventoryStatusFeature = utility.isInvStatusFeatureEnabled();
 							var itemSearchResults = this.getItemCustomDetails(itemInternalId, warehouseLocationId);
 							if (itemSearchResults == null || itemSearchResults == '' || itemSearchResults == 'null') {
+								log.debug('Condition 17, Line 364', 'null');
 								transactionDetailsArray.errorMessage = translator.getTranslationString("PO_QUANTITYVALIDATE.INACTIVE_ITEM");
 								transactionDetailsArray.isValid = false;
 							} else {
@@ -350,19 +369,23 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 								var itemType = itemSearchObj.recordType;
 								systemRuleValue = utility.getSystemRuleValue('Required Serialnumber scan for full quantity receive?', warehouseLocationId);
 								transactionDetailsArray.isBinScanRequired = true;
+								log.debug('Condition 18, Line 372', 'systemRuleValue: ' + systemRuleValue);
 								if (locationUseBinlFlag == 'undefined' || locationUseBinlFlag == '' || locationUseBinlFlag == 'null' ||
 									locationUseBinlFlag == null) {
 									var columnlocationlookupArray = [];
 									columnlocationlookupArray.push('usesbins');
+									log.debug('Condition 19, Line 377', 'locationUseBinlFlag: ' + locationUseBinlFlag);
 
 									var locationLookUp = utility.getLocationFieldsByLookup(warehouseLocationId, columnlocationlookupArray);
 									if (locationLookUp.usesbins != undefined) {
 										locationUseBinlFlag = locationLookUp.usesbins;
+										log.debug('Condition 20, Line 382', 'locationUseBinlFlag: ' + locationUseBinlFlag);
 									}
 								}
 								if ((itemType == "serializedinventoryitem" || itemType == "serializedassemblyitem") &&
 									(transactionDetailsArray.isValid == true)) {
 									impactedRecords._ignoreUpdate = true;
+									log.debug('Condition 21, Line 388', 'itemType: ' + itemType);
 									if (!utility.isValueValid(transactionUomConversionRate)) {
 										transactionUomConversionRate = 1;
 									}
@@ -532,8 +555,10 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 									}
 								}
 								if (transactionDetailsArray.isValid != false) {
+									log.debug('Condition 22, Line 558', 'transactionDetailsArray.isValid: ' + transactionDetailsArray.isValid);
 									var noStockQty = parseFloat(scannedQuantity);
 									if (isTallyScanRequired == true) {
+										log.debug('Condition 23, Line 561', 'isTallyScanRequired: ' + isTallyScanRequired);
 										var barcodeQty = parseInt(scannedQuantity) + 1;
 										var qtyUomSelected = requestParams.qtyUomSelected;
 										var unitSelected = '';
@@ -541,8 +566,10 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 											(itemType != "serializedinventoryitem" && itemType != "serializedassemblyitem")) {
 											unitSelected = qtyUomSelected[0].unit;
 											transactionDetailsArray.selectedConversionRateForTallyScan = qtyUomSelected[0].conversionrate;
+											log.debug('Condition 24, Line 569', 'unitSelected: ' + unitSelected + ', transactionDetailsArray.selectedConversionRateForTallyScan: ' + transactionDetailsArray.selectedConversionRateForTallyScan);
 										}
 										if (randomTallyScanRule == 'T') {
+											log.debug('Condition 25, Line 572', 'randomTallyScanRule: ' + randomTallyScanRule);
 
 											transactionDetailsArray.barcodeQuantity = [{
 												'value': barcodeQty,
@@ -555,8 +582,10 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 												'value': barcodeQty,
 												'unit': unitSelected
 											}];
+											log.debug('Condition 26, Line 585', 'transactionDetailsArray.barcodeQuantity: ' + transactionDetailsArray.barcodeQuantity);
 										}
 										if (btnClicked != 'Skip' && btnClicked != 'Done') {
+											log.debug('Condition 27, Line 588', 'btnClicked: ' + btnClicked);
 											if (transactionDetailsArray.remainingQuantity) {
 												transactionDetailsArray.remainingQuantityForTallyScanLoop = transactionDetailsArray.remainingQuantity;
 												if (utility.isValueValid(transactionUomConversionRate)) {
@@ -578,6 +607,7 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 											var lotName1 = lotName;
 											var lotExpiryDate1 = lotExpiryDate;
 											if (randomTallyScanRule == 'T') {
+												log.debug('Condition 28, Line 610', 'randomTallyScanRule: ' + randomTallyScanRule);
 												if (itemType != "serializedinventoryitem" && itemType != "serializedassemblyitem" &&
 													itemType != "lotnumberedinventoryitem" && itemType != "lotnumberedassemblyitem" &&
 													itemType != "inventoryitem" && itemType != "assemblyitem") {
@@ -706,7 +736,8 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 														"expectedQty": quantityWithConvRate,
 														"lotNo": lotName,
 														"expiryDate": lotExpiryDate,
-														"randomTallyscan": "T"
+														"randomTallyscan": "T",
+														"declaredQty": declaredQty
 													}
 
 													var recomendedBinId = '';
@@ -748,6 +779,8 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 											transactionDetailsArray.tallyLoopObj = tallyScanUtility.createOrUpdateTallyScanJSONObject(tallyLoopObj, '', lotName1, qty, invtStatus,
 												transactionName, lotExpiryDate1, itemInternalID, transactionDetailsArray.transactionLineNo,
 												transactionDetailsArray.itemName, recomendedBinName, recomendedBinId, transactionDetailsArray.openTaskId, transactionDetailsArray.selectedConversionRateForTallyScan, randomTallyScanRule);
+
+											log.debug('Condition 29, Line 783', 'transactionDetailsArray.tallyLoopObj: ' + transactionDetailsArray.tallyLoopObj);
 										}
 
 									}
@@ -759,10 +792,14 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 										(locationUseBinlFlag == false &&
 											((itemType == "serializedinventoryitem" || itemType == "serializedassemblyitem") &&
 												(!utility.isValueValid(isTallyScanRequired) || isTallyScanRequired == false)))) {
+
+										log.debug('Condition 30, Line 796', 'itemType: ' + itemType + ', locationUseBinlFlag: ' + locationUseBinlFlag);
+
 										// transfer order
 										if (transactionType == 'transferorder') {
+											log.debug('Condition 31, Line 800', 'transactionType: ' + transactionType);
 											if (inventoryStatusFeature) {
-
+												log.debug('Condition 32, Line 802', 'inventoryStatusFeature: ' + inventoryStatusFeature);
 												var getToQuantityCheckObj = {};
 												getToQuantityCheckObj.transactionInternalId = transactionInternalId;
 												getToQuantityCheckObj.itemInternalId = itemInternalId;
@@ -793,24 +830,31 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 											}
 										} else {
 											transactionDetailsArray.isValid = true;
+											log.debug('Condition 33, Line 833', 'transactionType: ' + transactionType + ', transactionDetailsArray.isValid: ' + transactionDetailsArray.isValid);
 										}
 										if (utility.isValueValid(transactionUomName)) {
 											transactionDetailsArray.infoscannedQuantity = scannedQuantity + " " + transactionUomName;
+											log.debug('Condition 34, Line 837', 'transactionDetailsArray.infoscannedQuantity: ' + transactionDetailsArray.infoscannedQuantity);
 										} else {
 											transactionDetailsArray.infoscannedQuantity = scannedQuantity;
+											log.debug('Condition 35, Line 840', 'transactionDetailsArray.infoscannedQuantity: ' + transactionDetailsArray.infoscannedQuantity);
 										}
 									} else {
 										if (itemType == "noninventoryitem" || itemType == "otherchargeitem" ||
 											itemType == "serviceitem" || itemType == "downloaditem" || itemType == "giftcertificateitem" ||
-											(locationUseBinlFlag == false &&
-												((itemType != "serializedinventoryitem" && itemType != "serializedassemblyitem") ||
-													(isTallyScanRequired == true)))) {
+											(locationUseBinlFlag == false && ((itemType != "serializedinventoryitem" && itemType != "serializedassemblyitem") ||
+												(isTallyScanRequired == true)))) {
+
+											log.debug('Condition 36, Line 849', 'itemType: ' + itemType + ', locationUseBinlFlag: ' + locationUseBinlFlag);
+
 											transactionDetailsArray.isBinScanRequired = false;
 											if (!utility.isValueValid(randomTallyScanRule) || randomTallyScanRule != 'T') {
 												backBtnVisibility = false;
+												log.debug('Condition 37, Line 854', 'randomTallyScanRule: ' + randomTallyScanRule);
 											}
 											if (btnClicked == 'Skip' && randomTallyScanRule == 'T' && locationUseBinlFlag == false) {
 												backBtnVisibility = false;
+												log.debug('Condition 38, Line 858', 'randomTallyScanRule: ' + randomTallyScanRule + ', btnClicked: ' + btnClicked + ', locationUseBinlFlag: ' + locationUseBinlFlag + ', backBtnVisibility: ' + backBtnVisibility);
 											}
 											log.debug("btnClicked", btnClicked);
 											log.debug("randomTallyScanRule", randomTallyScanRule);
@@ -939,7 +983,7 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 																		parentItem = opentaskSearchResults[otItr].custrecord_wmsse_parent_sku_no;
 
 																		inboundLib.consolidatePostItemReceipt(trecord, actQuantity, linenum, itemId, transactionType, batchNo, expiryDate,
-																			warehouseLocationId, enterBin, serialArray, opentaskSearchResults, transactionInternalId, otItr);
+																			warehouseLocationId, enterBin, serialArray, opentaskSearchResults, transactionInternalId, otItr, declaredQty);
 																		//itemIterator++;
 
 
@@ -1143,7 +1187,9 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 										transactionDetailsArray.inforemainingQuantity = transactionDetailsArray.remainingQuantity;
 									} else {
 										if (utility.isValueValid(inforeceivedQuantity) && utility.isValueValid(inforemainingQuantity)) {
+											log.debug('Condition 35, Line 1190', 'inforeceivedQuantity: ' + inforeceivedQuantity + ', inforemainingQuantity: ' + inforemainingQuantity);
 											if (utility.isValueValid(transactionUomName)) {
+												log.debug('Condition 36, Line 1192', 'transactionUomName: ' + transactionUomName);
 
 												var inforeceivedQuantityIndex = inforeceivedQuantity.indexOf(' ');
 												inforeceivedQuantity = parseFloat(inforeceivedQuantity.toString().substring(0, inforeceivedQuantityIndex == -1 ? 1 : inforeceivedQuantityIndex)) + parseFloat(infoScannedQuantity);
@@ -1157,6 +1203,7 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 												if (inforemainingQuantity == 0) {
 													inforemainingQuantity = '0';
 												}
+												log.debug('Condition 37, Line 1201', 'inforemainingQuantity: ' + inforemainingQuantity);
 											}
 										}
 										transactionDetailsArray.inforeceivedQuantity = inforeceivedQuantity;
@@ -1164,9 +1211,9 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 									}
 
 
-
 									if (!(itemType == "serializedinventoryitem" || itemType == "serializedassemblyitem") &&
 										(transactionDetailsArray.isValid == true)) {
+										log.debug('Condition 37, Line 1216', 'itemType: ' + itemType + ' | transactionDetailsArray.isValid: ' + transactionDetailsArray.isValid);
 										impactedRecords = inboundUtility.noCodeSolForReceiving(transactionInternalId, transactionLineNo, itemReceipt, transactionType, '', locationUseBinlFlag, itemType);
 									}
 
@@ -1212,6 +1259,7 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 						}
 
 					} else {
+						log.debug('Condition 15, Line 1231', 'else');
 						if (transactionDetailsArray.isValid != false &&
 							transactionDetailsArray.lotPageNavigationRequiredForTS != "T") {
 							if ((overageReceiveEnabled == false) && (!isNaN(quantityScanned)) && (!isNaN(remainingQuantity)) &&

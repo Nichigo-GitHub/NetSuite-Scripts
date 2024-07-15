@@ -50,8 +50,10 @@ function userEventBeforeLoad(type, form, request) {
 
     if (rectype == "inventorytransfer") {
       if (subId == 18 || subId == 5) { //KPLima
-        if (transferlocation == 792 || transferlocation == 825) {
+        if (transferlocation == 792) {
           form.addButton("custpage_receiving_tag", " Print Receiving Tag", "window.open('" + url_2 + "')");
+        } else if (transferlocation == 825) {
+          form.addButton("custpage_receiving_tag", " Print RM Tag", "window.open('" + url_2 + "')");
         }
         form.addButton("custpage_receiving_tag", "Print FG Tag", "window.open('" + url_3 + "')");
       } else if (subId == 14) {

@@ -36,10 +36,6 @@ define(['./wms_utility', './wms_translator', './big', './wms_workOrderUtility_kp
 						var systemRule = "Pick only fully committed work orders";
 						var systemRuleForFullyCommittedWO = utility.getSystemRuleValue(systemRule, whLocation);
 						var workOrdListResults = woUtility.getWOList(whLocation, '', locUseBinsFlag);
-						log.debug({
-							title: 'workOrdListResults',
-							details: workOrdListResults
-						});
 						var objWorkOrdrResult = workOrdListResults;
 						if (workOrdListResults.length > 0) {
 							if (systemRuleForFullyCommittedWO == 'Y') {
@@ -48,15 +44,7 @@ define(['./wms_utility', './wms_translator', './big', './wms_workOrderUtility_kp
 							for (var orderListIndex = 0; orderListIndex < workOrdListResults.length; orderListIndex++) {
 								var woOrderInternalId = workOrdListResults[orderListIndex]['internalid'];
 								if (systemRuleForFullyCommittedWO == 'Y' && backOrderedInternalIdArr.length > 0) {
-									log.debug({
-										title: 'back order',
-										details: orderListIndex+1
-									});
 									if (backOrderedInternalIdArr.indexOf(woOrderInternalId) == -1) {
-										log.debug({
-											title: 'not found in back order',
-											details: ''
-										});
 										internalIdArr.push(woOrderInternalId);
 									}
 								} else {
@@ -68,10 +56,6 @@ define(['./wms_utility', './wms_translator', './big', './wms_workOrderUtility_kp
 
 								var pickQtyResults = getWolistquery(internalIdArr);
 
-								log.debug({
-									title: 'pickQtyResults',
-									details: pickQtyResults
-								});
 
 								for (var openTaskIndex = 0; openTaskIndex < pickQtyResults.length; openTaskIndex++) {
 									var orderInternalId = pickQtyResults[openTaskIndex]['internalid'];

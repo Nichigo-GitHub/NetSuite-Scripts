@@ -1,7 +1,4 @@
 /**
- *    Copyright  2018, Oracle and/or its affiliates. All rights reserved.
- */
-/**
  * @NApiVersion 2.x
  * @NScriptType Restlet
  * @NModuleScope Public
@@ -40,19 +37,11 @@ define(['N/search', './wms_utility', './wms_translator', './big', './wms_workOrd
 									checkFlag = 'T';
 									orderDetails['errorMessage'] = translator.getTranslationString('WORKORDER_PICKING.ORDER_NOTMAPPED');
 									orderDetails['isValid'] = false;
-									log.debug({
-										title: 'error1',
-										details: checkFlag
-									});
 
 								} else if (woLocation != null && woLocation != '' && (woLocation != whLocation)) {
 									checkFlag = 'T';
 									orderDetails['errorMessage'] = translator.getTranslationString('WORKORDER_PICKING.ORDERMAPPED_LOCATION');
 									orderDetails['isValid'] = false;
-									log.debug({
-										title: 'error2',
-										details: checkFlag
-									});
 								} else {
 									var backOrderedInternalIdArr = [];
 									var systemRule = "Pick only fully committed work orders";
@@ -65,14 +54,6 @@ define(['N/search', './wms_utility', './wms_translator', './big', './wms_workOrd
 									if (systemRuleForFullyCommittedWO == 'Y' && backOrderedInternalIdArr.length > 0) {
 										backOrderFlag = true;
 										backorderItmsCount = workOrdDtlResults.length;
-										log.debug({
-											title: 'error3: backOrderFlag',
-											details: backOrderFlag
-										});
-										log.debug({
-											title: 'error3: backorderItmsCount',
-											details: backorderItmsCount
-										});
 									} else {
 										for (var t = 0; t < workOrdDtlResults.length; t++) {
 
@@ -82,14 +63,6 @@ define(['N/search', './wms_utility', './wms_translator', './big', './wms_workOrd
 											if (parseFloat(vcommittedordqty) <= 0) {
 												backOrderFlag = true;
 												backorderItmsCount = parseInt(backorderItmsCount) + 1;
-												log.debug({
-													title: 'error4: backOrderFlag',
-													details: backOrderFlag
-												});
-												log.debug({
-													title: 'error4: backorderItmsCount',
-													details: backorderItmsCount
-												});
 											}
 										}
 									}
@@ -119,11 +92,11 @@ define(['N/search', './wms_utility', './wms_translator', './big', './wms_workOrd
 									var assemblyitemQty = woDetailsList[0]['quantity'];
 									var built = woDetailsList[0]['quantityshiprecv'];
 									for (var s = 0; s < workOrdDtlResults.length; s++) {
-										var vwoitemQty = workOrdDtlResults[s]['Committed Qty'];
-										var vwoitemRcvQty = workOrdDtlResults[s]['quantityshiprecv'];
-										var qty = workOrdDtlResults[s]['quantity'];
-										var qtyuom = workOrdDtlResults[s]['quantityuom'];
-										var line = workOrdDtlResults[s]['line'];
+										var vwoitemQty = Number(workOrdDtlResults[s]['Committed Qty']);
+										var vwoitemRcvQty = Number(workOrdDtlResults[s]['quantityshiprecv']);
+										var qty = Number(workOrdDtlResults[s]['quantity']);
+										var qtyuom = Number(workOrdDtlResults[s]['quantityuom']);
+										var line = Number(workOrdDtlResults[s]['line']);									
 
 										if (vwoitemRcvQty == null || vwoitemRcvQty == '' || vwoitemRcvQty == undefined || isNaN(vwoitemRcvQty))
 											vwoitemRcvQty = 0;
