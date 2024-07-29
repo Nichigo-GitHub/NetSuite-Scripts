@@ -172,7 +172,7 @@
 
     <body>
         <table style="width: 100%;" align="left">
-            <tr>                
+            <tr>
                 <td align="right">
                     <table cellpadding="0" cellspacing="0">
                         <tr>
@@ -214,7 +214,9 @@
 
         <table class="borderBold tableMarginTop" width="100%" align="center">
             <tr>
-                <td>Customer:<p><span style="font-weight: bold; letter-spacing: 0px; text-align: left;">{cust}</span></p></td>
+                <td>Customer:<p><span style="font-weight: bold; letter-spacing: 0px; text-align: left;">{cust}</span>
+                    </p>
+                </td>
                 <td class="borderRight">
                     <barcode codetype="qrcode" style="height: 75px; width: 75px;" showtext="true" value="{cust2}" />
                 </td>
@@ -225,7 +227,8 @@
                 </td>
                 <td width="33%">
                     <p><span style="font-size: 18px; font-weight: bold;">Quantity: {qty}</span></p>
-                    <barcode codetype="code128" style="height: 30px; width: 150px;" showtext="false" value="{upcCode}" />
+                    <barcode codetype="code128" style="height: 30px; width: 150px;" showtext="false"
+                        value="{upcCode}" />
                 </td>
             </tr>
         </table>
@@ -237,19 +240,27 @@
             <tr>
                 <td class="padding borderRight borderBottom" width="15%" align="center">ITEM CODE</td>
                 <td class="padding borderRight borderBottom" align="center">SUPPLIER NAME</td>
-                <td class="padding borderRight borderBottom" style="text-align: center;" align="center">QUANTITY<br />TO BE USED</td>
-                <td class="padding borderRight borderBottom" style="text-align: center;" align="center">ACTUAL QTY<br />ISSUED</td>
-                <td class="padding custom-cell borderRight borderBottom" style="text-align: center;" align="center">LACKING QTY<br />NEEDED</td>
+                <td class="padding borderRight borderBottom" style="text-align: center;" align="center">
+                    QUANTITY<br />TOBE USED</td>
+                <td class="padding borderRight borderBottom" style="text-align: center;" align="center">ACTUAL
+                    QTY<br />ISSUED</td>
+                <td class="padding custom-cell borderRight borderBottom" style="text-align: center;" align="center">
+                    LACKING QTY<br />NEEDED</td>
             </tr>
             {body}
         </table>
         <table class="borderBold tableMarginTop" width="100%" align="center">
             <tr>
-                <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle" width="10%"><span style="font-size: 25px; font-weight: bolder;">WHSE</span></td>
-                <td class="padding" align="left" width="21%"><span style="font-size: 10px;">ORIGINALLY ISSUED BY</span></td>
+                <td class="padding borderRight borderBottom" rowspan="2" align="center" valign="middle" width="10%">
+                    <span style="font-size: 25px; font-weight: bolder;">WHSE</span>
+                </td>
+                <td class="padding" align="left" width="21%"><span style="font-size: 10px;">ORIGINALLY ISSUED BY</span>
+                </td>
                 <td class="padding borderRight" colspan="2" align="left" width="23%"></td>
-                <td class="padding borderRight" colspan="2" align="left" width="23%"><span style="font-size: 10px;">DATE & TIME OF ISSUANCE</span></td>
-                <td class="padding" colspan="2" align="left" width="23%"><span style="font-size: 10px;">PROD CONFIRMATION</span></td>
+                <td class="padding borderRight" colspan="2" align="left" width="23%"><span style="font-size: 10px;">DATE
+                        & TIME OF ISSUANCE</span></td>
+                <td class="padding" colspan="2" align="left" width="23%"><span style="font-size: 10px;">PROD
+                        CONFIRMATION</span></td>
             </tr>
             <tr>
                 <td class="padding borderRight borderBottom" align="center" colspan="3" height="35px"></td>
@@ -259,12 +270,16 @@
                 <td class="padding borderBottom" align="center"></td>
             </tr>
             <tr>
-                <td class="padding borderRight borderBottom" rowspan="3" align="center" valign="middle"><span style="font-size: 25px; font-weight: bolder;">PROD</span></td>
-                <td class="padding borderRight borderBottom" rowspan="3" align="center" valign="middle"><span style="font-size: 14px; font-weight: bold;">FG TRANSFER TO QA</span></td>
+                <td class="padding borderRight borderBottom" rowspan="3" align="center" valign="middle"><span
+                        style="font-size: 25px; font-weight: bolder;">PROD</span></td>
+                <td class="padding borderRight borderBottom" rowspan="3" align="center" valign="middle"><span
+                        style="font-size: 14px; font-weight: bold;">FG TRANSFER TO QA</span></td>
                 <td class="padding borderRight borderBottom" align="left"><span style="font-size: 10px;">QTY</span></td>
-                <td class="padding borderRight borderBottom" align="left"><span style="font-size: 10px;">DATE</span></td>
+                <td class="padding borderRight borderBottom" align="left"><span style="font-size: 10px;">DATE</span>
+                </td>
                 <td class="padding borderRight borderBottom" align="left"><span style="font-size: 10px;">QTY</span></td>
-                <td class="padding borderRight borderBottom" align="left"><span style="font-size: 10px;">DATE</span></td>
+                <td class="padding borderRight borderBottom" align="left"><span style="font-size: 10px;">DATE</span>
+                </td>
                 <td class="padding borderRight borderBottom" align="left"><span style="font-size: 10px;">QTY</span></td>
                 <td class="padding borderBottom" align="left"><span style="font-size: 10px;">DATE</span></td>
             </tr>
@@ -277,17 +292,24 @@
                 <td class="padding borderBottom"></td>
             </tr>
             <tr>
-                <td class="padding borderRight borderBottom" align="left" valign="top" colspan="2" height="40px"><span style="font-size: 10px;">SIGN</span></td>
-                <td class="padding borderRight borderBottom" align="left" valign="top" colspan="2" height="40px"><span style="font-size: 10px;">SIGN</span></td>
-                <td class="padding borderBottom" align="left" valign="top" colspan="2" height="40px"><span style="font-size: 10px;">SIGN</span></td>
+                <td class="padding borderRight borderBottom" align="left" valign="top" colspan="2" height="40px"><span
+                        style="font-size: 10px;">SIGN</span></td>
+                <td class="padding borderRight borderBottom" align="left" valign="top" colspan="2" height="40px"><span
+                        style="font-size: 10px;">SIGN</span></td>
+                <td class="padding borderBottom" align="left" valign="top" colspan="2" height="40px"><span
+                        style="font-size: 10px;">SIGN</span></td>
             </tr>
             <tr>
-                <td class="padding borderRight borderBottom" rowspan="3" align="center" valign="middle"><span style="font-size: 25px; font-weight: bolder;">QA</span></td>
-                <td class="padding borderRight borderBottom" rowspan="3" align="center" valign="middle"><span style="font-size: 14px; font-weight: bold;">FG TRANSFER TO WH</span></td>
+                <td class="padding borderRight borderBottom" rowspan="3" align="center" valign="middle"><span
+                        style="font-size: 25px; font-weight: bolder;">QA</span></td>
+                <td class="padding borderRight borderBottom" rowspan="3" align="center" valign="middle"><span
+                        style="font-size: 14px; font-weight: bold;">FG TRANSFER TO WH</span></td>
                 <td class="padding borderRight borderBottom" align="left"><span style="font-size: 10px;">QTY</span></td>
-                <td class="padding borderRight borderBottom" align="left"><span style="font-size: 10px;">DATE</span></td>
+                <td class="padding borderRight borderBottom" align="left"><span style="font-size: 10px;">DATE</span>
+                </td>
                 <td class="padding borderRight borderBottom" align="left"><span style="font-size: 10px;">QTY</span></td>
-                <td class="padding borderRight borderBottom" align="left"><span style="font-size: 10px;">DATE</span></td>
+                <td class="padding borderRight borderBottom" align="left"><span style="font-size: 10px;">DATE</span>
+                </td>
                 <td class="padding borderRight borderBottom" align="left"><span style="font-size: 10px;">QTY</span></td>
                 <td class="padding borderBottom" align="left"><span style="font-size: 10px;">DATE</span></td>
             </tr>
@@ -298,16 +320,21 @@
                 <td class="padding borderRight borderBottom" align="center" height="35px"></td>
                 <td class="padding borderRight borderBottom" align="center" height="35px"></td>
                 <td class="padding borderBottom" align="center"></td>
-                
+
             </tr>
             <tr>
-                <td class="padding borderRight borderBottom" align="left" valign="top" colspan="2" height="40px"><span style="font-size: 10px;">SIGN</span></td>
-                <td class="padding borderRight borderBottom" align="left" valign="top" colspan="2" height="40px"><span style="font-size: 10px;">SIGN</span></td>
-                <td class="padding borderBottom" align="left" valign="top" colspan="3" height="40px"><span style="font-size: 10px;">SIGN</span></td>
+                <td class="padding borderRight borderBottom" align="left" valign="top" colspan="2" height="40px"><span
+                        style="font-size: 10px;">SIGN</span></td>
+                <td class="padding borderRight borderBottom" align="left" valign="top" colspan="2" height="40px"><span
+                        style="font-size: 10px;">SIGN</span></td>
+                <td class="padding borderBottom" align="left" valign="top" colspan="3" height="40px"><span
+                        style="font-size: 10px;">SIGN</span></td>
             </tr>
             <tr>
-                <td class="padding borderRight" align="left" valign="top" colspan="6"><span style="font-size: 10px; font-weight: bolder;">REMARKS</span></td>
-                <td class="padding" align="right" valign="top" colspan="3"><span style="font-size: 10px;">CLOSED BY</span></td>
+                <td class="padding borderRight" align="left" valign="top" colspan="6"><span
+                        style="font-size: 10px; font-weight: bolder;">REMARKS</span></td>
+                <td class="padding" align="right" valign="top" colspan="3"><span style="font-size: 10px;">CLOSED
+                        BY</span></td>
             </tr>
             <tr>
                 <td class="padding borderRight" align="left" valign="top" height="50px" colspan="6"></td>

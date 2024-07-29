@@ -736,6 +736,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/config', 'N/format', './big', '.
 				title: 'expectedQty',
 				details: expectedQty
 			});
+			log.debug({
+				title: 'declaredQty',
+				details: declaredQty
+			});
 			var openTaskRecord = record.create({
 				type: 'customrecord_wmsse_trn_opentask'
 
@@ -809,7 +813,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/config', 'N/format', './big', '.
 			if (declaredQty) {
 				openTaskRecord.setValue({
 					fieldId: 'custrecord_declaredqty',
-					value: declaredQty
+					value: Number(Big(declaredQty).toFixed(5))
 				});
 			}
 
@@ -1349,7 +1353,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/config', 'N/format', './big', '.
 		function getOTResultsforIRPosting(poid, containerID, item_id, itemLineNo, warehouseLocationId, randomTallyscan) {
 			var otResultsforopenputawayarr = [];
 			var postItemReceiptSearchObj = search.load({
-				id: 'customsearch_wmsse_postitemreceipt_srch'
+				id: 'customsearch_wmsse_postitemreceipt_src_2'
 			});
 			var postItemReceiptSearchFilters = postItemReceiptSearchObj.filters;
 
@@ -1367,8 +1371,6 @@ define(['N/search', 'N/runtime', 'N/record', 'N/config', 'N/format', './big', '.
 					values: ['@NONE@']
 				}));
 			}
-
-
 			if (utility.isValueValid(item_id)) {
 				postItemReceiptSearchFilters.push(search.createFilter({
 					name: 'custrecord_wmsse_sku',
@@ -1399,6 +1401,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/config', 'N/format', './big', '.
 			}));
 			postItemReceiptSearchObj.filters = postItemReceiptSearchFilters;
 			var objPostItemReceiptDetails = utility.getSearchResultInJSON(postItemReceiptSearchObj);
+			log.debug({
+				title: 'objPostItemReceiptDetails',
+				details: objPostItemReceiptDetails
+			});
 
 			return objPostItemReceiptDetails;
 		}

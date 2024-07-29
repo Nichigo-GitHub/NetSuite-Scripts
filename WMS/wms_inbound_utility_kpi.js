@@ -3,7 +3,7 @@
  * @NApiVersion 2.x
  * @NModuleScope public
  */
-define(['N/search', 'N/runtime', 'N/record', 'N/format', './big', './wms_translator', './wms_utility', 'N/query', './wms_inboundUtility'],
+define(['N/search', 'N/runtime', 'N/record', 'N/format', './big', './wms_translator', './wms_utility', 'N/query', './wms_inboundUtility_kpi'],
 	function (search, runtime, record, format, Big, translator, utility, query, inboundUtility) {
 		function consolidatePostItemReceipt(trecord, actQuantity, linenum, itemId, transactionType, batchNo, expiryDate, whLocationId, enterBin, serialArray, opentaskSearchResults, transactionInternalId, itrValue, randomTallyScanRule, declaredQty) {
 			try {
@@ -107,7 +107,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/format', './big', './wms_transla
 							sublistId: 'item',
 							fieldId: 'custcol68',
 							line: irItr,
-							value: declaredQty
+							value: Number(Big(declaredQty).toFixed(5))
 						});
 						trecord.setSublistValue({
 							sublistId: 'item',
@@ -157,6 +157,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/format', './big', './wms_transla
 									var vInvStatus_select = opentaskSearchResults[r2]['custrecord_wmsse_inventorystatus'];
 									var openTaskBatchno = opentaskSearchResults[r2]['custrecord_wmsse_batch_num'];
 									var opentaskQuantity = opentaskSearchResults[r2]['custrecord_wmsse_act_qty'];
+									var opentaskDeclaredQuantity = opentaskSearchResults[r2]['custrecord_declaredqty'];
 									var opentaskbin = opentaskSearchResults[r2]['custrecord_wmsse_actendloc'];
 									if (utility.isValueValid(randomTallyScanRule) && randomTallyScanRule == "T") {
 										opentaskbin = enterBin;
@@ -173,6 +174,13 @@ define(['N/search', 'N/runtime', 'N/record', 'N/format', './big', './wms_transla
 											line: complinelength,
 											value: Number(Big(opentaskQuantity).toFixed(5))
 										});
+										if (opentaskDeclaredQuantity != null && opentaskDeclaredQuantity != "" && opentaskDeclaredQuantity != 'null')
+											compSubRecord.setSublistValue({
+												sublistId: 'inventoryassignment',
+												fieldId: 'custcol68',
+												line: complinelength,
+												value: Number(Big(opentaskDeclaredQuantity).toFixed(5))
+											});
 										compSubRecord.setSublistValue({
 											sublistId: 'inventoryassignment',
 											fieldId: 'receiptinventorynumber',
@@ -243,6 +251,17 @@ define(['N/search', 'N/runtime', 'N/record', 'N/format', './big', './wms_transla
 												line: complinelength,
 												value: Number(Big(opentaskQuantity).toFixed(5))
 											});
+											log.debug({
+												title: 'opentaskDeclaredQuantity',
+												details: opentaskDeclaredQuantity
+											});
+											if (opentaskDeclaredQuantity != null && opentaskDeclaredQuantity != "" && opentaskDeclaredQuantity != 'null')
+												compSubRecord.setSublistValue({
+													sublistId: 'inventoryassignment',
+													fieldId: 'custcol68',
+													line: complinelength,
+													value: Number(Big(opentaskDeclaredQuantity).toFixed(5))
+												});
 											if (opentaskbin != null && opentaskbin != "" && opentaskbin != 'null')
 												compSubRecord.setSublistValue({
 													sublistId: 'inventoryassignment',
@@ -2181,6 +2200,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/format', './big', './wms_transla
 			var noBinLoc = true;
 			var targetLocation = objPostIrValues['targetLocation'];
 			var targetSubsidiary = objPostIrValues['targetSubsidiary'];
+			var declaredQty = objPostIrValues['declaredQty'];
 			log.debug('targetLocation', targetLocation);
 			log.debug('targetSubsidiary', targetSubsidiary);
 
@@ -3277,6 +3297,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/format', './big', './wms_transla
 				opentaskObj.isKitComponent = objPostIrValues.isKitComponent;
 				opentaskObj.parentItem = objPostIrValues.parentItem;
 				opentaskObj.parentItemLine = objPostIrValues.parentItemLine;
+				opentaskObj.declaredQty = declaredQty;
 				if (utility.isValueValid(trantype) && trantype == 'returnauthorization' && utility.isValueValid(restock)) {
 					opentaskObj.restock = restock;
 				}

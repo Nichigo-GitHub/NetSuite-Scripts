@@ -99,12 +99,10 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 					});
 					if (!utility.isValueValid(isTallyScanRequired)) {
 						isTallyScanRequired = false;
-						log.debug('Condition 1, Line 101', 'isTallyScanRequired: ' + isTallyScanRequired);
 					}
 					var overageReceiveEnabled = false;
 					if (transactionType != 'transferorder') {
 						overageReceiveEnabled = inboundUtility.getPoOverage(transactionType);
-						log.debug('Condition 2, Line 107', 'transactionType: ' + transactionType + ' | overageReceiveEnabled: ' + overageReceiveEnabled);
 					}
 
 					if (!utility.isValueValid(transactionUomConversionRate) && utility.isValueValid(transactionUomName)) {
@@ -195,6 +193,7 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 						transactionDetailsArray.isItemAliasPopupRequired = false;
 						transactionDetailsArray.isLastScanForItem = false;
 						transactionDetailsArray.itemAliasObject = requestParams.itemAliasObject;
+						transactionDetailsArray.declaredQty = requestParams.declaredQty;
 
 						log.debug('Condition 14, Line 199', 'transactionDetailsArray: ' + JSON.stringify(transactionDetailsArray));
 
@@ -1303,6 +1302,7 @@ define(['N/runtime', 'N/search', 'N/record', 'N/query', './wms_utility', './big'
 			if (utility.isValueValid(restock)) {
 				transactionDetailsArray.restock = restock;
 			}
+			log.debug('transactionDetailsArray', JSON.stringify(transactionDetailsArray));
 			return transactionDetailsArray;
 		}
 

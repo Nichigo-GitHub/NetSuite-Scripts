@@ -1490,10 +1490,34 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				value: parsedCurrentDate
 			});
 
-			invTransfer.setValue({
-				fieldId: 'tranid',
-				value: invTranID
+			var inventoryTransferSearch = search.create({
+				type: search.Type.INVENTORY_TRANSFER,
+				filters: [
+					['tranid', 'contains', invTranID]
+				],
+				columns: [
+					'tranid'
+				]
 			});
+
+			// Run the search and get the results
+			var searchResult = inventoryTransferSearch.run().getRange({
+				start: 0,
+				end: 1
+			});
+
+			// Log the results
+			if (searchResult.length > 0) {
+				invTransfer.setValue({
+					fieldId: 'tranid',
+					value: invTranID + '-T' + [searchResult.length + 1]
+				});
+			} else {
+				invTransfer.setValue({
+					fieldId: 'tranid',
+					value: invTranID + '-T1'
+				});
+			}
 
 			invTransfer.setValue({
 				fieldId: 'custbody23',

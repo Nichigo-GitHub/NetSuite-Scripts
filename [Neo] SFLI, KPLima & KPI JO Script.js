@@ -19,16 +19,25 @@ function suitelet(request, response) {
 
 		if (subsidary == "4") {
 			var itemId = workorder.getLineItemValue('item', 'item', i);
-			var itemRecord = nlapiLoadRecord('inventoryitem', itemId);
 
-			var preferredVendor = null;
-			var vendorCount = itemRecord.getLineItemCount('itemvendor');
+			var recordType = nlapiLookupField('inventoryitem', itemId, 'internalid');
+			var preferredVendor = '';
 
-			for (var j = 1; j <= vendorCount; j++) {
-				var isPreferred = itemRecord.getLineItemValue('itemvendor', 'preferredvendor', j);
-				if (isPreferred === 'T') {
-					preferredVendor = itemRecord.getLineItemValue('itemvendor', 'vendor_display', j);
-					break;
+			nlapiLogExecution('ERROR', 'recordType', recordType);
+
+			if (recordType) {
+				var itemRecord = nlapiLoadRecord('inventoryitem', itemId);
+
+				var vendorCount = itemRecord.getLineItemCount('itemvendor');
+
+				for (var j = 0; j <= vendorCount; j++) {
+					var isPreferred = itemRecord.getLineItemValue('itemvendor', 'preferredvendor', j);
+					nlapiLogExecution('ERROR', 'isPreferred', isPreferred);
+					if (isPreferred == 'T') {
+						preferredVendor = itemRecord.getLineItemValue('itemvendor', 'vendor_display', j);
+						nlapiLogExecution('ERROR', 'preferredVendor', preferredVendor);
+						break;
+					}
 				}
 			}
 
@@ -38,9 +47,6 @@ function suitelet(request, response) {
 
 			var itemRecord = nlapiLoadRecord('inventoryitem', itemId);
 			var vendor = itemRecord.getLineItemValue('itemvendor', 'vendor_display', 1);
-
-			nlapiLogExecution('ERROR', 'itemId', itemId);
-			nlapiLogExecution('ERROR', 'vendor', vendor);
 
 			tablerow += addRmRow_KPVN_AMATA(code, desc, qty + ' ' + unit, '', vendor);
 		} else if (subsidary == "15" && custfrm == "719") {
