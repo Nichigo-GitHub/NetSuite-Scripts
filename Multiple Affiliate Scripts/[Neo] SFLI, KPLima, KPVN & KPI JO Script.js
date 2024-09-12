@@ -9,13 +9,16 @@ function suitelet(request, response) {
 	tablerow = '';
 	var lineCount = workorder.getLineItemCount('item');
 	for (var i = 1; i <= lineCount; i++) {
-		code = (subsidary == "4" ? workorder.getLineItemValue('item', 'item_display', i) : workorder.getLineItemText('item', 'item', i)),
+		var code = (subsidary == "4" ? workorder.getLineItemValue('item', 'item_display', i) : workorder.getLineItemText('item', 'item', i)),
 			desc = (subsidary == "4" ? (workorder.getLineItemValue('item', 'description', i) || " ") : (workorder.getLineItemValue('item', 'description', i) == null) ? 0 : workorder.getLineItemValue('item', 'description', i)),
 			qty = (workorder.getLineItemValue('item', 'quantity', i) == null) ? 0 : workorder.getLineItemValue('item', 'quantity', i),
 			unit = (workorder.getLineItemText('item', 'units', i) == null) ? 0 : workorder.getLineItemText('item', 'units', i),
 			excess = (workorder.getLineItemValue('item', 'custcol244', i) == null) ? 0 : workorder.getLineItemValue('item', 'custcol244', i),
-			excess = (excess == 0) ? "" : excess + ' ' + unit,
 			outs = (workorder.getFieldValue('custbody489') == null) ? 0 : workorder.getFieldValue('custbody489');
+
+			excess = (excess == 0) ? "" : excess + ' ' + unit;
+			desc = String(desc);
+			desc = desc.replace(/\n+/g, ' ');
 
 		if (subsidary == "4") {
 			var itemId = workorder.getLineItemValue('item', 'item', i);
@@ -50,7 +53,13 @@ function suitelet(request, response) {
 
 			tablerow += addRmRow_KPVN_AMATA(code, desc, qty + ' ' + unit, '', vendor);
 		} else if (subsidary == "15" && custfrm == "719") {
-			tablerow += addRmRow_KPVN_HANOI(code, desc, qty + ' ' + unit, '', '', '', '');
+			var itemId = workorder.getLineItemValue('item', 'item', i);
+
+			var upccode = nlapiLookupField('inventoryitem', itemId, 'upccode');
+
+			if (upccode) {
+				tablerow += addRmRow_KPVN_HANOI(code, desc, qty + ' ' + unit, '', '', '', '', upccode);
+			}
 		} else if (subsidary == "14") {
 			tablerow += addRmRow_SFLI(code, desc, qty + ' ' + unit, outs, '', '', '', '');
 		} else {
@@ -98,7 +107,7 @@ function suitelet(request, response) {
 
 	// Add Process Rows
 	if (subsidary == 14) {
-		function SFLIrow(processText, a, b, c, d, e, f, g, h, i, j, Num) {
+		function SFLIrow(processText, a, b, c, d, e, f, g, Num) {
 			return row1 = "<tr>" +
 				"<td class='padding borderRight borderBottom'>" + Num + "." + processText + "</td>" +
 				"<td class='padding borderRight borderBottom'>" + a + "</td>" +
@@ -108,13 +117,11 @@ function suitelet(request, response) {
 				"<td class='padding borderRight borderBottom'>" + e + "</td>" +
 				"<td class='padding borderRight borderBottom'>" + f + "</td>" +
 				"<td class='padding borderRight borderBottom'>" + g + "</td>" +
-				"<td class='padding borderRight borderBottom'>" + h + "</td>" +
-				"<td class='padding borderRight borderBottom'>" + i + "</td>" +
-				"<td class='padding borderRight borderBottom'>" + j + "</td>" +
+				"<td class='padding borderRight borderBottom'>" + g + "</td>" +
 				"</tr>";
 		}
 
-		var j = 1;
+		var Num = 1;
 
 		for (i = 226; i <= 267; i++) {
 			if (i == 236) {
@@ -126,9 +133,9 @@ function suitelet(request, response) {
 			processText = workorder.getFieldText('custbody' + i);
 			onerow = "";
 			if (process != "" && process != null) {
-				onerow += SFLIrow(processText, '', '', '', '', '', '', '', '', '', '', j);
+				onerow += SFLIrow(processText, '', '', '', '', '', '', '', Num);
 				html = html.replace('{' + i + '}', onerow == null ? '' : onerow);
-				j++;
+				Num++;
 			}
 		}
 
@@ -373,7 +380,7 @@ function suitelet(request, response) {
 
 	// Functions for RM rows
 	function addRmRow_SFLI(code, desc, qty, outs, a, b, c, d) {
-		return row1 = "<tr style='letter-spacing: 1px;'>" +
+		return row1 = "<tr style='letter-spacing: 1px; font-size: 8px;'>" +
 			"<td class='padding borderBottom borderRight' align='left'>" + code + "</td>" +
 			"<td class='padding borderBottom borderRight' align='left' style='text-align: left;'>" + desc + "</td>" +
 			"<td class='padding borderBottom borderRight' align='center'>" + qty + "</td>" +
@@ -398,9 +405,12 @@ function suitelet(request, response) {
 			"</tr>";
 	}
 
-	function addRmRow_KPVN_HANOI(code, desc, qty, a, b, c, d) {
+	function addRmRow_KPVN_HANOI(code, desc, qty, a, b, c, d, upccode) {
 		return row1 = "<tr style='letter-spacing: 1px;'>" +
-			"<td class='padding borderBottom borderRight' align='left'>" + code + "</td>" +
+			"<td class='padding borderBottom borderRight' align='left' valign='middle'>" +
+			"<table cellpadding='0' cellspacing='0'><tr><td valign='middle'>" +
+			"<barcode codetype='qrcode' style='height: 50px; width: 50px;  padding-top: -5px; padding-bottom: -5px;' showtext='false' value='" + upccode + "' />" +
+			"</td><td valign='middle'>" + code + "</td></tr></table></td>" +
 			"<td class='padding borderBottom borderRight' align='left' style='text-align: left;'>" + desc + "</td>" +
 			"<td class='padding borderBottom borderRight' align='center'>" + qty + "</td>" +
 			"<td class='padding borderBottom borderRight'>" + a + "</td>" +

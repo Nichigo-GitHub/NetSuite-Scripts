@@ -60,6 +60,14 @@ define(['N/log'], function (log) {
             defaultValue = 'A-Trading FG Staging';
         }
 
+        else if (WarehouseLocation === 'KPPI Cebu Warehouse : Production- C') {
+            defaultValue = 'Prod Staging';
+        } else if (WarehouseLocation === 'KPPI Cebu Warehouse : QA - C') {
+            defaultValue = 'QA WIP';
+        } else if (WarehouseLocation === 'KPPI Cebu Warehouse : Finished Goods - C') {
+            defaultValue = 'FG';
+        }
+
         return defaultValue;
     }
 

@@ -11,7 +11,10 @@ define([
 ], function (search, utility, translator, invtUtility) {
   function doPost(requestBody) {
     var binoritemArray = {};
-    log.debug({ title: "requestBody", details: requestBody });
+    log.debug({
+      title: "requestBody",
+      details: requestBody
+    });
     var debugString = "";
     var requestParams = "";
     try {
@@ -25,7 +28,10 @@ define([
           utility.isValueValid(wareHouseLocationId)
         ) {
           binoritemArray = binValidation(requestParams);
-          log.debug({ title: "binoritemArray", details: binoritemArray });
+          log.debug({
+            title: "binoritemArray",
+            details: binoritemArray
+          });
           if (
             binoritemArray.isValid == false ||
             binoritemArray.isValid == "false"
@@ -39,18 +45,21 @@ define([
               utility.isValueValid(itemResObj.itemInternalId) ||
               utility.isValueValid(itemResObj.barcodeIteminternalid)
             ) {
-              var itemInternalId = itemResObj.itemInternalId
-                ? itemResObj.itemInternalId
-                : itemResObj.barcodeIteminternalid;
-              var itemName = itemResObj.itemName
-                ? itemResObj.itemName
-                : itemResObj.barcodeItemname;
+              var itemInternalId = itemResObj.itemInternalId ?
+                itemResObj.itemInternalId :
+                itemResObj.barcodeIteminternalid;
+              var itemName = itemResObj.itemName ?
+                itemResObj.itemName :
+                itemResObj.barcodeItemname;
 
               var objBinDetails = getUseBins(
                 itemInternalId,
                 wareHouseLocationId
               );
-              log.debug({ title: "objBinDetails", details: objBinDetails });
+              log.debug({
+                title: "objBinDetails",
+                details: objBinDetails
+              });
 
               if (objBinDetails != null && objBinDetails != "") {
                 if (
@@ -58,7 +67,10 @@ define([
                   objBinDetails != "undefined"
                 ) {
                   var useBins = objBinDetails.usebins;
-                  log.debug({ title: "useBins", details: useBins });
+                  log.debug({
+                    title: "useBins",
+                    details: useBins
+                  });
                   if (useBins == false) {
                     binoritemArray.errorMessage =
                       translator.getTranslationString(
@@ -179,7 +191,10 @@ define([
         );
         binoritemArray.isValid = false;
       }
-      log.debug({ title: "binoritemArray", details: binoritemArray });
+      log.debug({
+        title: "binoritemArray",
+        details: binoritemArray
+      });
     } catch (e) {
       binoritemArray.isValid = false;
       binoritemArray.errorMessage = e.message;
@@ -187,10 +202,14 @@ define([
         title: "errorMessage",
         details: e.message + " Stack :" + e.stack,
       });
-      log.error({ title: "debugString", details: debugString });
+      log.error({
+        title: "debugString",
+        details: debugString
+      });
     }
     return binoritemArray;
   }
+
   function binValidation(requestParams) {
     var binoritemArray = {};
     var inputStringVar = requestParams.inputString;
@@ -199,11 +218,9 @@ define([
     var stgLocId = -1;
     var BinlocationSearch = search.create({
       type: "customlist_wmsse_bin_loc_type",
-      columns: [
-        {
-          name: "name",
-        },
-      ],
+      columns: [{
+        name: "name",
+      }, ],
     });
     var BinlocationTypes = BinlocationSearch.run().getRange({
       start: 0,
@@ -332,7 +349,10 @@ define([
       start: 0,
       end: 1000,
     });
-    log.debug({ title: "binSearchResults", details: binSearchResults });
+    log.debug({
+      title: "binSearchResults",
+      details: binSearchResults
+    });
     if (binSearchResults.length > 0) {
       binInternalId = binSearchResults[0].id;
       // need to allow bins which bin location type as WIP and mfg picking flag as true
@@ -341,8 +361,10 @@ define([
         binSearchResults[0].getText({
           name: "custrecord_wmsse_bin_loc_type",
         }) == "WIP" &&
-        binSearchResults[0].getValue({ name: "custrecord_wms_mfg_picking" }) ==
-          false
+        binSearchResults[0].getValue({
+          name: "custrecord_wms_mfg_picking"
+        }) ==
+        false
       ) {
         binInternalId = "";
       }
@@ -376,6 +398,7 @@ define([
     }
     return binoritemArray;
   }
+
   function getUseBins(itemInternalId, warehouseLocationId) {
     var columnArray = [];
     columnArray.push("usebins");

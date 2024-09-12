@@ -79,7 +79,30 @@ function userEventBeforeLoad(type, form, request) {
           form.addButton("custpage_receiving_tag", "Print HCM Receiving Tag", "window.open('" + url_4 + "')"); //KPVN_AMATA_Branch
         } else if (location == 873 || location == 897) {
           form.addButton("custpage_receiving_tag", "Print HCM Receiving Tag", "window.open('" + url_5 + "')"); //KPVN_AMATA_Trade
-        } else if (location == 781 || location == 785 || location == 776 || location == 855) {
+        } else if (
+          location == 781 ||
+          location == 785 ||
+          location == 776 ||
+          location == 855 ||
+          location == 775 ||
+          location == 900 ||
+          location == 778 ||
+          location == 859 ||
+          location == 805 ||
+          location == 818 ||
+          location == 819 ||
+          location == 813 ||
+          location == 770 ||
+          location == 779 ||
+          location == 858 ||
+          location == 777 ||
+          location == 816 ||
+          location == 817 ||
+          location == 771 ||
+          location == 854 ||
+          location == 814 ||
+          location == 815 ||
+          location == 860) {
           form.addButton("custpage_receiving_tag", "Print Hanoi Receiving Tag", "window.open('" + url_6 + "')"); //KPVN_HANOI
         }
 

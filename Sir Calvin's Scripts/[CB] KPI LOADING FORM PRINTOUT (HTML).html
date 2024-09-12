@@ -1,0 +1,211 @@
+<html>
+<pdf>
+
+	<head>
+		<!--***********************STYLESHEET***********************-->
+		<style type="text/css">
+			* {
+				border-spacing: 0;
+				font-family: Sans-serif;
+				font-size: 11px;
+				margin: 0;
+			}
+
+			h2 {
+				font-size: 15px;
+			}
+
+			h1 {
+				font-size: 20px;
+			}
+
+			.table_unx {
+				table-layout: fixed;
+				width: 100%;
+			}
+
+			.td_unx {
+				white-space: forced;
+
+			}
+
+			.border {
+				border-left: .5px solid;
+				border-right: .5px solid;
+				border-top: .5px solid;
+				border-bottom: .5px solid;
+				border-collapse: separate;
+			}
+
+			.column {
+				height: 50px;
+			}
+
+			.row {
+				display: flex;
+			}
+
+			.width {
+				width: 800px;
+			}
+
+			.img {
+				float: left;
+				margin-bottom: 30px;
+			}
+
+			.floatRight {
+				padding-top: 20px;
+				float: right;
+			}
+
+			.address {
+				font-size: 10px;
+			}
+
+			.PR {
+				font-size: 35px;
+			}
+
+			.bold {
+				font-weight: bold;
+			}
+
+			.paddingLeft {
+				padding-left: 100px;
+			}
+
+			.paddingRight {
+				padding-right: 70px;
+			}
+
+			.paddingBottom {
+				padding-bottom: 25px;
+			}
+
+			.paddingSFLIadd {
+				padding-top: 30px;
+				margin-left: 640px;
+				position: absolute;
+			}
+
+			.borderLeft {
+				border-left: .5px solid;
+			}
+
+			.borderRight {
+				border-right: .5px solid;
+			}
+
+			.borderTop {
+				border-top: .5px solid;
+			}
+
+			.borderBottom {
+				border-bottom: .5px solid;
+			}
+
+			.tableMarginTop2 {
+				margin-top: 5px;
+				height: auto;
+			}
+
+			.tableMarginTop {
+				margin-top: 25px;
+				height: auto;
+			}
+
+			.tableColor {
+				background-color: black;
+				color: #ffffff;
+			}
+
+			.padding {
+				padding-top: 5px;
+				padding-bottom: 5px;
+			}
+
+			.paddingLR {
+				padding-left: 5px;
+				padding-right: 5px;
+			}
+
+			.grey {
+				background-color: #C0C0C0;
+			}
+
+			.footer {
+				border-top: 2px solid black;
+				width: 800px;
+				height: 60px;
+				position: relative;
+			}
+		</style>
+	</head>
+
+	<body>
+
+		<h1>PT. Kanepackage Indonesia </h1>
+		<table width="800px">
+			<tr>
+				<th class="border" width="800px" align="center">
+					<h1>Loading Form</h1>
+				</th>
+			</tr>
+		</table>
+		<table class="border tableMarginTop2" width="800px">
+			<tr>
+				<td width="600px" align="left"><b>Date: {date}</b></td>
+				<td width="200px" align="left"><b>FORM-CIC-03
+						Rev 00
+						010313</b></td>
+			</tr>
+			<tr>
+				<td width="600px" align="left"><b>Customer: {cust}</b></td>
+				<td width="200px" align="left"><b>Load Form #: {LFnum}</b></td>
+			</tr>
+			<tr>
+				<td width="800px" align="left"><b>Created From: {createdSo}</b></td>
+			</tr>
+
+
+		</table>
+
+		<table class="border tableMarginTop" width="800px">
+			<tr>
+				<td class="borderBottom borderLeft" width="70px" align="center" bgcolor="#32CD32"><b>Delivery Date</b></td>
+				<td class="borderBottom " width="50px" align="center" bgcolor="#32CD32"><b>Customer Code</b></td>
+				<td class="borderBottom " width="200px" align="center" bgcolor="#32CD32"><b>Item Description</b></td>
+				<td class="borderBottom " width="75px" align="center" bgcolor="#32CD32"><b>Item code</b></td>
+				<td class="borderBottom " width="50px" align="center" bgcolor="#32CD32"><b>Required Qty</b></td>
+				<td class="borderBottom " width="50px" align="center" bgcolor="#32CD32"><b>UOM</b></td>
+				<td class="borderBottom " width="50px" align="center" bgcolor="#32CD32"><b>WHSE Stock</b></td>
+				<td class="borderBottom " width="50px" align="center" bgcolor="#32CD32"><b>Actual Stock</b></td>
+				<td class="borderBottom " width="50px" align="center" bgcolor="#32CD32"><b>Pick up</b></td>
+				<td class="borderBottom " width="50px" align="center" bgcolor="#32CD32"><b>Avail. Rack</b></td>
+				<td class="borderBottom " width="50px" align="center" bgcolor="#32CD32"><b>Rack Qty</b></td>
+				<td class="borderBottom borderRight " width="80px" align="center" bgcolor="#32CD32"><b>Remarks</b></td>
+			</tr>
+			<tr>
+				{body}
+			</tr>
+		</table>
+
+
+
+		<macrolist>
+			<macro id="footer" width="800px">
+				<table class='footer'>
+					<tr>
+						<td valign="bottom" align="center">__________________</td>
+						<td valign="bottom" align="center">__________________</td>
+					</tr>
+					<tr>
+						<td align="center"><b>Prepared by</b></td>
+						<td align="center"><b>Received by</b></td>
+					</tr>
+				</table>
+	</body>
+</pdf>
+
+</html>

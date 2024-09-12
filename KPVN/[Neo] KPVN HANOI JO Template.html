@@ -165,11 +165,6 @@
       .custom-cell2 {
         width: 140px;
       }
-
-      .tdTable {
-        colspan: 1;
-        rowspan: 1;
-      }
     </style>
   </head>
 
@@ -182,7 +177,8 @@
             style="width: 58px; height: 58px; margin-bottom: 10px; margin-top: 15px; padding-top: -5px;" />
         </td>
         <td height="30" width="15px" align="left" valign="middle">
-          <h1>KANEPACKAGE VIETNAM CO.,LTD</h1></td>
+          <h1>KANEPACKAGE VIETNAM CO.,LTD</h1>
+        </td>
         <td align="right" style="width: 200px;">
           <table cellpadding="0" cellspacing="0">
             <tr>
@@ -226,14 +222,24 @@
         <td class="bold">Customer:<br /><br />{cust}</td>
         <td class="borderRight">
         </td>
+
         <td width="33%">
-          Finished Goods:
-          <p><span style="font-size: 18px; font-weight: bold;">{assemblyItem}</span><br />
-            {assemblyItemDesc}</p>
+          <table cellpadding="0" cellspacing="0">
+            <tr>
+              <td valign="middle">
+                Finished Goods:
+                <p><span style="font-size: 18px; font-weight: bold;">{assemblyItem}</span><br />
+                  {assemblyItemDesc}</p>
+              </td>
+              <td>
+                <barcode codetype="qrcode" style="height: 75px; width: 75px;" showtext="false" value="{upcCode}" />
+              </td>
+            </tr>
+          </table>
         </td>
         <td width="33%">
           <p><span style="font-size: 18px; font-weight: bold;">Quantity: {qty}</span><br /><br />
-          Department Location: <br /><span style="font-size: 18px; font-weight: bold;">{deptLocation}</span></p>
+            Department Location: <br /><span style="font-size: 18px; font-weight: bold;">{deptLocation}</span></p>
         </td>
       </tr>
     </table>
@@ -311,30 +317,30 @@
             <p>Special Instructions:______________________________________________________</p>
           </td>
           <!-- <td class="borderRight borderTop">Noted By:</td>
-<td class="borderRight borderTop">Approved By:</td>
-<td class="borderRight borderTop">Issued By:</td>
-<td class="borderRight borderTop">Received By:</td>
-<td class="borderLeft borderRight borderTop" align="center">{joNum2}</td> -->
+          <td class="borderRight borderTop">Approved By:</td>
+          <td class="borderRight borderTop">Issued By:</td>
+          <td class="borderRight borderTop">Received By:</td>
+          <td class="borderLeft borderRight borderTop" align="center">{joNum2}</td> -->
         </tr>
         <tr>
           <!-- <td class="borderLeft borderRight borderBottom">
-<p></p>
-</td>
-<td class="borderRight borderBottom">
-<p></p>
-</td>
-<td class="borderRight borderBottom">
-<p></p>
-</td>
-<td class="borderRight borderBottom">
-<p></p>
-</td>
-<td class="borderRight borderBottom">
-</td>
-<td class="borderLeft borderRight borderBottom" align="center">
-<barcode codetype="qrcode" style="height: 75px; width: 75px;" showtext="false"
-value="{joNum3}" />
-</td> -->
+          <p></p>
+          </td>
+          <td class="borderRight borderBottom">
+          <p></p>
+          </td>
+          <td class="borderRight borderBottom">
+          <p></p>
+          </td>
+          <td class="borderRight borderBottom">
+          <p></p>
+          </td>
+          <td class="borderRight borderBottom">
+          </td>
+          <td class="borderLeft borderRight borderBottom" align="center">
+          <barcode codetype="qrcode" style="height: 75px; width: 75px;" showtext="false"
+          value="{joNum3}" />
+          </td> -->
         </tr>
 
       </table>

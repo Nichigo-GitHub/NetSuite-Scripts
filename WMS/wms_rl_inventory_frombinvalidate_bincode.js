@@ -77,7 +77,7 @@ define(['N/log', 'N/search', './wms_utility', './big', './wms_translator', './wm
 
 								if (utility.isValueValid(fromBinName)) {
 									binSearchFilters.push(search.createFilter({
-										name: 'binnumber',
+										name: 'custrecord_bin_code',
 										operator: search.Operator.IS,
 										values: fromBinName
 									}));
@@ -101,7 +101,7 @@ define(['N/log', 'N/search', './wms_utility', './big', './wms_translator', './wm
 								if (utility.isValueValid(binSearchResultsvalues)) {
 									binInternalId = binSearchResultsvalues[0].id;
 									fromBinNumber = binSearchResultsvalues[0].getValue({
-										name: 'binnumber'
+										name: 'custrecord_bin_code'
 									});
 
 								}
@@ -150,7 +150,7 @@ define(['N/log', 'N/search', './wms_utility', './big', './wms_translator', './wm
 
 									if (utility.isValueValid(fromBinName)) {
 										binSearchFilters.push(search.createFilter({
-											name: 'binnumber',
+											name: 'custrecord_bin_code',
 											operator: search.Operator.IS,
 											values: fromBinName
 										}));
@@ -197,7 +197,7 @@ define(['N/log', 'N/search', './wms_utility', './big', './wms_translator', './wm
 
 											binInternalId = binSearchResultsvalues[0].id;
 											fromBinNumber = binSearchResultsvalues[0].getValue({
-												name: 'binnumber'
+												name: 'custrecord_bin_code'
 											});
 
 										}
@@ -216,7 +216,7 @@ define(['N/log', 'N/search', './wms_utility', './big', './wms_translator', './wm
 									//var binSearchFilters = [];
 									if (utility.isValueValid(fromBinName)) {
 										binSearchFilters.push(search.createFilter({
-											name: 'binnumber',
+											name: 'custrecord_bin_code',
 											operator: search.Operator.IS,
 											values: fromBinName
 										}));
@@ -335,7 +335,7 @@ define(['N/log', 'N/search', './wms_utility', './big', './wms_translator', './wm
 										objBinDetails = getItemWiseInventoryDetailswithInvStatusEnable(searchName, itemInternalId, binInternalId, warehouseLocationId, makeInvtAvailableFlag);
 
 									} else {
-										objBinDetails = getItemWiseLotsDetails(itemInternalId, warehouseLocationId, binInternalId, fromBinName, fromBinValidate);
+										objBinDetails = getItemWiseLotsDetails(itemInternalId, warehouseLocationId, fromBinNumber, fromBinName, fromBinValidate);
 									}
 								}
 								if (objBinDetails.length == 0) {
@@ -532,7 +532,7 @@ define(['N/log', 'N/search', './wms_utility', './big', './wms_translator', './wm
 			}
 			if (utility.isValueValid(vBinId)) {
 				searchObj.filters.push(search.createFilter({
-					name: 'binnumber',
+					name: 'custrecord_bin_code',
 					join: 'binonhand',
 					operator: search.Operator.ANYOF,
 					values: vBinId
@@ -599,7 +599,7 @@ define(['N/log', 'N/search', './wms_utility', './big', './wms_translator', './wm
 			}
 			if (utility.isValueValid(binInternalId)) {
 				searchObj.filters.push(search.createFilter({
-					name: 'binnumber',
+					name: 'custrecord_bin_code',
 					operator: search.Operator.ANYOF,
 					values: binInternalId
 				}));

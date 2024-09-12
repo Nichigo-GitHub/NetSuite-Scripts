@@ -129,7 +129,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 
 						if (utility.isValueValid(binName)) {
 							binSearchFilters.push(search.createFilter({
-								name: 'binnumber',
+								name: 'custrecord_bin_code',
 								operator: search.Operator.IS,
 								values: binName
 							}));
@@ -942,6 +942,11 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 				},
 				{
 					prefix: 'K',
+					start: 34,
+					end: 126
+				},
+				{
+					prefix: 'PP',
 					start: 34,
 					end: 126
 				}

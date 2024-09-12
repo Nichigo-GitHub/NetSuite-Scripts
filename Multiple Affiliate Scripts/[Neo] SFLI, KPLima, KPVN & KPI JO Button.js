@@ -22,13 +22,15 @@ function userEventBeforeLoad(type, form) {
 
         } else if (sub == '5' || sub == '18' || custfrm == '656') { // Kanepackage Philippine Inc
             nlapiLogExecution('ERROR', 'Subsidiary', 'KPPI');
+            location = nlapiGetFieldValue('location');
 
             if (userRole == '1239') {
                 form.addButton("custpage_ppo2", "KP FPIP JO Printout", KPLIMAJO);
-            } else {
+            } else if (location == '797' || location == '835' || location == '836' || location == '798') {
+                form.addButton("custpage_ppo2", "KP Cebu JO Printout", KPLIMAJO);
+            }else {
                 form.addButton("custpage_ppo2", "KPLIMA JO Printout", KPLIMAJO);
             }
-
         } else if (sub == '15') { // Kanepackage Vietnam Co.,Ltd
             nlapiLogExecution('ERROR', 'Subsidiary', 'KPVN');
             if (custfrm == '719') {

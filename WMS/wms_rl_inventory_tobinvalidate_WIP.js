@@ -62,9 +62,13 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			var toBinInternalId = '';
 			var toBinInternalLoctype = '';
 			var sheetQty = '';
-			var manpower = '';
+			var manpower = 1;
 			var setupStart = '';
 			var setupEnd = '';
+			var operatorName = '';
+			var operatorName2 = '';
+			var operatorName3 = '';
+			var operatorName4 = '';
 
 			try {
 				if (utility.isValueValid(requestBody)) {
@@ -100,16 +104,35 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					isTallyScanRequired = requestParams.isTallyScanRequired;
 					tallyScanBarCodeQty = requestParams.tallyScanBarCodeQty;
 					sheetQty = requestParams.sheetQty;
-					manpower = requestParams.manpower;
+					// manpower = requestParams.manpower;
 					setupStart = requestParams.setupStart;
 					setupEnd = requestParams.setupEnd;
-					operatorName = requestParams.operatorName;
+					operatorName = requestParams.operatorName1;
+					operatorName2 = requestParams.operatorName2;
+					if (operatorName2){
+						operatorName += ' / ' + operatorName2;
+						manpower += 1;
+					}
+					operatorName3 = requestParams.operatorName3;
+					if (operatorName3) {
+						operatorName += ' / ' + operatorName3;
+						manpower += 1;
+					}
+					operatorName4 = requestParams.operatorName4;
+					if (operatorName4) {
+						operatorName += ' / ' + operatorName4;
+						manpower += 1;
+					}
 					downtime = requestParams.downtime;
 					downtime_reason = requestParams.downtime_reason;
 
 					log.debug({
 						title: 'requestParams',
 						details: requestParams
+					});
+					log.debug({
+						title: 'operatorNames',
+						details: operatorName
 					});
 					var objInvDetails = [];
 					if (!utility.isValueValid(binName)) {
@@ -140,7 +163,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 
 						if (utility.isValueValid(binName)) {
 							binSearchFilters.push(search.createFilter({
-								name: 'binnumber',
+								name: 'custrecord_bin_code',
 								operator: search.Operator.IS,
 								values: binName
 							}));

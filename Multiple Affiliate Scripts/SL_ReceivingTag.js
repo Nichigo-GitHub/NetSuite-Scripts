@@ -42,24 +42,46 @@ function suitelet(request, response) {
             var orderedBy = poRecord.getFieldText("custbody382");
         } else if (customform == 503 && subsidiary == 4) {
             var receivingTagTemplateFile = nlapiLoadFile("299436"); //KPIN_Receiving_Tag.xml
-            var orderedBy = "-----"; //getOrderedBy(poId);
-        } else if (customform == 486 && subsidiary == 15) {
-            if (location == 'Branch') {
+            var orderedBy = "-----";
+        } else if (subsidiary == 15) {
+            if (customform == 486 && location == 'Branch') {
                 nlapiLogExecution('ERROR', 'print', 'amata branch');
                 var receivingTagTemplateFile = nlapiLoadFile("311521"); //KPVN_AMATA_BRANCH_Receiving_Tag.xml
-                var orderedBy = " "; //getOrderedBy(poId);
-            } else if (location == 'Trade') {
+                var orderedBy = " ";
+            } else if (customform == 486 && location == 'Trade') {
                 nlapiLogExecution('ERROR', 'print', 'amata trade');
                 var receivingTagTemplateFile = nlapiLoadFile("311522"); //KPVN_AMATA_TRADE_Receiving_Tag.xml
-                var orderedBy = " "; //getOrderedBy(poId);
-            } else {
+                var orderedBy = " ";
+            } else if (location == 781 ||
+                location == 785 ||
+                location == 776 ||
+                location == 855 ||
+                location == 775 ||
+                location == 900 ||
+                location == 778 ||
+                location == 859 ||
+                location == 805 ||
+                location == 818 ||
+                location == 819 ||
+                location == 813 ||
+                location == 770 ||
+                location == 779 ||
+                location == 858 ||
+                location == 777 ||
+                location == 816 ||
+                location == 817 ||
+                location == 771 ||
+                location == 854 ||
+                location == 814 ||
+                location == 815 ||
+                location == 860) {
                 nlapiLogExecution('ERROR', 'print', 'hanoi');
                 var receivingTagTemplateFile = nlapiLoadFile("312905"); //KPVN_HANOI_Receiving_Tag.xml
-                var orderedBy = " "; //getOrderedBy(poId);
+                var orderedBy = " ";
             }
         } else {
             var receivingTagTemplateFile = nlapiLoadFile("22162"); //(SFLI) receivingTagTemplate.xml
-            var orderedBy = "Ian and Ms Weng"; //getOrderedBy(poId);
+            var orderedBy = "Ian and Ms Weng";
         }
 
         var dataArray = getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy);
@@ -99,12 +121,24 @@ function suitelet(request, response) {
         } else if (customform == 620 && subsidiary == 4) {
             var receivingTagTemplateFile = nlapiLoadFile("300170"); //KPIN_FG_Tag.xml
         } else if (customform == 694 && subsidiary == 15) {
-            var receivingTagTemplateFile = nlapiLoadFile("309110"); //KPVN_FG_Tag.xml
+            var itRecord = nlapiLoadRecord("inventorytransfer", receiptId);
+            var location = itRecord.getFieldText("transferlocation");
+
+            // Check if the variable is a string, and convert it if it's not
+            if (typeof location !== 'string') {
+                location = String(location); // Convert the variable to a string if it's not already
+            }
+
+            if (location.toLowerCase().indexOf("hanoi") !== -1) {
+                var receivingTagTemplateFile = nlapiLoadFile("309110"); //KPVN_HANOI_FG_Tag.xml
+            } else if (location.toLowerCase().indexOf("amata") !== -1) {
+                var receivingTagTemplateFile = nlapiLoadFile("321948"); //KPVN_AMATA_FG_Tag.xml
+            }
         } else if (customform == 707 && subsidiary == 14) {
             var receivingTagTemplateFile = nlapiLoadFile("22162"); //(SFLI) receivingTagTemplate.xml
-            var orderedBy = "Ian and Ms Weng"; //getOrderedBy(poId);
+            var orderedBy = "Ian and Ms Weng";
         }
-        var dataArray = getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, orderedBy);
+        var dataArray = getReceivingTagDataJsonForInventoryTransfer(receiptId, lineNo, orderedBy, customform, subsidiary);
 
         var xml = juicer(receivingTagTemplateFile.getValue(), {
             "dataArray": dataArray
@@ -187,6 +221,7 @@ function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy) {
     var itemDescription = "";
     var quantity = "";
     var itemUPC = "";
+    var customerVN = "";
 
     var dataArray = [];
     var itemCounts = poRecord.getLineItemCount("item");
@@ -199,6 +234,10 @@ function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy) {
             quantity = poRecord.getLineItemValue("item", "quantity", i);
             itemDescription = poRecord.getLineItemValue("item", "description", i);
             itemUPC = poRecord.getLineItemValue("item", "custcol241", i);
+            if (!customer) {
+                customerVN = poRecord.getLineItemValue("item", "custcol227", i);
+                receivingTagDataJson["customer"] = convertNullToEmpty(customerVN);
+            }
 
             receivingTagDataJson["itemCode"] = convertNullToEmpty(itemCode);
             receivingTagDataJson["itemDescription"] = convertNullToEmpty(itemDescription);
@@ -213,7 +252,10 @@ function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy) {
                 quantity = poRecord.getLineItemValue("item", "quantity", i);
                 itemDescription = poRecord.getLineItemValue("item", "description", i);
                 itemUPC = poRecord.getLineItemValue("item", "custcol241", i);
-
+                if (!customer) {
+                    customerVN = poRecord.getLineItemValue("item", "custcol227", i);
+                    receivingTagDataJson["customer"] = convertNullToEmpty(customerVN);
+                }
 
                 receivingTagDataJson["itemCode"] = convertNullToEmpty(itemCode);
                 receivingTagDataJson["itemDescription"] = convertNullToEmpty(itemDescription);
@@ -230,7 +272,7 @@ function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy) {
 
 // Function for inventory transfers
 
-function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, orderedBy) {
+function getReceivingTagDataJsonForInventoryTransfer(receiptId, lineNo, orderedBy, customform, subsidiary) {
     var itRecord = nlapiLoadRecord("inventorytransfer", receiptId);
 
     var refJoNo = itRecord.getFieldValue("custbody23");
@@ -243,7 +285,7 @@ function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, or
     var reveivedBy = itRecord.getFieldText("custbody1"); //Prepared by (Custom)
     if (!reveivedBy) {
         reveivedBy = itRecord.getFieldText("custbody365");
-    if (!reveivedBy) {
+        if (!reveivedBy) {
             reveivedBy = itRecord.getFieldText("custbody11");
         }
     }
@@ -252,7 +294,17 @@ function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, or
     tolocation = tolocation.replace(/^KPVN AMATA : AMATA BRANCH - Main Location : /, '').trim();
     tolocation = tolocation.replace(/^KPVN AMATA : AMATA EPE - Main Location : /, '').trim();
     tolocation = tolocation.replace(/^KPVN AMATA : AMATA TRADING - Main Location : /, '').trim();
-    var dateReceived = itRecord.getFieldValue("trandate"); //Date
+    var dateReceived = ''; //Date
+    var formattedDate = "";
+    var dateString = "";
+    if (customform == 694 && subsidiary == 15) {
+        dateReceived = itRecord.getFieldValue("createddate");
+        dateString = itRecord.getFieldValue("trandate");
+        formattedDate = dateString.replace(/\//g, ''); // This will remove all slashes
+    } else {
+        dateReceived = itRecord.getFieldValue("trandate");
+    }
+
     var customer = itRecord.getFieldText("custbody41"); //Customer (Custom)
     if (!customer && refJoNo) {
         var filters = [
@@ -275,9 +327,6 @@ function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, or
         RrNo = itRecord.getFieldValue("custbody54");
     }
     var supplier2 = itRecord.getFieldText("custbodycust_sfli_vendor"); //supplier
-    //var supplier = nlapiLookupField("vendor", itRecord.getFieldValue("entity"), "companyname"); //COMPANY NAME
-
-    //month = getSimpleEnglishMonthJson(month, true);
 
     var receivingTagCommonDataJson = {
         "refJoNo": convertNullToEmpty(refJoNo),
@@ -287,6 +336,8 @@ function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, or
         "drNo": convertNullToEmpty(drNo),
         "reveivedBy": convertNullToEmpty(reveivedBy),
         "dateReceived": convertNullToEmpty(dateReceived),
+        "formattedDate": convertNullToEmpty(formattedDate),
+        "dateString": convertNullToEmpty(dateString),
         "customer": convertNullToEmpty(customer),
         "dateDelivered": convertNullToEmpty(dateDelivered),
         "supplier2": convertNullToEmpty(supplier2),
@@ -314,7 +365,7 @@ function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, or
             itemDescription = itRecord.getLineItemValue("inventory", "description", i);
             itemUPC = itRecord.getLineItemValue("inventory", "custcol242", i);
 
-            receivingTagDataJson["itemCode"] = convertNullToEmpty(itemCode);
+            receivingTagDataJson["itemCode"] = convertNullToEmpty(formatString(itemCode));
             receivingTagDataJson["itemDescription"] = convertNullToEmpty(itemDescription);
             receivingTagDataJson["quantity"] = convertNullToEmpty(quantity);
             receivingTagDataJson["itemUPC"] = convertNullToEmpty(itemUPC);
@@ -333,7 +384,7 @@ function getReceivingTagDataJsonForInventoryTransfer(poId, receiptId, lineNo, or
                 itemDescription = itRecord.getLineItemValue("inventory", "description", i);
                 itemUPC = itRecord.getLineItemValue("inventory", "custcol241", i);
 
-                receivingTagDataJson["itemCode"] = convertNullToEmpty(itemCode);
+                receivingTagDataJson["itemCode"] = convertNullToEmpty(formatString(itemCode));
                 receivingTagDataJson["itemDescription"] = convertNullToEmpty(itemDescription);
                 receivingTagDataJson["quantity"] = convertNullToEmpty(quantity);
                 receivingTagDataJson["itemUPC"] = convertNullToEmpty(itemUPC);
@@ -431,17 +482,65 @@ function getReceivingTagDataJsonForInventoryAdjustment(poId, receiptId, lineNo, 
     return dataArray.length > 0 ? dataArray : "";
 }
 
-/**
- * 
- * @param poId
- * @returns
- */
-function getOrderedBy(poId) {
-    /*
-    var results = nlapiSearchRecord("transaction", "customsearch_transac_body_fields_search", ["internalid","is",poId], null);
-    if (results)
-        return convertNullToEmpty(results[0].getText("custbody49"));
-    */
+function formatString(input) {
+    // Ensure the input is a string
+    var str = String(input);
+
+    // Log the original string
+    nlapiLogExecution('ERROR', 'Original String', str);
+
+    // Get string length
+    var strLength = str.length;
+    nlapiLogExecution('ERROR', 'String Length', 'String length is ' + strLength);
+
+    // Check if the string is at least 23 characters
+    if (strLength >= 23) {
+        nlapiLogExecution('ERROR', 'String Length Check', 'String is 23 or more characters');
+
+        // Define the split index after 23 characters
+        var splitIndex = 23;
+
+        // Split the string into two halves
+        var firstHalf = str.substring(0, splitIndex);
+        var secondHalf = str.substring(splitIndex);
+
+        // Log the two halves
+        nlapiLogExecution('ERROR', 'First Half', firstHalf);
+        nlapiLogExecution('ERROR', 'Second Half', secondHalf);
+
+        // Find the last occurrence of '-' in the first half
+        var lastHyphenIndex = firstHalf.lastIndexOf('-');
+        nlapiLogExecution('ERROR', 'Last Hyphen Index in First Half', lastHyphenIndex !== -1 ? 'Hyphen found at index ' + lastHyphenIndex : 'No hyphen found in the first half');
+
+        if (lastHyphenIndex !== -1) {
+            // Insert 4 spaces after the nearest hyphen to the 23rd character
+            firstHalf = firstHalf.substring(0, lastHyphenIndex + 1) + '    ' + firstHalf.substring(lastHyphenIndex + 1);
+            // Concatenate with the second half
+            str = firstHalf + secondHalf;
+        } else {
+            // If no hyphen is found in the first half, insert 4 spaces after the 23rd character
+            str = firstHalf + '    ' + secondHalf;
+        }
+
+        // Check if the second half exceeds 23 characters
+        var secondHalfLength = secondHalf.length;
+        if (secondHalfLength > 23) {
+            // Split the second half if it exceeds 23 characters
+            var secondHalfFirstPart = secondHalf.substring(0, 23);
+            var secondHalfSecondPart = secondHalf.substring(23);
+
+            str = firstHalf + '    ' + secondHalfFirstPart + '\n' + secondHalfSecondPart;
+        }
+
+    } else {
+        // If the string is less than 23 characters, no changes are made
+        nlapiLogExecution('ERROR', 'String Length Check', 'String is less than 23 characters, no changes made');
+    }
+
+    // Log the formatted string
+    nlapiLogExecution('ERROR', 'Formatted String', str);
+
+    return str;
 }
 
 /**

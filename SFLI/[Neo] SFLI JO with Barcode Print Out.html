@@ -7,7 +7,6 @@
             * {
                 border-spacing: 0;
                 font-family: Sans-serif;
-                font-size: 8px;
                 margin: 0;
             }
 
@@ -16,10 +15,7 @@
                 width: 210mm;
                 margin: 3px;
                 padding: 0;
-            }
-
-            h1 {
-                font-size: 20px;
+                font-size: 10px;
             }
 
             .border {
@@ -36,7 +32,14 @@
                 border-bottom: 2px solid;
             }
 
-
+            th,
+            td {
+                letter-spacing: normal;
+                white-space: normal;
+                text-align: center;
+                word-wrap: break-word;
+                word-break: break-all;
+            }
 
             .img {
                 float: right;
@@ -50,7 +53,7 @@
 
             .joborder {
                 display: block;
-                font-size: 2em;
+                font-size: 20px;
 
                 font-weight: bold;
             }
@@ -61,6 +64,12 @@
 
             .bold {
                 font-weight: bold;
+                font-size: 20px;
+            }
+
+            .bold2 {
+                font-weight: bold;
+                font-size: 16px;
             }
 
             .paddingTop {
@@ -149,30 +158,30 @@
     </head>
 
     <body>
-        <table style="width: 450px;" align="right">
+        <table style="width: 650px;" align="right">
             <tr>
                 <td align="right">
                     <img style="height: 60px; margin-bottom: 10px; margin-top: 0px; padding-top: -5px"
                         src="https://3389427.app.netsuite.com/core/media/media.nl?id=726&c=3389427&h=jDnNhb8180IbnTZfRCVruyfeuuSKv4cm_bPFitq2x2HuQ3V8&fcts=20121022220631&whence="
                         alt="kppi logo" />
                 </td>
-                <td style="width: 100px;" align="right"><br></br><br></br><br></br>SUPERFLEX LOGISTIC INC.<br></br>
+                <td style="width: 300px; padding-top: -15px" align="right">
+                    <br></br><br></br><br></br>SUPERFLEX LOGISTIC INC.<br></br>
                     Blk 1 Lot 6, Phase 7A, Laguna Technopark Binan, Laguna,Philippines<br></br>
-                    Tel:(049)544-0016<br></br></td>
+                    Tel:(049)544-0016<br></br>
+                </td>
             </tr>
         </table>
-
         <table>
             <tr>
                 <td class="joborder" align="left">JOB ORDER</td>
-                <td width="100px"></td>
-                <td align="center">PRO-JON-03 rev.03</td>
+                <td width="630px" align="right" style="vertical-align: bottom;">PRO-JON-03 rev.03</td>
             </tr>
         </table>
         <table class="borderBold" width="100%" align="center">
             <tr>
                 <td>JO No.</td>
-                <td align="center" class="bold paddingLeft paddingRight">{joNum}</td>
+                <td align="center" class="bold2 paddingLeft paddingRight">{joNum}</td>
             </tr>
             <tr>
                 <td>Date Prepared :</td>
@@ -182,74 +191,85 @@
 
         <table class="borderBold tableMarginTop" width="100%" align="center">
             <tr>
-                <td rowspan="3" class="bold">Customer </td>
-                <td rowspan="1">
-                    <p>
-                        <barcode codetype="qrcode" style="height: 75px; width: 75px;" showtext="true" value="{cust2}" />
-                    </p>
+                <td rowspan="3" class="bold2">Customer:</td>
+                <td rowspan="1" style="padding-top: -5px; padding-bottom: -5px; padding-left: -8px;">
+                    <barcode codetype="qrcode" style="height: 75px; width: 75px;" showtext="true" value="{cust2}" />
                 </td>
                 <td rowspan="4">
                     <p></p>
-                    <p>{cust}</p>
+                    <p class="bold" style="padding-top: -8px;">{cust}</p>
                 </td>
                 <td>
-                    <p></p>
                 </td>
             </tr>
         </table>
 
         <table class="borderBold tableMarginTop" width="100%" align="center">
             <tr>
-                <td rowspan="1">Component:</td>
-                <td rowspan="1">
-                    <p>
-                        <barcode codetype="qrcode" style="height: 75px; width: 75px;" showtext="true"
-                            value="{upcCode}" />
-                    </p>
+                <td rowspan="1" class="bold2">Component:</td>
+                <td rowspan="1" style="padding-top: -7px; padding-bottom: -7px;">
+                    <barcode codetype="qrcode" style="height: 75px; width: 75px;" showtext="true" value="{upcCode}" />
                 </td>
                 <td rowspan="2">
-                    <p></p>
-                    <p>{assemblyItem}</p>
-                    <p>{assemblyItemDesc}</p>
+                    <p class="bold2" style="padding-top: 10px;">{assemblyItem}</p>
+                    <p style="padding-top: -10px;">{assemblyItemDesc}</p>
                 </td>
                 <td rowspan="2">
-                    <p>Quantity: {qty}</p>
-                    <p>Date Needed: {DateNeed}</p>
-                    <p>Time Needed: {TimeNeed}</p>
+                    <p class="bold2" style="padding-top: 5px;">Quantity: {qty}</p>
+                    <p style="padding-top: -8px;">Date Needed: {DateNeed}</p>
+                    <p style="padding-top: -5px;">Time Needed: {TimeNeed}</p>
                 </td>
             </tr>
         </table>
         <!-- tableMarginTop -->
 
-        <p>Materials Required</p>
+        <table>
+            <tr>
+                <td class="bold2">Materials Required</td>
+            </tr>
+        </table>
         <table class="borderBold" width="100%" align="center">
             <tr>
                 <td class="tableColor padding" align="center">CODE</td>
-                <td class="tableColor padding" align="center">DESCRIPTION/SPECIFICATION</td>
-                <td class="tableColor padding" align="center">REQD QTY</td>
-                <td class="tableColor padding" align="center">OUTS/SHEET</td>
-                <td class="tableColor padding" align="center">ISSUED QTY</td>
-                <td class="tableColor padding custom-cell" align="center">DR NO</td>
+                <td class="tableColor padding" width="250px" align="center">DESCRIPTION/SPECIFICATION</td>
+                <td class="tableColor padding" align="center"><p style="text-align: center;">REQD<br />QTY</p></td>
+                <td class="tableColor padding" align="center"><p style="text-align: center;">OUTS/<br />SHEET</p></td>
+                <td class="tableColor padding" align="center"><p style="text-align: center;">ISSUED<br />QTY</p></td>
+                <td class="tableColor padding custom-cell" align="center">DR #</td>
                 <td class="tableColor padding" align="center">SUPPLIER</td>
-                <td class="tableColor padding" align="center">DATE RECVD</td>
+                <td class="tableColor padding" align="center"><p style="text-align: center;">DATE<br />RECVD</p></td>
             </tr>
             {body}
         </table>
         <table class="borderBold tableMarginTop" width="100%" align="center">
             <tr>
-                <td class="tableColor padding" rowspan="2" align="center">PROCESS</td>
-                <td class="tableColor padding" rowspan="2" align="center">Approval for mass production</td>
-                <td class="tableColor padding" colspan="4" align="center">DATE/TIME</td>
-                <td class="tableColor padding" rowspan="2" align="center">GOOD QTY</td>
-                <td class="tableColor padding" colspan="2" align="center">REJECT QTY</td>
-                <td class="tableColor padding" colspan="2" rowspan="2" align="center">OPERATOR</td>
+                <td class="tableColor padding" style="vertical-align: middle; text-align: center;" rowspan="2"
+                    align="center">PROCESS</td>
+                <td class="tableColor padding" style="vertical-align: middle; text-align: center;" rowspan="2"
+                    align="center">MATERIAL</td>
+                <td class="tableColor padding" rowspan="2" align="center">
+                    <p style="text-align: center;">DIMENSION<br />(mm)</p>
+                </td>
+                <td class="tableColor padding" rowspan="2" align="center">
+                    <p style="text-align: center;">GRAIN<br />DIRECTION</p>
+                </td>
+                <td class="tableColor padding" rowspan="2" align="center">
+                    <p style="text-align: center;">APPROVAL FOR MASS PRO<br />(Name/Signature)</p>
+                </td>
+                <td class="tableColor padding" rowspan="2" align="center">
+                    <p style="text-align: center;">PROCESS<br />DATE</p>
+                </td>
+                <td class="tableColor padding" rowspan="2" align="center">
+                    <p style="text-align: center;">REJECT<br />QUANTITY</p>
+                </td>
+                <td class="tableColor padding" rowspan="2" align="center">
+                    <p style="text-align: center;">GOOD<br />QUANTITY</p>
+                </td>
+                <td class="tableColor padding" rowspan="2" align="center">
+                    <p style="text-align: center;">OPERATOR<br />(Name/Signature)</p>
+                </td>
             </tr>
-            <tr>
-                <td class="grey padding borderRight" colspan="2" align="center">Start</td>
-                <td class="grey padding" colspan="2" align="center">Finished</td>
-                <td class="grey padding borderRight" align="center">In-house</td>
-                <td class="grey padding" align="center">Supplier</td>
-            </tr>
+            <tr></tr>
             {226}
             {227}
             {228}
@@ -280,7 +300,8 @@
 
         <table class="floatLeft1">
             <tr>
-                <td align="center" colspan="4" width="400px">Partial Transfer</td>
+                <td class="bold2" style="padding-top: -5px;" align="center" colspan="4" width="400px">Partial Transfer
+                </td>
             </tr>
             <tr>
                 <td class="borderRight borderTop tdTable" align="center">Date</td>
@@ -352,7 +373,8 @@
 
         <table class="floatLeft1">
             <tr>
-                <td align="center" colspan="4" width="400px">Partial Delivery</td>
+                <td class="bold2" style="padding-top: -5px;" align="center" colspan="4" width="400px">Partial Delivery
+                </td>
             </tr>
             <tr>
                 <td class="borderRight borderTop tdTable" align="center">Date</td>
@@ -433,7 +455,7 @@
                     <td class="borderRight borderTop">Approved By:</td>
                     <td class="borderRight borderTop">Issued By:</td>
                     <td class="borderRight borderTop">Received By:</td>
-                    <td class="borderRight borderTop" align="center">{joNum2}</td>
+                    <td class="borderRight borderTop" style="font-weight: bold;" align="center">{joNum2}</td>
                 </tr>
                 <tr>
                     <td class="borderLeft borderRight borderBottom">
