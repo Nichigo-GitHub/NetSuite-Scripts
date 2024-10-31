@@ -304,7 +304,6 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                         }
                     }
                 }
-
             }
         }
 
@@ -1462,11 +1461,44 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             var tallyQtyArr = invtransferObj.tallyQtyArr;
             var lotArray = invtransferObj.lotArray;
             var invTranID = invtransferObj.invTranID;
-            var rejectType = invtransferObj.rejectType;
+            var rejectType1 = invtransferObj.rejectType1;
+            var rejectType2 = invtransferObj.rejectType2;
+            var rejectType3 = invtransferObj.rejectType3;
+            var rejectType4 = invtransferObj.rejectType4;
+            var rejectType5 = invtransferObj.rejectType5;
+            var rejectType6 = invtransferObj.rejectType6;
+            var rejectType7 = invtransferObj.rejectType7;
+            var rejectType8 = invtransferObj.rejectType8;
+            var rejectType9 = invtransferObj.rejectType9;
+            var rejectType10 = invtransferObj.rejectType10;
+            var rejectType11 = invtransferObj.rejectType11;
+            var rejectType12 = invtransferObj.rejectType12;
+            var rejectType13 = invtransferObj.rejectType13;
+            var rejectType14 = invtransferObj.rejectType14;
+            var rejectType15 = invtransferObj.rejectType15;
+            var rejectType16 = invtransferObj.rejectType16;
+            var rejectType17 = invtransferObj.rejectType17;
+            var rejectType18 = invtransferObj.rejectType18;
+            var rejectType19 = invtransferObj.rejectType19;
+            var rejectType20 = invtransferObj.rejectType20;
+            var rejectType21 = invtransferObj.rejectType21;
+            var rejectType22 = invtransferObj.rejectType22;
+            var rejectType23 = invtransferObj.rejectType23;
+            var rejectType24 = invtransferObj.rejectType24;
+            var rejectType25 = invtransferObj.rejectType25;
+            var rejectType26 = invtransferObj.rejectType26;
+            
             var invTransfer = record.create({
                 type: record.Type.INVENTORY_TRANSFER,
                 isDynamic: true
             });
+
+            if (towhLocation == 900) {
+                invTransfer.setValue({
+                    fieldId: 'customform',
+                    value: 740
+                });
+            }
 
             if (stockConversionRate == null || stockConversionRate == '' || stockConversionRate == undefined)
                 stockConversionRate = 1;
@@ -1487,17 +1519,6 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 value: towhLocation
             });
 
-            if (towhLocation == 900) {
-                invTransfer.setValue({
-                    fieldId: 'custbody273',
-                    value: true
-                });
-                invTransfer.setValue({
-                    fieldId: 'custbody481',
-                    value: rejectType
-                });
-            }
-
             var currDate = utility.DateStamp();
             var parsedCurrentDate = format.parse({
                 value: currDate,
@@ -1507,18 +1528,63 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 fieldId: 'trandate',
                 value: parsedCurrentDate
             });
+
+            var nextTranID = invTranID + '-T1'; // Start with the initial suffix
+            var tranidExists = true; // Flag to control the loop
+            var suffixNumber = 1; // Start with 1 for "-T1"
+
+            while (tranidExists) {
+                // Create a search to check if an inventory transfer with this tranid exists
+                var inventoryTransferSearch = search.create({
+                    type: search.Type.INVENTORY_TRANSFER,
+                    filters: [
+                        ['tranid', 'is', nextTranID]
+                    ],
+                    columns: ['tranid']
+                });
+
+                // Run the search and get the results
+                var searchResult = inventoryTransferSearch.run().getRange({
+                    start: 0,
+                    end: 1
+                });
+
+                // If no results found, exit the loop
+                if (searchResult.length === 0) {
+                    tranidExists = false;
+                } else {
+                    // If a result is found, increment the suffix number and update nextTranID
+                    suffixNumber++;
+                    nextTranID = invTranID + '-T' + suffixNumber;
+                }
+            }
+
+            // Once the loop exits, we have the next available tranid
+            invTransfer.setValue({
+                fieldId: 'tranid',
+                value: nextTranID
+            });
+
+            invTransfer.setValue({
+                fieldId: 'custbody23',
+                value: invTranID
+            });
             invTransfer.setValue({
                 fieldId: 'custbody480',
                 value: invTranID
             });
-            invTransfer.setValue({
-                fieldId: 'custbody23',
-                value: batchno
-            });
-            invTransfer.setValue({
-                fieldId: 'tranid',
-                value: batchno
-            });
+
+            if (towhLocation == 900) {
+                invTransfer.setValue({
+                    fieldId: 'custbody273',
+                    value: true
+                });
+                invTransfer.setValue({
+                    fieldId: 'custbody274',
+                    value: 1
+                });
+            }
+
             invTransfer.selectNewLine({
                 sublistId: 'inventory',
             });
@@ -1532,6 +1598,138 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 fieldId: 'adjustqtyby',
                 value: quantity
             });
+            if (towhLocation == 900) {
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol556',
+                    value: rejectType1
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol557',
+                    value: rejectType2
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol571',
+                    value: rejectType3
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol558',
+                    value: rejectType4
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol559',
+                    value: rejectType5
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol572',
+                    value: rejectType6
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol560',
+                    value: rejectType7
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol573',
+                    value: rejectType8
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol561',
+                    value: rejectType9
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol574',
+                    value: rejectType10
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol562',
+                    value: rejectType11
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol575',
+                    value: rejectType12
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol563',
+                    value: rejectType13
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol564',
+                    value: rejectType14
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol576',
+                    value: rejectType15
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol565',
+                    value: rejectType16
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol577',
+                    value: rejectType17
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol578',
+                    value: rejectType18
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol566',
+                    value: rejectType19
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol579',
+                    value: rejectType20
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol567',
+                    value: rejectType21
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol580',
+                    value: rejectType22
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol568',
+                    value: rejectType23
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol569',
+                    value: rejectType24
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol581',
+                    value: rejectType25
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol570',
+                    value: rejectType26
+                });
+            }
             if (itemType == "inventoryitem" || itemType == "assemblyitem") {
                 //getting use bins for item
                 var columnArray = [];
@@ -1870,6 +2068,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             opentaskObj.stockConversionRate = stockConversionRate;
             opentaskId = updateMoveOpenTaskforInventory(opentaskObj);
             impactedRec.opentaskId = opentaskId;
+            impactedRec.invTranID = nextTranID;
             impactedRec.inventoryCountId = inventoryCountId;
             return impactedRec;
         }

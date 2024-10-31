@@ -6,7 +6,7 @@
  * @NScriptType Restlet
  * @NModuleScope Public
  */
-define(['N/search', './wms_utility_kpvn', './big', './wms_translator', 'N/record', './wms_inventory_utility', './wms_tallyScan_utility'],
+define(['N/search', './wms_utility', './big', './wms_translator', 'N/record', './wms_inventory_utility', './wms_tallyScan_utility'],
 	/**
 	 * @param {search} search
 	 */

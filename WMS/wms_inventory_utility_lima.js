@@ -445,7 +445,6 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             });
             binTransfer.selectNewLine({
                 sublistId: 'inventory',
-
             });
             binTransfer.setCurrentSublistValue({
                 sublistId: 'inventory',
@@ -1466,6 +1465,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             var department = invtransferObj.department.toLowerCase();
             var customer = invtransferObj.customer.toLowerCase();
             var employee = invtransferObj.preparedBy.toLowerCase().split(" ").join("");
+            var invTranID = invtransferObj.invTranID;
 
             var invTransfer = record.create({
                 type: record.Type.INVENTORY_TRANSFER,
@@ -1498,6 +1498,47 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             invTransfer.setValue({
                 fieldId: 'trandate',
                 value: parsedCurrentDate
+            });
+            
+            var nextTranID = invTranID + '-T1'; // Start with the initial suffix
+            var tranidExists = true; // Flag to control the loop
+            var suffixNumber = 1; // Start with 1 for "-T1"
+
+            while (tranidExists) {
+                // Create a search to check if an inventory transfer with this tranid exists
+                var inventoryTransferSearch = search.create({
+                    type: search.Type.INVENTORY_TRANSFER,
+                    filters: [
+                        ['tranid', 'is', nextTranID]
+                    ],
+                    columns: ['tranid']
+                });
+
+                // Run the search and get the results
+                var searchResult = inventoryTransferSearch.run().getRange({
+                    start: 0,
+                    end: 1
+                });
+
+                // If no results found, exit the loop
+                if (searchResult.length === 0) {
+                    tranidExists = false;
+                } else {
+                    // If a result is found, increment the suffix number and update nextTranID
+                    suffixNumber++;
+                    nextTranID = invTranID + '-T' + suffixNumber;
+                }
+            }
+
+            // Once the loop exits, we have the next available tranid
+            invTransfer.setValue({
+                fieldId: 'tranid',
+                value: nextTranID
+            });
+
+            invTransfer.setValue({
+                fieldId: 'custbody23',
+                value: invTranID
             });
 
             var queryResult = query.runSuiteQL({
@@ -1536,7 +1577,6 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
             invTransfer.selectNewLine({
                 sublistId: 'inventory',
-
             });
             invTransfer.setCurrentSublistValue({
                 sublistId: 'inventory',

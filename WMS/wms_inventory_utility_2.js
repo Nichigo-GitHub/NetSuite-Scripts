@@ -1489,35 +1489,42 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				fieldId: 'trandate',
 				value: parsedCurrentDate
 			});
+			
+			var nextTranID = invTranID + '-T1'; // Start with the initial suffix
+			var tranidExists = true; // Flag to control the loop
+			var suffixNumber = 1; // Start with 1 for "-T1"
 
-			var inventoryTransferSearch = search.create({
-				type: search.Type.INVENTORY_TRANSFER,
-				filters: [
-					['tranid', 'contains', invTranID]
-				],
-				columns: [
-					'tranid'
-				]
-			});
-
-			// Run the search and get the results
-			var searchResult = inventoryTransferSearch.run().getRange({
-				start: 0,
-				end: 1
-			});
-
-			// Log the results
-			if (searchResult.length > 0) {
-				invTransfer.setValue({
-					fieldId: 'tranid',
-					value: invTranID + '-T' + [searchResult.length + 1]
+			while (tranidExists) {
+				// Create a search to check if an inventory transfer with this tranid exists
+				var inventoryTransferSearch = search.create({
+					type: search.Type.INVENTORY_TRANSFER,
+					filters: [
+						['tranid', 'is', nextTranID]
+					],
+					columns: ['tranid']
 				});
-			} else {
-				invTransfer.setValue({
-					fieldId: 'tranid',
-					value: invTranID + '-T1'
+
+				// Run the search and get the results
+				var searchResult = inventoryTransferSearch.run().getRange({
+					start: 0,
+					end: 1
 				});
+
+				// If no results found, exit the loop
+				if (searchResult.length === 0) {
+					tranidExists = false;
+				} else {
+					// If a result is found, increment the suffix number and update nextTranID
+					suffixNumber++;
+					nextTranID = invTranID + '-T' + suffixNumber;
+				}
 			}
+
+			// Once the loop exits, we have the next available tranid
+			invTransfer.setValue({
+				fieldId: 'tranid',
+				value: nextTranID
+			});
 
 			invTransfer.setValue({
 				fieldId: 'custbody23',
@@ -1560,7 +1567,6 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 
 			invTransfer.selectNewLine({
 				sublistId: 'inventory',
-
 			});
 			invTransfer.setCurrentSublistValue({
 				sublistId: 'inventory',

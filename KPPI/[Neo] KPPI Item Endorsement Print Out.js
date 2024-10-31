@@ -9,6 +9,9 @@ define(["N/record", "N/runtime", "N/format"], function (record, runtime, format)
         var request = context.request,
             response = context.response;
 
+        var currentUser = runtime.getCurrentUser();
+        var subsidiaryId = currentUser.subsidiary;
+
         // Load the item endorsement record
         var printEndorsementRecord = record.load({
             type: "customrecord1358",
@@ -18,8 +21,8 @@ define(["N/record", "N/runtime", "N/format"], function (record, runtime, format)
 
         // Extract relevant data from the item endorsement record
         var customer = printEndorsementRecord.getText({
-            fieldId: "custrecord706",
-        }),
+                fieldId: "custrecord706",
+            }),
             poNum = printEndorsementRecord.getText({
                 fieldId: "custrecord707",
             }),
@@ -49,6 +52,9 @@ define(["N/record", "N/runtime", "N/format"], function (record, runtime, format)
             }),
             IPDnum = printEndorsementRecord.getText({
                 fieldId: "custrecord733",
+            }),
+            printAll = printEndorsementRecord.getValue({
+                fieldId: "custrecord777"
             });
 
         // Format the date
@@ -77,92 +83,100 @@ define(["N/record", "N/runtime", "N/format"], function (record, runtime, format)
 
         // Iterate over the sublist lines and generate HTML for each item
         for (var line = 0; line < sublistLength; line++) {
-            var item_id = printEndorsementRecord.getSublistText({
+            var includeToPrint = printEndorsementRecord.getSublistText({
                 sublistId: "recmachcustrecord731",
-                fieldId: "custrecord712",
+                fieldId: "custrecord776",
                 line: line,
-            }),
-                item_desc = printEndorsementRecord.getSublistText({
-                    sublistId: "recmachcustrecord731",
-                    fieldId: "custrecord713",
-                    line: line,
-                }),
-                group = '',
-                sheet_size = printEndorsementRecord.getSublistValue({
-                    sublistId: "recmachcustrecord731",
-                    fieldId: "custrecord714",
-                    line: line,
-                }),
-                flute = printEndorsementRecord.getSublistValue({
-                    sublistId: "recmachcustrecord731",
-                    fieldId: "custrecord715",
-                    line: line,
-                }),
-                paper_com = printEndorsementRecord.getSublistValue({
-                    sublistId: "recmachcustrecord731",
-                    fieldId: "custrecord716",
-                    line: line,
-                }),
-                outs_per_sheet = printEndorsementRecord.getSublistValue({
-                    sublistId: "recmachcustrecord731",
-                    fieldId: "custrecord717",
-                    line: line,
-                }),
-                outs_per_blade = printEndorsementRecord.getSublistValue({
-                    sublistId: "recmachcustrecord731",
-                    fieldId: "custrecord718",
-                    line: line,
-                }),
-                need_per_set = printEndorsementRecord.getSublistValue({
-                    sublistId: "recmachcustrecord731",
-                    fieldId: "custrecord719",
-                    line: line,
-                }),
-                selling_price = printEndorsementRecord.getSublistValue({
-                    sublistId: "recmachcustrecord731",
-                    fieldId: "custrecord720",
-                    line: line,
-                }),
-                moq = printEndorsementRecord.getSublistValue({
-                    sublistId: "recmachcustrecord731",
-                    fieldId: "custrecord721",
-                    line: line,
-                }),
-                rm_unit_price = printEndorsementRecord.getSublistValue({
-                    sublistId: "recmachcustrecord731",
-                    fieldId: "custrecord722",
-                    line: line,
-                }),
-                procurement = printEndorsementRecord.getSublistValue({
-                    sublistId: "recmachcustrecord731",
-                    fieldId: "custrecord723",
-                    line: line,
-                }),
-                moq_rm = printEndorsementRecord.getSublistValue({
-                    sublistId: "recmachcustrecord731",
-                    fieldId: "custrecord724",
-                    line: line,
-                }),
-                gpr = printEndorsementRecord.getSublistValue({
-                    sublistId: "recmachcustrecord731",
-                    fieldId: "custrecord725",
-                    line: line,
-                }),
-                supplier = printEndorsementRecord.getSublistValue({
-                    sublistId: "recmachcustrecord731",
-                    fieldId: "custrecord726",
-                    line: line,
-                }),
-                open_po = '',
-                cs_endorsement = '',
-                bom_code = printEndorsementRecord.getSublistValue({
-                    sublistId: "recmachcustrecord731",
-                    fieldId: "custrecord729",
-                    line: line,
-                });
+            });
 
-            // Append HTML for each item to table row
-            tableRow += add1row(item_id, item_desc, group, sheet_size, flute, paper_com, outs_per_sheet, outs_per_blade, need_per_set, selling_price, moq, rm_unit_price, procurement, moq_rm, gpr, supplier, open_po, cs_endorsement, bom_code);
+            if (includeToPrint == "T" || printAll == true) {
+                var item_id = printEndorsementRecord.getSublistText({
+                        sublistId: "recmachcustrecord731",
+                        fieldId: "custrecord712",
+                        line: line,
+                    }),
+                    item_desc = printEndorsementRecord.getSublistText({
+                        sublistId: "recmachcustrecord731",
+                        fieldId: "custrecord713",
+                        line: line,
+                    }),
+                    group = '',
+                    sheet_size = printEndorsementRecord.getSublistValue({
+                        sublistId: "recmachcustrecord731",
+                        fieldId: "custrecord714",
+                        line: line,
+                    }),
+                    flute = printEndorsementRecord.getSublistValue({
+                        sublistId: "recmachcustrecord731",
+                        fieldId: "custrecord715",
+                        line: line,
+                    }),
+                    paper_com = printEndorsementRecord.getSublistValue({
+                        sublistId: "recmachcustrecord731",
+                        fieldId: "custrecord716",
+                        line: line,
+                    }),
+                    outs_per_sheet = printEndorsementRecord.getSublistValue({
+                        sublistId: "recmachcustrecord731",
+                        fieldId: "custrecord717",
+                        line: line,
+                    }),
+                    outs_per_blade = printEndorsementRecord.getSublistValue({
+                        sublistId: "recmachcustrecord731",
+                        fieldId: "custrecord718",
+                        line: line,
+                    }),
+                    need_per_set = printEndorsementRecord.getSublistValue({
+                        sublistId: "recmachcustrecord731",
+                        fieldId: "custrecord719",
+                        line: line,
+                    }),
+                    selling_price = printEndorsementRecord.getSublistValue({
+                        sublistId: "recmachcustrecord731",
+                        fieldId: "custrecord720",
+                        line: line,
+                    }),
+                    moq = printEndorsementRecord.getSublistValue({
+                        sublistId: "recmachcustrecord731",
+                        fieldId: "custrecord721",
+                        line: line,
+                    }),
+                    rm_unit_price = printEndorsementRecord.getSublistValue({
+                        sublistId: "recmachcustrecord731",
+                        fieldId: "custrecord722",
+                        line: line,
+                    }),
+                    procurement = printEndorsementRecord.getSublistValue({
+                        sublistId: "recmachcustrecord731",
+                        fieldId: "custrecord723",
+                        line: line,
+                    }),
+                    moq_rm = printEndorsementRecord.getSublistValue({
+                        sublistId: "recmachcustrecord731",
+                        fieldId: "custrecord724",
+                        line: line,
+                    }),
+                    gpr = printEndorsementRecord.getSublistValue({
+                        sublistId: "recmachcustrecord731",
+                        fieldId: "custrecord725",
+                        line: line,
+                    }),
+                    supplier = printEndorsementRecord.getSublistValue({
+                        sublistId: "recmachcustrecord731",
+                        fieldId: "custrecord726",
+                        line: line,
+                    }),
+                    open_po = '',
+                    cs_endorsement = '',
+                    bom_code = printEndorsementRecord.getSublistValue({
+                        sublistId: "recmachcustrecord731",
+                        fieldId: "custrecord729",
+                        line: line,
+                    });
+
+                // Append HTML for each item to table row
+                tableRow += add1row(item_id, item_desc, group, sheet_size, flute, paper_com, outs_per_sheet, outs_per_blade, need_per_set, selling_price, moq, rm_unit_price, procurement, moq_rm, gpr, supplier, open_po, cs_endorsement, bom_code);
+            }
         }
 
         // Replace the placeholder in the template with dynamic item data
@@ -195,6 +209,10 @@ define(["N/record", "N/runtime", "N/format"], function (record, runtime, format)
             "<td class='padding borderBottom borderRight' align='center' style='text-align: center; font-size: 8px;'>" + gpr + "</td>" +
             "<td class='padding borderBottom borderRight' align='center' style='text-align: center; font-size: 8px;'>" + supplier + "</td>" +
             "<td class='padding borderBottom borderRight' align='center' style='text-align: center; font-size: 8px;'>" + open_po + "</td>" +
+            "<td class='padding borderBottom borderRight' align='center' style='text-align: center; font-size: 8px;'></td>" +
+            "<td class='padding borderBottom borderRight' align='center' style='text-align: center; font-size: 8px;'></td>" +
+            "<td class='padding borderBottom borderRight' align='center' style='text-align: center; font-size: 8px;'></td>" +
+            "<td class='padding borderBottom borderRight' align='center' style='text-align: center; font-size: 8px;'></td>" +
             "<td class='padding borderBottom borderRight' align='center' style='text-align: center; font-size: 8px;'>" + cs_endorsement + "</td>" +
             "<td class='padding borderBottom borderRight' align='center' style='text-align: center; font-size: 8px;'>" + bom_code + "</td>" +
             "</tr>";

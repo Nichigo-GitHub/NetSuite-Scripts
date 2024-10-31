@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+
+	<head>
+		<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}"
+			src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}"
+			src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+		<#if .locale=="zh_CN">
+			<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}"
+				src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+			<#elseif .locale=="zh_TW">
+				<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}"
+					src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+				<#elseif .locale=="ja_JP">
+					<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}"
+						src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+					<#elseif .locale=="ko_KR">
+						<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}"
+							src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+						<#elseif .locale=="th_TH">
+							<link name="NotoSansThai" type="font" subtype="opentype"
+								src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+		</#if>
+		<macrolist>
+			<macro id="nlheader">
+				<table class="header" style="width: 100%;">
+					<tr>
+						<td style="padding: 0; width: 100%;">
+							<#if companyInformation.logoUrl?length !=0>
+								<@filecabinet nstype="image" style="float: left; margin: 7px;"
+									src="https://3389427.app.netsuite.com/core/media/media.nl?id=35684&c=3389427&h=dbe5e2d96321cb79d690&whence=" />
+							</#if> <span class="nameandaddress" style="font-size: 28px;">KANEPACKAGE VIETNAM CO.,
+								LTD</span><br /><span class="nameandaddress">I-6, Thang Long Industrial park, Dong Anh
+								district, Hanoi</span><br /><span class="nameandaddress">Tel: +84-24-3951-6377 Fax:
+								+84-24-3951-6425 <br />VAT Code:0101587810</span>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<hr />
+						</td>
+					</tr>
+				</table>
+			</macro>
+			<macro id="nlfooter">
+				<table class="footer" style="width: 100%;">
+					<tr>
+						<td align="right">
+							<pagenumber /> of
+							<totalpages />
+						</td>
+					</tr>
+				</table>
+			</macro>
+		</macrolist>
+		<style type="text/css">
+			body {
+				font-family: ArialUnicodeMS, NotoSans, TimesNewRoman, DejaVuSans, Tahoma, Helvetica, sans-serif;
+			}
+
+			table {
+				<#if .locale=="zh_CN">font-family: stsong, sans-serif;
+				<#elseif .locale=="zh_TW">font-family: msung, sans-serif;
+				<#elseif .locale=="ja_JP">font-family: heiseimin, sans-serif;
+				<#elseif .locale=="ko_KR">font-family: hygothic, sans-serif;
+				<#elseif .locale=="ru_RU">font-family: verdana;
+				<#else>font-family: sans-serif;
+				</#if>font-size: 9pt;
+				table-layout: fixed;
+			}
+
+			th {
+				font-weight: bold;
+				font-size: 8pt;
+				vertical-align: middle;
+				padding: 5px 6px 3px;
+				background-color: #e3e3e3;
+				color: #333333;
+			}
+
+			td {
+				padding: 4px 6px;
+			}
+
+			b {
+				font-weight: bold;
+				color: #333333;
+			}
+
+			table.header td {
+				padding: 0;
+				font-size: 10pt;
+			}
+
+			table.footer td {
+				padding: 0;
+				font-size: 8pt;
+			}
+
+			table.itemtable th {
+				padding-bottom: 10px;
+				padding-top: 10px;
+			}
+
+			table.body td {
+				padding-top: 2px;
+			}
+
+			table.total {
+				page-break-inside: avoid;
+			}
+
+			tr.totalrow {
+				background-color: #e3e3e3;
+				line-height: 200%;
+			}
+
+			td.totalboxtop {
+				font-size: 12pt;
+				background-color: #e3e3e3;
+			}
+
+			td.addressheader {
+				font-size: 8pt;
+				padding-top: 6px;
+				padding-bottom: 2px;
+				font-family: ArialUnicodeMS, NotoSans, TimesNewRoman, DejaVuSans, Tahoma, Helvetica, sans-serif;
+			}
+
+			td.address {
+				padding-top: 0;
+				font-family: ArialUnicodeMS, NotoSans, TimesNewRoman, DejaVuSans, Tahoma, Helvetica, sans-serif;
+			}
+
+			td.totalboxmid {
+				font-size: 28pt;
+				padding-top: 20px;
+				background-color: #e3e3e3;
+			}
+
+			td.totalboxbot {
+				background-color: #e3e3e3;
+				font-weight: bold;
+			}
+
+			span.title {
+				font-size: 28pt;
+			}
+
+			span.number {
+				font-size: 16pt;
+			}
+
+			span.itemname {
+				font-weight: bold;
+				line-height: 150%;
+			}
+
+			hr {
+				width: 100%;
+				color: #d3d3d3;
+				background-color: #d3d3d3;
+				height: 1px;
+			}
+		</style>
+	</head>
+
+	<body header="nlheader" header-height="10%" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in"
+		size="A4">
+		&nbsp;
+		<table style="width: 100.039%;">
+			<tr>
+				<td style="width: 219.764%;" colspan="10" align="right">KPVN-PUR-006&nbsp;REV:00</td>
+			</tr>
+			<tr>
+				<td style="width: 219.764%;" colspan="10" align="center"><span
+						style="font-size: 20px; font-weight: bold;">PURCHASE ORDER</span></td>
+			</tr>
+			<tr>
+				<td style="font-size: 13px; width: 59.9847%; border-top: 1px; border-right: 1px; border-left: 1px;"
+					colspan="6"><strong>PURCHASE ORDER: #${record.tranid}</strong></td>
+				<td style="font-size: 8px; width: 139.831%; border-top: 1px; border-right: 1px;" colspan="2">PREPARED
+					DATE<br />(DATE ISSUED)</td>
+				<td style="font-size: 8px; width: 19.949%; border-top: 1px; border-right: 1px;" colspan="2"
+					valign="middle">${record.trandate}</td>
+			</tr>
+			<tr>
+				<td style="font-size: 13px; width: 59.9847%; border-top: 1px; border-right: 1px; border-left: 1px;"
+					colspan="6"><strong>ORDER TO: ${record.entity}</strong></td>
+				<td style="font-size: 8px; width: 139.831%; border-top: 1px; border-right: 1px;" colspan="2"
+					valign="middle">REFERENCE NO</td>
+				<td style="font-size: 8px; width: 19.949%; border-top: 1px; border-right: 1px;" colspan="2"
+					valign="middle">${record.otherrefnum}</td>
+			</tr>
+			<tr>
+				<td style="width: 59.9847%; border-top: 1px; border-right: 1px; border-left: 1px; border-bottom: 1px; font-size: 13px; font-family: ArialUnicodeMS, NotoSans, TimesNewRoman, DejaVuSans, Tahoma, Helvetica, sans-serif;"
+					colspan="6" rowspan="4"><strong>ADDRESS:</strong> ${record.billaddress}</td>
+				<td style="font-size: 8px; width: 139.831%; border-top: 1px; border-right: 1px;" colspan="2">PLACE OF
+					DELIVERY</td>
+				<td style="font-size: 8px; width: 19.949%; border-top: 1px; border-right: 1px;" colspan="2">
+					${record.custbody_kpvn_place_of_delivery}</td>
+			</tr>
+			<tr style="font-size: 8px;">
+				<td style="font-size: 8px; width: 139.831%; border-top: 1px; border-right: 1px;" colspan="2">TERMS</td>
+				<td style="font-size: 8px; width: 19.949%; border-top: 1px; border-right: 1px;" colspan="2">
+					${record.custbody_kpvn_payment_terms}</td>
+			</tr>
+			<tr style="font-size: 8px;">
+				<td style="font-size: 8px; width: 139.831%; border-top: 1px; border-right: 1px;" colspan="2">MODE</td>
+				<td style="font-size: 8px; width: 19.949%; border-top: 1px; border-right: 1px;" colspan="2">
+					${record.custbody_kpvn_payment_mode}</td>
+			</tr>
+			<tr style="font-size: 8px;">
+				<td style="font-size: 8px; width: 139.831%; border-top: 1px; border-right: 1px; border-bottom: 1px;"
+					colspan="2">CURRENCY</td>
+				<td style="width: 19.949%; border-top: 1px; border-right: 1px; border-bottom: 1px;" colspan="2">
+					${record.currency}</td>
+			</tr>
+			<tr style="font-size: 8px;">
+				<td style="height: 20px;"></td>
+			</tr>
+		</table>
+		<#if record.item?has_content>
+			<table class="itemtable" style="width: 100%; min-height: 100px;" border="1"><!-- start items -->
+				<#list record.item as item>
+					<#if item_index==0>
+						<thead>
+							<tr>
+								<th style="height: 31px;" colspan="5" align="center">Code</th>
+								<th style="height: 31px;" colspan="4" align="center">${item.item@label}</th>
+								<th style="height: 31px;" colspan="7" align="center">Description</th>
+								<th style="height: 31px;" colspan="3" align="center">${item.quantity@label}</th>
+								<th style="height: 31px;" colspan="2" align="center">Units</th>
+								<th style="height: 31px;" colspan="3" align="center">${item.rate@label}</th>
+								<th style="height: 31px;" colspan="4" align="center">${item.amount@label}</th>
+							</tr>
+						</thead>
+					</#if>
+					<tr>
+						<td style="text-align: center;" colspan="5" align="center">
+							<#if item.custcol241?has_content>
+								<barcode codetype="qrcode" style="height: 80%; width: 80%;" showtext="false"
+									value='{"poNumber": "${record.tranid}", "itemId": "${item.custcol241}", "Qty": "${item.quantity}"}' />
+							</#if>
+						</td>
+						<td style="text-align: center;" colspan="4" align="center">${item.item}</td>
+						<td style="text-align: center;" colspan="7" align="center">${item.description}</td>
+						<td style="text-align: center;" colspan="3" align="center">${item.quantity}</td>
+						<td style="text-align: center;" colspan="2" align="center">${item.units}</td>
+						<td style="text-align: center;" colspan="3" align="center">${item.rate?string['#,###,##0.00']}
+						</td>
+						<td style="text-align: center;" colspan="4" align="center">${item.amount?string['#,###,##0.00']}
+						</td>
+					</tr>
+				</#list><!-- end items -->
+			</table>
+		</#if> &nbsp;
+		<table style="height: 232.516px; width: 100%;">
+			<tr style="height: 82.6719px;">
+				<td style="height: 165.344px;" colspan="2" rowspan="2">NOTE:<br />1.Please send this order back to us
+					for confirmation of price, quantity and delivery<br />2.Items to be delivered must comply to KPVN
+					quality standards<br />3. Payment shall be released only upon the issuance of Official
+					Receipt<br />4. KPVN shall be responsible in processing. Customs documents that your company send us
+					in advance, Any other agreements shall be put into writing and notarized</td>
+				<td style="height: 82.6719px;">SUPPLIER'S CONFIRMATION</td>
+			</tr>
+			<tr style="height: 82.6719px;">
+				<td style="height: 82.6719px;">DATE: Signature over Printed Name</td>
+			</tr>
+			<tr style="height: 22.3906px;">
+				<td style="height: 22.3906px;" align="center">Prepared by</td>
+				<td style="height: 22.3906px;" align="center">Check By</td>
+				<td style="height: 22.3906px;" align="center">Approved By</td>
+			</tr>
+			<tr style="height: 22.3906px;">
+				<td style="height: 22.3906px;">&nbsp;</td>
+				<td style="height: 22.3906px;">&nbsp;</td>
+				<td style="height: 22.3906px;">&nbsp;</td>
+			</tr>
+		</table>
+	</body>
+</pdf>

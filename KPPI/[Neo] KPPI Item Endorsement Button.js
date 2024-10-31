@@ -18,7 +18,7 @@
         var printNIE = "printNIE = window.open('" + url.resolveScript({
           scriptId: 'customscript_kppi_endorsement_printout',
           deploymentId: 'customdeploy_kppi_endorsement_printout'
-        }) + "&formtype=" + newType + "&internalId=" + newId + "&l=t', 'printNIE', 'height=1056, width=1040, resizable=yes, scrollbars=yes, toolbar=no'); printNIE.focus();";
+        }) + "&formtype=" + newType + "&internalId=" + newId + "&l=t', 'printNIE', 'height=1056, width=1300, resizable=yes, scrollbars=yes, toolbar=no'); printNIE.focus();";
   
         // Add a custom button to the form that triggers the "Print RM Tag" functionality
         form.addButton({

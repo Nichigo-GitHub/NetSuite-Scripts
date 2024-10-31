@@ -1,0 +1,364 @@
+<?xml version="1.0"?>
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf lang="ja" xml:lang="ja">
+
+    <head>
+        <meta name="my pdf" value="My First Report" />
+        <macrolist>
+            <macro id="myFooter">
+            </macro>
+        </macrolist>
+        <style type="text/css">
+            /*  po screen  */
+            .head_tab {
+                text-align: left;
+            }
+
+            h2 {
+                letter-spacing: 1px;
+            }
+
+            h1 {
+                letter-spacing: 1px;
+                font-size: 42px;
+            }
+
+
+            .htab_tdw1 {
+                padding: 0 0 0 35px;
+            }
+
+            .text_alr {
+                margin: 10px 0 0 0;
+                text-align: right;
+            }
+
+            .htab_tdm {
+                margin: 15px 0 0 0;
+                text-align: center;
+            }
+
+            .podate02 {
+                margin: 0 0 0 10px;
+            }
+
+            .htl_tdmt10 {
+                margin: 10px 0 0 0;
+            }
+
+            .body_tab {
+                border: 2px solid #333 !important;
+                border-bottom: 1px solid #333;
+                text-align: left;
+            }
+
+            .body_tab tr td {
+                border-bottom: 1px solid #333;
+                border-left: 1px solid #333;
+            }
+
+            .top_solid {
+                border-top: 1px solid #333;
+            }
+
+            .left_solid {
+                border-left: 1px solid #333;
+            }
+
+            .bottom_solid {
+                border-bottom: 1px solid #333;
+            }
+
+            .right_solid {
+                border-right: 1px solid #333;
+            }
+
+            .size12 {
+                font-size: 12px;
+            }
+
+            .size14 {
+                font-size: 14px;
+            }
+
+            .size26 {
+                font-size: 16px;
+            }
+
+            .size18 {
+                font-size: 18px;
+            }
+
+            .size20 {
+                font-size: 20px;
+            }
+
+            .size22 {
+                font-size: 22px;
+            }
+
+            .size24 {
+                font-size: 24px;
+            }
+
+            .size26 {
+                font-size: 26px;
+            }
+
+            .size28 {
+                font-size: 28px;
+            }
+
+            .size38 {
+                font-size: 38px;
+            }
+
+            .size58 {
+                font-size: 58px;
+            }
+
+            .size75 {
+                font-size: 75px;
+            }
+
+            .bold-text {
+                font-weight: bold;
+            }
+
+            .borderAll {
+                border-left: 2px solid #000000;
+                border-right: 2px solid #000000;
+                border-top: 2px solid #000000;
+                border-bottom: 2px solid #000000;
+            }
+
+            .ht_head td {
+                text-align: center;
+                padding: 2px 0;
+            }
+
+            .ht_body td {
+                padding: 5px;
+                height: 50px;
+                vertical-align: middle;
+            }
+
+            .body_tab tr td.bdno_l {
+                border-left: none;
+            }
+
+            .body_tab tr td.bdno_b {
+                border-bottom: none;
+            }
+
+            .bdline_b {
+                border-bottom: 1px solid #333 !important;
+            }
+
+            .ht_tdf {
+                vertical-align: middle;
+                text-align: center;
+            }
+
+            .promt {
+                margin: 20px 0 0 0;
+                text-align: left;
+            }
+
+            .hr0 {
+                height: 1px;
+                border: none;
+                border-top: 1px dashed #0066CC;
+            }
+
+            .next_page {
+                page-break-after: always;
+            }
+        </style>
+    </head>
+
+    <body padding="0.5in 0.5in 0.5in 0.5in" size="A3">
+        <#assign items=inventoryItems.inventoryItems>
+            <#list items as item>
+                <table width="100%" border="0">
+                    <tr>
+                        <td align="left">
+                            <img src="https://3389427.app.netsuite.com/core/media/media.nl?id=295848&amp;c=3389427&amp;h=2oAzdhUPy9SyeB6750x1Lbm8F6qqMO8jq0o9SUnwJlJRP_zX&amp;fcts=20240102204235&amp;whence="
+                                style="width: 468px; height: 48px; margin-bottom: 10px; margin-top: 15px; padding-top: -5px;" />
+                        </td>
+                        <td height="30" width="870px" align="right" class="size18"
+                            style="display: inline-block; margin-left: 350px;" valign="middle">LWH-001-F04 rev.00</td>
+                    </tr>
+                    <tr>
+                        <td height="20" colspan="2" align="center">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="bottom_solid top_solid left_solid right_solid size58" colspan="2" width="100%"
+                            height="35" align="center" valign="bottom">RAW MATERIAL TAG
+                        </td>
+                    </tr>
+                </table>
+                <table width="100%" border="0">
+                    <tr>
+                        <td width="4%" height="30" colspan="2" class="bottom_solid top_solid left_solid size20"
+                            valign="top">
+                            <barcode style="width: 100; height: 100;" codetype="qrcode" showtext="false"
+                                value="${item.itemUPC}" />
+                        </td>
+                        <td width="80%" height="30" colspan="2"
+                            class="bottom_solid top_solid left_solid right_solid size75 bold-text" align="left"
+                            valign="middle">
+                            ${item.itemCode}</td>
+                    </tr>
+                </table>
+                <table width="100%" border="0">
+                    <tr>
+                        <td height="30" colspan="2" class="top_solid left_solid right_solid" valign="top"><span
+                                style="font-size: 28px;">ITEM DESCRIPTION</span></td>
+                    </tr>
+                    <tr>
+                        <td height="70" colspan="2" class="bottom_solid left_solid right_solid size58 bold-text"
+                            style="text-align: left;" align="left" valign="middle">
+                            ${item.itemDescription}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="50%" height="30" class="top_solid left_solid right_solid" valign="bottom"><span
+                                style="font-size: 28px;">CUSTOMER</span></td>
+                        <td width="50%" valign="bottom" class="top_solid right_solid"><span
+                                style="font-size: 28px;">SUPPLIER</span></td>
+                    </tr>
+                    <tr>
+                        <td height="70" class="bottom_solid left_solid right_solid" align="left" valign="middle">
+                            <h2>${item.customer}</h2>
+                        </td>
+                        <td class="bottom_solid right_solid size20" align="left" valign="middle">
+                            <h2>${item.supplier}</h2>
+                        </td>
+                    </tr>
+                </table>
+                <table width="100%" border="0">
+                    <tr>
+                        <td width="20%" height="10" class="top_solid bottom_solid left_solid right_solid"
+                            valign="bottom" align="center"><span
+                                style="font-size: 28px; text-align: center;">Quantity<br></br>received</span>
+                        </td>
+                        <td width="20%" height="10" class="top_solid bottom_solid left_solid right_solid"
+                            valign="bottom" align="center"><span
+                                style="font-size: 28px; text-align: center;">Quantity<br></br>per pallet</span>
+                        </td>
+                        <td width="60%" colspan="4" height="10" class="top_solid bottom_solid left_solid right_solid"
+                            style="text-align: center;" valign="top" align="center">
+                            <p><span style="font-size: 28px;">Actual Quantity</span></p>
+                            <p><span style="font-size: 20px;">(Note: Please indicate remaining qty after partial)</span>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="20%" height="10" class="left_solid right_solid size20"></td>
+                        <td width="20%" height="10" class="left_solid right_solid size20"></td>
+                        <td width="20%" height="10" class="bottom_solid left_solid right_solid size20" align="center">
+                            1st</td>
+                        <td width="20%" height="10" class="bottom_solid left_solid right_solid size20" align="center">
+                            2nd</td>
+                        <td width="20%" height="10" class="bottom_solid left_solid right_solid size20" align="center">
+                            3rd</td>
+                        <td width="20%" height="10" class="bottom_solid left_solid right_solid size20" align="center">
+                            4th</td>
+                    </tr>
+                    <tr>
+                        <td height="10" align="center" class="left_solid right_solid" style="font-size: 22px;">
+                            <barcode style="width: 100; height: 100;" codetype="qrcode" showtext="false"
+                                value="${item.quantity}" />${item.quantity}
+                        </td>
+                        <td height="10" align="center" class="left_solid right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="left_solid right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="left_solid right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="left_solid right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="left_solid right_solid size20">&nbsp;</td>
+
+                    </tr>
+                    <tr>
+                        <td height="10" align="center" class="bottom_solid left_solid right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="bottom_solid  left_solid right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="bottom_solid  left_solid right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="bottom_solid  left_solid right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="bottom_solid  left_solid right_solid size20">&nbsp;</td>
+                        <td height="10" align="center" class="bottom_solid  left_solid right_solid size20">&nbsp;</td>
+                    </tr>
+                </table>
+                <table width="100%" border="0">
+                    <tr>
+                        <td width="50%" height="30" class="top_solid left_solid right_solid" valign="bottom"
+                            style="font-size: 28px;">RECEIVING DATE</td>
+                        <td width="50%" valign="bottom" class="top_solid right_solid" style="font-size: 28px;">DELIVERY
+                            DATE
+                        </td>
+                    </tr>
+                    <tr>
+                        <td height="40" class="bottom_solid left_solid right_solid" align="center" valign="middle"
+                            style="font-size: 32px;">${item.dateReceived}</td>
+                        <td class="bottom_solid right_solid size20" align="center" valign="middle"
+                            style="font-size: 32px;">
+                            ${item.dateDelivered}</td>
+                    </tr>
+                </table>
+                <table width="100%" border="0">
+                    <tr height="30">
+                        <td width="18%" class="top_solid left_solid" valign="bottom" style="font-size: 28px;">Ref. PO #
+                        </td>
+                        <td width="32%" class="top_solid left_solid" valign="bottom" style="font-size: 28px;">
+                            ${item.refPoNo2}</td>
+                        <td width="50%" align="center" class="top_solid left_solid right_solid" valign="bottom"
+                            style="font-size: 28px;">Inspected by</td>
+                    </tr>
+                    <tr height="30">
+                        <td valign="bottom" class="top_solid left_solid" style="font-size: 28px;">Ordered by</td>
+                        <td valign="bottom" class="top_solid left_solid" style="font-size: 20px;">
+                            ${item.orderedBy}</td>
+                        <td rowspan="6" class="top_solid left_solid right_solid bottom_solid">
+                            <img src="https://3389427.secure.netsuite.com/core/media/media.nl?id=294897&amp;c=3389427&amp;h=nmwVuAMBg5eszC-T9JXzQUUPLUITjYgqOJ2ejB3DJ0lQqpff"
+                                width="75%" height="75%" align="center" style="vertical-align:middle"></img>
+                        </td>
+                    </tr>
+                    <tr height="30">
+                        <td valign="bottom" class="top_solid left_solid" style="font-size: 28px;">Batch #</td>
+                        <td valign="bottom" class="top_solid left_solid" style="font-size: 28px;">
+                            ${item.dateReceived}</td>
+                    </tr>
+                    <tr height="30">
+                        <td valign="bottom" class="top_solid left_solid" style="font-size: 28px;">Control #</td>
+                        <td valign="bottom" class="top_solid left_solid" style="font-size: 28px;">
+                            ${item.RrNo}
+                        </td>
+                    </tr>
+                    <tr height="30">
+                        <td valign="bottom" class="top_solid left_solid" style="font-size: 28px;">DR #</td>
+                        <td valign="bottom" class="top_solid left_solid" style="font-size: 28px;">${item.drNo}</td>
+                    </tr>
+                    <tr height="30">
+                        <td valign="bottom" class="top_solid left_solid"><span style="font-size: 28px;">Received
+                                by</span></td>
+                        <td valign="bottom" class="top_solid left_solid"><span
+                                style="font-size: 20px;">${item.reveivedBy}</span></td>
+                    </tr>
+                    <tr height="30">
+                        <td valign="bottom" class="top_solid left_solid bottom_solid"><span
+                                style="font-size: 24px;">Date
+                                Received</span></td>
+                        <td valign="bottom" class="top_solid left_solid bottom_solid"><span
+                                style="font-size: 28px;">${item.dateReceived}</span></td>
+                    </tr>
+                </table>
+                <!-- A simple HTML footer example -->
+                <footer id="footer">
+                    <!-- A container to hold the footer content -->
+                    <div class="container">
+
+                    </div>
+                </footer>
+                <!-- Add a page break at the end of the PDF document -->
+                <div class="next_page"></div>
+            </#list>
+    </body>
+</pdf>

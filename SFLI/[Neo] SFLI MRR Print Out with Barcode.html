@@ -1,0 +1,141 @@
+<pdf>
+
+    <head>
+        <style TYPE="text/css">
+            body {
+                width: 100%;
+                font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+                font-size: 12px;
+            }
+
+            #t1 {
+                border-top: 1px solid black;
+                border-left: 1px solid black;
+                border-bottom: 1px solid black;
+                border-right: 1px solid black;
+            }
+
+            #t2 {
+                text-align: center;
+                border-top: 1px solid black;
+                border-bottom: 1px solid black;
+            }
+
+            #t3 {
+                border-bottom: 1px solid black;
+                table-layout: fixed;
+                height: 160px;
+            }
+
+            #t3 tr {
+                border: 1px solid black;
+            }
+
+            #t3 td {
+                border-right: 1px solid black;
+                border-left: 1px solid black;
+            }
+
+            #t4 {
+                border-left: 1px solid black;
+                border-bottom: 1px solid black;
+                border-right: 1px solid black;
+            }
+
+            #t2 td {
+                border-right: 1px solid black;
+                border-left: 1px solid black;
+            }
+
+            .footer {
+                text-align: left;
+            }
+
+            #bottom {
+                text-align: right;
+                font-size: 10px;
+                color: gray;
+                margin-top: -3px;
+            }
+
+            .padding {
+                padding-top: 45px;
+            }
+
+            #header {
+                padding-top: -50px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <p>
+            {logohere}
+        </p>
+        <br />
+        <div id="header">
+            <table width="550">
+                <tr>
+                    <td align="center">{subsidiaryname}</td>
+                </tr>
+                <tr>
+                    <td align="center">MATERIAL RECEIVING REPORT</td>
+                </tr>
+                <!-- <tr><td align="center">WH-MRR-03 REV.02</td></tr> -->
+                <tr>
+                    <td align="right">
+                        <barcode codetype="code128" height="35px" width="100" showtext="true" value="{kpNo}" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="content">
+            <table id="t1">
+                <tr>
+                    <td width="500">SUPPLIER: {supplier}</td>
+                    <td width="300" align="right">DATE & TIME: {date}</td>
+                </tr>
+            </table>
+
+            <table id="t2">
+                <tr>
+                    <td width="{drsize}" align="center" valign="middle" style="padding-top: 5px;">DR No.</td>
+                    <td width="{posize}" align="center" valign="middle" style="padding-top: 5px;">PO No.</td>
+                    <td width="{itemsize}" align="center" valign="middle" style="padding-top: 5px;">Item Code</td>
+                    <td width="{descsize}" align="center" valign="middle" style="padding-top: 5px;">CODE / DESCRIPTION / SPECIFICATION</td>
+                    <td width="105" align="center" valign="middle" style="padding-top: 5px;">QTY/UNIT</td>
+                </tr>
+            </table>
+
+            <table id="t3">
+                {body}
+            </table>
+        </div>
+        <table id="t4">
+            <tr style="padding-top: 5px;">
+                <td width="800">REMARKS:</td>
+            </tr>
+            <tr>
+                <td>{memo}</td>
+            </tr>
+        </table>
+        <table id="t4">
+            <tr>
+                <td width="400" align="center">PREPARED BY:</td>
+                <td width="400" align="center">INSPECTED BY:</td>
+            </tr>
+            <tr height="40">
+                <td class="footer padding" align="center">{preparedby}</td>
+                <td class="footer padding" align="center">{inspectedby}</td>
+            </tr>
+        </table>
+        <!-- <table id="t4" height="40">
+            <tr>
+                <td width="800" style="padding-top: 15px;">WH-MRR-03</td>
+            </tr>
+            <tr>
+                <td style="padding-top: -3px; margin-bottom: -5px;">REV.02</td>
+            </tr>
+        </table> -->
+    </body>
+</pdf>

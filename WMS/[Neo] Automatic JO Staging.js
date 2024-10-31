@@ -14,6 +14,8 @@ define(['N/log'], function(log) {
             defaultValue = 'KP Cebu JO Staging';
         } else if (warehouseLocation === 'KPPI FPIP Warehouse : Raw Materials - F') {
             defaultValue = 'KP FPIP JO Staging';
+        } else if (warehouseLocation === 'North FG For Delivery : KPPI RM North Warehouse') {
+            defaultValue = 'NFI JO Staging';
         } else if (warehouseLocation === "SFLI Warehouse : Raw Mat'ls") {
             defaultValue = 'Production RM';
         } else if (warehouseLocation === 'SFLI Production') {

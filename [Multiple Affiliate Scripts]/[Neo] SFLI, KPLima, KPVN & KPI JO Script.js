@@ -58,7 +58,7 @@ function suitelet(request, response) {
 			var upccode = nlapiLookupField('inventoryitem', itemId, 'upccode');
 
 			if (upccode) {
-				tablerow += addRmRow_KPVN_HANOI(code, desc, qty + ' ' + unit, '', '', '', '', upccode);
+				tablerow += addRmRow_KPVN_HANOI(code, desc, parseFloat(qty) + ' ' + unit, '', '', '', '', upccode);
 			}
 		} else if (subsidary == "14") {
 			tablerow += addRmRow_SFLI(code, desc, qty + ' ' + unit, outs, '', '', '', '');
@@ -104,6 +104,8 @@ function suitelet(request, response) {
 	html = html.replace('{upcCode}', workorder.getFieldValue('custbody_upccode'));
 	html = html.replace('{excess}', excess);
 	html = html.replace('{deptLocation}', workorder.getFieldValue('custbody485') || "");
+	html = html.replace('{deptLocationUPC}', workorder.getFieldValue('custbody485') || "");
+	html = html.replace('{drawingUPC}', workorder.getFieldValue('custbody491') || "");
 
 	// Add Process Rows
 	if (subsidary == 14) {
@@ -140,6 +142,8 @@ function suitelet(request, response) {
 		}
 
 		html = html.replace(/&/g, '&amp;');
+
+		nlapiLogExecution('ERROR', 'Generated HTML', html);
 
 		var file = nlapiXMLToPDF(html);
 		response.setContentType('PDF', 'JobOrder.pdf', 'inline');
@@ -261,6 +265,8 @@ function suitelet(request, response) {
 
 		html = html.replace(/&/g, '&amp;');
 
+		nlapiLogExecution('ERROR', 'Generated HTML', html);
+
 		var file = nlapiXMLToPDF(html);
 		response.setContentType('PDF', 'JobOrder.pdf', 'inline');
 		response.write(file.getValue());
@@ -301,6 +307,8 @@ function suitelet(request, response) {
 		}
 
 		html = html.replace(/&/g, '&amp;');
+
+		nlapiLogExecution('ERROR', 'Generated HTML', html);
 
 		var file = nlapiXMLToPDF(html);
 		response.setContentType('PDF', 'JobOrder.pdf', 'inline');
@@ -371,7 +379,13 @@ function suitelet(request, response) {
 		html = html.replace('{extra}', extra == null ? '' : extra);
 		html = html.replace('{extra2}', extra == null ? '' : extra);
 		html = html.replace('{extra3}', extra == null ? '' : extra);
+		var fileId = 295848; // Replace with your image's internal ID
+		var fileObj = nlapiLoadFile(fileId); // SuiteScript 1.0 equivalent of file.load
+		var base64Image = fileObj.getURL(); // Get the URL of the file
+		html = html.replace('{base64Image}', base64Image == null ? '' : base64Image);
 		html = html.replace(/&/g, '&amp;');
+
+		nlapiLogExecution('ERROR', 'Generated HTML', html);
 
 		var file = nlapiXMLToPDF(html);
 		response.setContentType('PDF', 'JobOrder.pdf', 'inline');

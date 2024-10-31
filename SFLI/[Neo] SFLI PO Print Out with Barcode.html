@@ -1,0 +1,284 @@
+<?xml version="1.0"?>
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+
+    <head>
+        <link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}"
+            src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}"
+            src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+        <#if .locale=="zh_CN">
+            <link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}"
+                src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+            <#elseif .locale=="zh_TW">
+                <link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}"
+                    src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+                <#elseif .locale=="ja_JP">
+                    <link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}"
+                        src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+                    <#elseif .locale=="ko_KR">
+                        <link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}"
+                            src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+                        <#elseif .locale=="th_TH">
+                            <link name="NotoSansThai" type="font" subtype="opentype"
+                                src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+        </#if>
+        <macrolist>
+            <macro id="nlheader">
+                &nbsp; &nbsp;
+                <table class="header" style="width: 100%;">
+                    <tr>
+                        <td rowspan="1">
+                            <#if companyInformation.logoUrl?length !=0><img
+                                    src="http://3389427-sb1.shop.netsuite.com/core/media/media.nl?id=726&amp;c=3389427_SB1&amp;h=jDnNhb8180IbnTZfRCVruyfeuuSKv4cm_bPFitq2x2HuQ3V8"
+                                    style="float: left" /> </#if>
+                        </td>
+                        <td align="right">
+                            <barcode codetype="code128" showtext="true" value="${record.tranid}" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td align="right" valign="bottom">
+                            PUR-PO-01 rev.02
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div style="text-align: center;"><span style="font-size:12px;"><span
+                                        class="nameandaddress">Block 1, Lot 6, Phase 7A Laguna Technopark
+                                        Inc,<br />Barangay Mamplasan, Binan, Laguna Philippines<br />Tel. No.
+                                        (049)544-0014/16 : Fax (049)544-0010<br />VAT REG TIN 231-525-063-000 - ZERO
+                                        RATED</span></span><br /><br /><strong style="font-size: 22px;">PURCHASE
+                                    ORDER</strong></div>
+                        </td>
+                        <td border="0.5">&nbsp;<br />&nbsp; P.O. NO&nbsp;
+                            :&nbsp;&nbsp;${record.tranid}<br /><br />&nbsp; PREPARED DATE&nbsp;
+                            :&nbsp;&nbsp;${record.trandate}<br /><br />&nbsp; REFERENCE NO.&nbsp; :&nbsp;
+                            ${record.custbody39}</td>
+                    </tr>
+                </table>
+                <table class="header" border="1" style="width:100%;">
+                    <tr>
+                        <td border="0.5" style="height: 17px;">ORDER
+                            TO:&nbsp;&nbsp;${record.entity}<br /><br />ATTENTION:&nbsp;&nbsp;${record.custbody18}</td>
+                        <td border="0.5" style="height: 17px;">TERMS OF PAYMENT<br /><br />[ &nbsp; &nbsp;] &nbsp;COD
+                            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[ &nbsp; &nbsp;]
+                            __________ DAYS<br />[ &nbsp; &nbsp;] &nbsp;30 DAYS&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                            &nbsp; &nbsp;[ &nbsp; &nbsp;] &nbsp;OTHERS __________</td>
+                    </tr>
+                    <tr>
+                        <td border="0.5">PLACE OF DELIVERY : SFLI Warehouse</td>
+                        <td border="0.5">MODE OF PAYMENT<br />[ &nbsp; &nbsp;] &nbsp;CASH &nbsp; &nbsp; &nbsp; &nbsp;
+                            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [ &nbsp; &nbsp;] &nbsp;TELEGRAPHIC TRANSER<br />[
+                            &nbsp; &nbsp;] &nbsp;CHECK &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;[
+                            &nbsp; &nbsp;] &nbsp;BANK TRANSFER</td>
+                    </tr>
+                </table>
+            </macro>
+            <macro id="nlfooter">
+                <table class="footer" style="width: 100%;">
+                    <tr>
+                        <td align="right">
+                            <pagenumber /> of
+                            <totalpages />
+                        </td>
+                    </tr>
+                </table>
+            </macro>
+        </macrolist>
+        <style type="text/css">
+            * {
+                <#if .locale=="zh_CN">font-family: NotoSans, NotoSansCJKsc, sans-serif;
+                <#elseif .locale=="zh_TW">font-family: NotoSans, NotoSansCJKtc, sans-serif;
+                <#elseif .locale=="ja_JP">font-family: NotoSans, NotoSansCJKjp, sans-serif;
+                <#elseif .locale=="ko_KR">font-family: NotoSans, NotoSansCJKkr, sans-serif;
+                <#elseif .locale=="th_TH">font-family: NotoSans, NotoSansThai, sans-serif;
+                <#else>font-family: NotoSans, sans-serif;
+                </#if>
+            }
+
+            table {
+                font-size: 9pt;
+                table-layout: fixed;
+            }
+
+            th {
+                font-weight: bold;
+                font-size: 8pt;
+                vertical-align: middle;
+                padding: 5px 6px 3px;
+                background-color: #e3e3e3;
+                color: #333333;
+            }
+
+            td {
+                padding: 4px 6px;
+            }
+
+            td p {
+                align: left
+            }
+
+            b {
+                font-weight: bold;
+                color: #333333;
+            }
+
+            table.header td {
+                padding: 0;
+                font-size: 10pt;
+            }
+
+            table.footer td {
+                padding: 0;
+                font-size: 8pt;
+            }
+
+            table.itemtable th {
+                padding-bottom: 10px;
+                padding-top: 10px;
+            }
+
+            table.body td {
+                padding-top: 2px;
+            }
+
+            table.total {
+                page-break-inside: avoid;
+            }
+
+            tr.totalrow {
+                background-color: #e3e3e3;
+                line-height: 200%;
+            }
+
+            td.totalboxtop {
+                font-size: 12pt;
+                background-color: #e3e3e3;
+            }
+
+            td.addressheader {
+                font-size: 8pt;
+                padding-top: 6px;
+                padding-bottom: 2px;
+            }
+
+            td.address {
+                padding-top: 0;
+            }
+
+            td.totalboxmid {
+                font-size: 28pt;
+                padding-top: 20px;
+                background-color: #e3e3e3;
+            }
+
+            td.totalboxbot {
+                background-color: #e3e3e3;
+                font-weight: bold;
+            }
+
+            span.title {
+                font-size: 28pt;
+            }
+
+            span.number {
+                font-size: 16pt;
+            }
+
+            span.itemname {
+                font-weight: bold;
+                line-height: 150%;
+            }
+
+            hr {
+                width: 100%;
+                color: #d3d3d3;
+                background-color: #d3d3d3;
+                height: 1px;
+            }
+        </style>
+    </head>
+
+    <body header="nlheader" header-height="30%" footer="nlfooter" footer-height="20pt" padding="0.2in 0.5in 0.2in 0.5in"
+        size="A4">
+        <#if record.item?has_content>
+
+            <table border="1" class="itemtable" style="width:100%; min-height: 350px;"><!-- start items -->
+                <#list record.item as item>
+                    <#if item_index==0>
+                        <thead>
+                            <tr>
+                                <th align="center" border="0.5" colspan="3" style="height: 31px;">
+                                    ${item.custcol50@label}</th>
+                                <th align="center" border="0.5" colspan="5" style="height: 31px;">Code</th>
+                                <th align="center" border="0.5" colspan="4" style="height: 31px;">${item.item@label}
+                                </th>
+                                <th align="center" border="0.5" colspan="7" style="height: 31px;">Description</th>
+                                <th align="center" border="0.5" colspan="3" style="height: 31px;">${item.quantity@label}
+                                </th>
+                                <th align="center" border="0.5" colspan="2" style="height: 31px;">Units</th>
+                                <th align="center" border="0.5" colspan="3" style="height: 31px;">${item.rate@label}
+                                </th>
+                                <th align="center" border="0.5" colspan="4" style="height: 31px;">${item.amount@label}
+                                </th>
+                            </tr>
+                        </thead>
+                    </#if>
+                    <tr>
+                        <td align="center" border="0.5" colspan="3" style="text-align: center;">${item.custcol50}</td>
+                        <td align="center" border="0.5" colspan="5" style="text-align: center;">
+                            <#if item.custcol241?has_content>
+                                <barcode codetype="qrcode" style="height: 80%; width: 80%;" showtext="false"
+                                    value="${item.custcol241}" />
+                            </#if>
+                        </td>
+                        <td align="center" border="0.5" colspan="4" style="text-align: center;">${item.item}</td>
+                        <td align="center" border="0.5" colspan="7" style="text-align: center;">${item.description}</td>
+                        <td align="center" border="0.5" colspan="3" style="text-align: center;">${item.quantity}</td>
+                        <td align="center" border="0.5" colspan="2" style="text-align: center;">${item.units}</td>
+                        <td align="center" border="0.5" colspan="3" style="text-align: center;">
+                            ${item.rate?string['#,###,##0.00']}</td>
+                        <td align="center" border="0.5" colspan="4" style="text-align: center;">
+                            ${item.amount?string['#,###,##0.00']}</td>
+                    </tr>
+                </#list><!-- end items -->
+            </table>
+        </#if>
+
+        <table class="total" style="width: 100%;">
+            <tr>
+                <td align="right" background-color="#ffffff" border="0.5" colspan="27" rowspan="1"
+                    style="text-align: right;"><strong>Add VAT</strong></td>
+                <td align="right" border="0.5" colspan="4" style="text-align: right;">${record.taxtotal}</td>
+            </tr>
+            <tr class="totalrow">
+                <td align="right" background-color="#ffffff" border="0.5" colspan="27" rowspan="1"
+                    style="text-align: right;"><strong>TOTAL PURCHASE AMOUNT</strong></td>
+                <td align="right" border="0.5" colspan="4" style="text-align: right;">${record.total}</td>
+            </tr>
+        </table>
+
+        <table border="1" cellpadding="1" cellspacing="1" style="width:100%;">
+            <tr>
+                <td border="0.5">${record.custbody1@label}<br /><br /><br /><br /><br /><br />&nbsp; &nbsp; &nbsp;
+                    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp;${record.custbody1}</td>
+                <td border="0.5">${record.custbody2@label}<br /><br /><br /><br /><br /><br />&nbsp; &nbsp; &nbsp;
+                    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;${record.custbody2}</td>
+                <td border="0.5">${record.custbody3@label}<br /><br /><br /><br /><br /><br />&nbsp; &nbsp; &nbsp;
+                    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;${record.custbody3}</td>
+            </tr>
+            <tr>
+                <td border="0.5">External Provider&#39;s Confirmation:<br /><br /><br /><br /><br /><br /><br />&nbsp;
+                </td>
+                <td border="0.5" colspan="2" rowspan="1" style="text-align: justify;">NOTE:<br />1. Provider shall
+                    acknowledge receipt of P.O. thru responding to SFLI E-mail or sending P.O. copy with sign thru
+                    E-mail, Skype or FAX.<br />2. Provider must conform to SFLI approved technical
+                    specification.<br />3. Provider must ensure on-time delivery, SFLI delivery receiving time starts at
+                    6:00AM to 4:00PM daily except for Holiday and Sunday.<br />4. SFLI will implement penalty for delay
+                    delivery charge, of 2% every day of delay will be deducted, considering the agreed lead time.</td>
+            </tr>
+        </table>
+        <br />&nbsp;
+    </body>
+</pdf>

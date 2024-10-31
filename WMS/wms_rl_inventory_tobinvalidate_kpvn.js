@@ -60,16 +60,42 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			var toBinInternalId = '';
 			var toBinInternalLoctype = '';
 			var invTranID = '';
-			var rejectType = '';
+			var rejectType1 = '';
+			var rejectType2 = '';
+			var rejectType3 = '';
+			var rejectType4 = '';
+			var rejectType5 = '';
+			var rejectType6 = '';
+			var rejectType7 = '';
+			var rejectType8 = '';
+			var rejectType9 = '';
+			var rejectType10 = '';
+			var rejectType11 = '';
+			var rejectType12 = '';
+			var rejectType13 = '';
+			var rejectType14 = '';
+			var rejectType15 = '';
+			var rejectType16 = '';
+			var rejectType17 = '';
+			var rejectType18 = '';
+			var rejectType19 = '';
+			var rejectType20 = '';
+			var rejectType21 = '';
+			var rejectType22 = '';
+			var rejectType23 = '';
+			var rejectType24 = '';
+			var rejectType25 = '';
+			var rejectType26 = '';
 
 			try {
 				if (utility.isValueValid(requestBody)) {
 					requestParams = requestBody.params;
-					invTranID = requestParams.refnumber;
-					rejectType = requestParams.rejectType;
+					invTranID = requestParams.lotName;
 					scannedQuantity = requestParams.scannedQuantity;
 					fromBinName = requestParams.fromBinName;
 					binName = requestParams.binName;
+					if (!binName)
+						binName = requestParams.binNameReject;
 					preferedBinName = requestParams.preferedBinName;
 					blnMixItem = requestParams.blnMixItem;
 					blnMixLot = requestParams.blnMixLot;
@@ -95,6 +121,32 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					barcodeQuantity = requestParams.barcodeQuantity;
 					isTallyScanRequired = requestParams.isTallyScanRequired;
 					tallyScanBarCodeQty = requestParams.tallyScanBarCodeQty;
+					rejectType1 = requestParams.rejectType1;
+					rejectType2 = requestParams.rejectType2;
+					rejectType3 = requestParams.rejectType3;
+					rejectType4 = requestParams.rejectType4;
+					rejectType5 = requestParams.rejectType5;
+					rejectType6 = requestParams.rejectType6;
+					rejectType7 = requestParams.rejectType7;
+					rejectType8 = requestParams.rejectType8;
+					rejectType9 = requestParams.rejectType9;
+					rejectType10 = requestParams.rejectType10;
+					rejectType11 = requestParams.rejectType11;
+					rejectType12 = requestParams.rejectType12;
+					rejectType13 = requestParams.rejectType13;
+					rejectType14 = requestParams.rejectType14;
+					rejectType15 = requestParams.rejectType15;
+					rejectType16 = requestParams.rejectType16;
+					rejectType17 = requestParams.rejectType17;
+					rejectType18 = requestParams.rejectType18;
+					rejectType19 = requestParams.rejectType19;
+					rejectType20 = requestParams.rejectType20;
+					rejectType21 = requestParams.rejectType21;
+					rejectType22 = requestParams.rejectType22;
+					rejectType23 = requestParams.rejectType23;
+					rejectType24 = requestParams.rejectType24;
+					rejectType25 = requestParams.rejectType25;
+					rejectType26 = requestParams.rejectType26;
 
 					log.debug({
 						title: 'requestParams',
@@ -243,7 +295,6 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 								operator: search.Operator.ANYOF,
 								values: ['@NONE@']
 							}));
-
 						}
 						binSearchResults.filters = binSearchFilters;
 						var binSearchResultsvalues = binSearchResults.run().getRange({
@@ -269,10 +320,26 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 								details: isValidBin
 							});
 						} else {
+							log.debug({
+								title: 'else ',
+								details: 'bin id valid'
+							});
 
 							var objInvDetails = [];
 							var binLocArr = [];
+							log.debug({
+								title: 'binName',
+								details: binName
+							});
+							log.debug({
+								title: 'preferedBinName',
+								details: preferedBinName
+							});
 							if (binName != preferedBinName) {
+								log.debug({
+									title: 'binName != preferedBinName',
+									details: binName + ' != ' + preferedBinName
+								});
 								if (blnMixItem == false || blnMixItem == "false") {
 									log.debug({
 										title: 'processType',
@@ -302,9 +369,19 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 										isValidBin = false;
 									}
 								}
-
+								log.debug({
+									title: 'isValidBin',
+									details: isValidBin
+								});
+								log.debug({
+									title: 'blnMixLot',
+									details: blnMixLot
+								});
+								log.debug({
+									title: 'itemType',
+									details: itemType
+								});
 								if ((isValidBin != false) && ((blnMixLot == false || blnMixLot == "false")) && (itemType == "lotnumberedinventoryitem" || itemType == "lotnumberedassemblyitem")) {
-
 									if (processType == 'inventoryTransfer') {
 										binLocArr = utility.fnGetInventoryBinsForLot(toWarehouseLocationId, lotName, itemInternalId, toBinInternalId);
 									} else if ((processType == 'BinTransfer' && toBinInternalLoctype != 'Stage') || processType != 'BinTransfer') {
@@ -449,12 +526,65 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 								}
 							}
 						} else {
+							log.debug({
+								title: 'scannedQuantity',
+								details: 'utility.isValueValid(scannedQuantity): ' + utility.isValueValid(scannedQuantity)
+							});
+							log.debug({
+								title: 'fromBinName || fromLocUseBinsFlag',
+								details: '(utility.isValueValid(fromBinName): ' + utility.isValueValid(fromBinName) + ' || utility.isValueValid(fromLocUseBinsFlag))' + utility.isValueValid(fromLocUseBinsFlag)
+							});
+							log.debug({
+								title: 'binName',
+								details: 'utility.isValueValid(binName): ' + utility.isValueValid(binName)
+							});
+							log.debug({
+								title: 'itemType',
+								details: 'utility.isValueValid(itemType): ' + utility.isValueValid(itemType)
+							});
+							log.debug({
+								title: 'blnMixItem',
+								details: 'utility.isValueValid(blnMixItem): ' + utility.isValueValid(blnMixItem)
+							});
+							log.debug({
+								title: 'blnMixLot',
+								details: 'utility.isValueValid(blnMixLot): ' + utility.isValueValid(blnMixLot)
+							});
+							log.debug({
+								title: 'fromBinInternalId || fromLocUseBinsFlag',
+								details: '(utility.isValueValid(fromBinInternalId): ' + utility.isValueValid(fromBinInternalId) + ' || utility.isValueValid(fromLocUseBinsFlag))' + utility.isValueValid(fromLocUseBinsFlag)
+							});
+							log.debug({
+								title: 'itemInternalId',
+								details: 'utility.isValueValid(itemInternalId): ' + utility.isValueValid(itemInternalId)
+							});
+							log.debug({
+								title: 'warehouseLocationId',
+								details: 'utility.isValueValid(warehouseLocationId): ' + utility.isValueValid(warehouseLocationId)
+							});
 
-							if (utility.isValueValid(scannedQuantity) && (utility.isValueValid(fromBinName) || utility.isValueValid(fromLocUseBinsFlag)) && utility.isValueValid(binName) &&
-								utility.isValueValid(itemType) && utility.isValueValid(blnMixItem) &&
-								utility.isValueValid(blnMixLot) && (utility.isValueValid(fromBinInternalId) || utility.isValueValid(fromLocUseBinsFlag)) &&
-								utility.isValueValid(itemInternalId) && utility.isValueValid(warehouseLocationId)) {
+							if (blnMixItem != true || blnMixItem != 'true' && blnMixItem != false || blnMixItem != "false") {
+								if (blnMixItem == '' || blnMixItem == null || blnMixItem != undefined)
+									blnMixItem = true;
+							}
+							if (blnMixLot != true || blnMixLot != 'true' && blnMixLot != false || blnMixLot != "false") {
+								if (blnMixLot == '' || blnMixLot == null || blnMixLot != undefined)
+									blnMixLot = true;
+							}
 
+							if (utility.isValueValid(scannedQuantity) &&
+								(utility.isValueValid(fromBinName) || utility.isValueValid(fromLocUseBinsFlag)) &&
+								utility.isValueValid(binName) &&
+								utility.isValueValid(itemType) &&
+								utility.isValueValid(blnMixItem) &&
+								utility.isValueValid(blnMixLot) &&
+								(utility.isValueValid(fromBinInternalId) || utility.isValueValid(fromLocUseBinsFlag)) &&
+								utility.isValueValid(itemInternalId) &&
+								utility.isValueValid(warehouseLocationId)) {
+								log.debug({
+									title: 'valid bin',
+									details: isValidBin
+								});
 								var serialarr = [];
 								if (utility.isValueValid(binName)) {
 									var objInvDetails = [];
@@ -575,8 +705,8 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 												log.debug('tallyScanObj for inv transfer', tallyScanObj);
 											}
 											impactRec = fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId,
-												toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, invTranID, rejectType);
-												log.debug('fninvtransfer', impactRec);
+												toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, invTranID, rejectType1, rejectType2, rejectType3, rejectType4, rejectType5, rejectType6, rejectType7, rejectType8, rejectType9, rejectType10, rejectType11, rejectType12, rejectType13, rejectType14, rejectType15, rejectType16, rejectType17, rejectType18, rejectType19, rejectType20, rejectType21, rejectType22, rejectType23, rejectType24, rejectType25, rejectType26);
+											log.debug('fninvtransfer', impactRec);
 
 											if (utility.isValueValid(impactRec.inventoryCountId)) {
 												invTransferArr.push(impactRec.inventoryCountId);
@@ -638,10 +768,16 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 						impactedRecords.customrecord_wmsse_ext_labelprinting = extlabelRecArr;
 
 						binValidateArray.impactedRecords = impactedRecords;
+						binValidateArray.transferNumber = impactedRecords;
+						binValidateArray.invTranID = impactRec.invTranID;
 						binValidateArray.isValid = true;
 						log.debug({
 							title: 'impactedRecords :',
 							details: impactedRecords
+						});
+						log.debug({
+							title: 'binValidateArray.invTranID :',
+							details: binValidateArray.invTranID
 						});
 					} else {
 						if (!utility.isValueValid(binValidateArray.errorMessage))
@@ -690,10 +826,10 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			return impactRec;
 		}
 
-		function fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, invTranID, rejectType) {
+		function fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, invTranID, rejectType1, rejectType2, rejectType3, rejectType4, rejectType5, rejectType6, rejectType7, rejectType8, rejectType9, rejectType10, rejectType11, rejectType12, rejectType13, rejectType14, rejectType15, rejectType16, rejectType17, rejectType18, rejectType19, rejectType20, rejectType21, rejectType22, rejectType23, rejectType24, rejectType25, rejectType26) {
 			var invtransferObj = {};
 			var impactRec = {};
-			
+
 			invtransferObj.invTranID = invTranID;
 			invtransferObj.itemType = itemType;
 			invtransferObj.whLocation = warehouseLocationId;
@@ -707,7 +843,32 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 				invtransferObj.toBinId = toBinInternalId;
 			}
 			if (toWarehouseLocationId == 900) {
-				invtransferObj.rejectType = rejectType;
+				invtransferObj.rejectType1 = rejectType1;
+				invtransferObj.rejectType2 = rejectType2;
+				invtransferObj.rejectType3 = rejectType3;
+				invtransferObj.rejectType4 = rejectType4;
+				invtransferObj.rejectType5 = rejectType5;
+				invtransferObj.rejectType6 = rejectType6;
+				invtransferObj.rejectType7 = rejectType7;
+				invtransferObj.rejectType8 = rejectType8;
+				invtransferObj.rejectType9 = rejectType9;
+				invtransferObj.rejectType10 = rejectType10;
+				invtransferObj.rejectType11 = rejectType11;
+				invtransferObj.rejectType12 = rejectType12;
+				invtransferObj.rejectType13 = rejectType13;
+				invtransferObj.rejectType14 = rejectType14;
+				invtransferObj.rejectType15 = rejectType15;
+				invtransferObj.rejectType16 = rejectType16;
+				invtransferObj.rejectType17 = rejectType17;
+				invtransferObj.rejectType18 = rejectType18;
+				invtransferObj.rejectType19 = rejectType19;
+				invtransferObj.rejectType20 = rejectType20;
+				invtransferObj.rejectType21 = rejectType21;
+				invtransferObj.rejectType22 = rejectType22;
+				invtransferObj.rejectType23 = rejectType23;
+				invtransferObj.rejectType24 = rejectType24;
+				invtransferObj.rejectType25 = rejectType25;
+				invtransferObj.rejectType26 = rejectType26;
 			}
 			invtransferObj.batchno = lotName;
 			invtransferObj.actualBeginTime = actualBeginTime;
@@ -722,8 +883,12 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 				invtransferObj.statusArray = tallyScanObj.statusArray;
 				invtransferObj.quantity = tallyScanObj.tallyScanBarCodeQty;
 			}
-			
-				impactRec = invtUtility.inventoryInvTransfer(invtransferObj);
+			log.debug({
+				title: 'invtransferObj',
+				details: invtransferObj
+			});
+
+			impactRec = invtUtility.inventoryInvTransfer(invtransferObj);
 			return impactRec;
 		}
 
@@ -753,8 +918,8 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					bintransferObj.quantity = Number(Big(tallyScanObj.tallyScanBarCodeQty).mul(stockConversionRate));
 				}
 			}
-			
-				impactRec = invtUtility.inventoryBinTransfer(bintransferObj);
+
+			impactRec = invtUtility.inventoryBinTransfer(bintransferObj);
 
 			return impactRec;
 		}

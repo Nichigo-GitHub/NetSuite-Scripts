@@ -84,7 +84,7 @@ function suitelet(request, response) {
             var orderedBy = "Ian and Ms Weng";
         }
 
-        var dataArray = getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy);
+        var dataArray = getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy, subsidiary);
 
         var xml = juicer(receivingTagTemplateFile.getValue(), {
             "dataArray": dataArray
@@ -120,7 +120,7 @@ function suitelet(request, response) {
             }
         } else if (customform == 620 && subsidiary == 4) {
             var receivingTagTemplateFile = nlapiLoadFile("300170"); //KPIN_FG_Tag.xml
-        } else if (customform == 694 && subsidiary == 15) {
+        } else if (customform == 694 || customform == 740 && subsidiary == 15) {
             var itRecord = nlapiLoadRecord("inventorytransfer", receiptId);
             var location = itRecord.getFieldText("transferlocation");
 
@@ -175,7 +175,7 @@ function suitelet(request, response) {
 
 // Function for item reciepts
 
-function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy) {
+function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy, subsidiary) {
     var poRecord = poId ? nlapiLoadRecord("purchaseorder", poId) : nlapiLoadRecord("itemreceipt", receiptId);
     var refPoNo = poRecord.getFieldValue("custbody92"); //External PO No. (Custom)   
     var refPoNo2 = poRecord.getFieldText("createdfrom");
@@ -188,6 +188,10 @@ function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy) {
     if (!RrNo) {
         RrNo = poRecord.getFieldValue("tranid");
     }
+    if (subsidiary == 18) {
+        dateReceived = formatDateToYYYYMMDD(dateReceived);
+        dateDelivered = formatDateToYYYYMMDD(dateDelivered);
+    }
     var supplier = nlapiLookupField("vendor", poRecord.getFieldValue("entity"), "companyname"); //COMPANY NAME
     var location = poRecord.getFieldText("location");
     var tolocation = location.replace(/^KPVN HANOI : /, '').trim();
@@ -195,7 +199,17 @@ function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy) {
     tolocation = tolocation.replace(/^KPVN AMATA : AMATA EPE - Main Location : /, '').trim();
     tolocation = tolocation.replace(/^KPVN AMATA : AMATA TRADING - Main Location : /, '').trim();
 
-    var receiveMonth = dateReceived ? (nlapiStringToDate(dateReceived).getMonth() + 1) : "";
+    if (dateReceived) {
+        if (subsidiary == 18) {
+            var dateParts = dateReceived.split('/');
+            var formattedDate = dateParts[2] + '/' + dateParts[1] + '/' + dateParts[0]; // Convert to DD/MM/YYYY
+            var receiveMonth = nlapiStringToDate(formattedDate).getMonth() + 1;
+        } else if (subsidiary == 14) {
+            var receiveMonth = (nlapiStringToDate(dateReceived).getMonth() + 1);
+        }
+    } else {
+        var receiveMonth = "";
+    }
     var month = poId ? nlapiCreateRecord("customrecord_kpj_date").getFieldValue("custrecord_current_month") : receiveMonth; //当前月
 
     month = getSimpleEnglishMonthJson(month, true);
@@ -279,7 +293,12 @@ function getReceivingTagDataJsonForInventoryTransfer(receiptId, lineNo, orderedB
     if (!refJoNo)
         refJoNo = "----"
     var dateDelivered = itRecord.getFieldValue("custbody397");
-    var drNo = itRecord.getFieldValue("custbody396");
+    if (subsidiary == 18) {
+        dateDelivered = formatDateToYYYYMMDD(dateDelivered);
+    }
+    if (customform == 694 && subsidiary == 15) {
+        var drNo = itRecord.getFieldValue("tranid");
+    }
     if (!drNo)
         drNo = "----"
     var reveivedBy = itRecord.getFieldText("custbody1"); //Prepared by (Custom)
@@ -301,6 +320,9 @@ function getReceivingTagDataJsonForInventoryTransfer(receiptId, lineNo, orderedB
         dateReceived = itRecord.getFieldValue("createddate");
         dateString = itRecord.getFieldValue("trandate");
         formattedDate = dateString.replace(/\//g, ''); // This will remove all slashes
+    } else if (subsidiary == 18) {
+        dateReceived = itRecord.getFieldValue("trandate");
+        dateReceived = formatDateToYYYYMMDD(dateReceived);
     } else {
         dateReceived = itRecord.getFieldValue("trandate");
     }
@@ -529,7 +551,7 @@ function formatString(input) {
             var secondHalfFirstPart = secondHalf.substring(0, 23);
             var secondHalfSecondPart = secondHalf.substring(23);
 
-            str = firstHalf + '    ' + secondHalfFirstPart + '\n' + secondHalfSecondPart;
+            str = firstHalf + '    ' + secondHalfFirstPart + '    ' + secondHalfSecondPart;
         }
 
     } else {
@@ -612,4 +634,13 @@ function convertNullToZeros(parameter) {
     if (!parameter && parameter != 0)
         return "0000000";
     return parameter;
+}
+
+function formatDateToYYYYMMDD(date) {
+    if (!date) return '';
+    var d = nlapiStringToDate(date);
+    var year = d.getFullYear();
+    var month = ('0' + (d.getMonth() + 1)).slice(-2);
+    var day = ('0' + d.getDate()).slice(-2);
+    return year + '/' + month + '/' + day;
 }

@@ -238,8 +238,17 @@
           </table>
         </td>
         <td width="33%">
-          <p><span style="font-size: 18px; font-weight: bold;">Quantity: {qty}</span><br /><br />
-            Department Location: <br /><span style="font-size: 18px; font-weight: bold;">{deptLocation}</span></p>
+          <table cellpadding="0" cellspacing="0">
+            <tr>
+              <td valign="middle">
+                <p><span style="font-size: 18px; font-weight: bold;">Quantity: {qty}</span><br /><br />
+                  Department Location: <br /><span style="font-size: 18px; font-weight: bold;">{deptLocation}</span></p>
+              </td>
+              <td>
+                <barcode codetype="qrcode" style="height: 75px; width: 75px;" showtext="false" value="{deptLocationUPC}" />
+              </td>
+            </tr>
+          </table>
         </td>
       </tr>
     </table>

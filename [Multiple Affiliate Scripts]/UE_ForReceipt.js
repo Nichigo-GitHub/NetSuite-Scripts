@@ -79,7 +79,7 @@ function userEventBeforeLoad(type, form, request) {
           form.addButton("custpage_receiving_tag", "Print HCM Receiving Tag", "window.open('" + url_4 + "')"); //KPVN_AMATA_Branch
         } else if (location == 873 || location == 897) {
           form.addButton("custpage_receiving_tag", "Print HCM Receiving Tag", "window.open('" + url_5 + "')"); //KPVN_AMATA_Trade
-        } else if (
+        } /* else if (
           location == 781 ||
           location == 785 ||
           location == 776 ||
@@ -104,7 +104,7 @@ function userEventBeforeLoad(type, form, request) {
           location == 815 ||
           location == 860) {
           form.addButton("custpage_receiving_tag", "Print Hanoi Receiving Tag", "window.open('" + url_6 + "')"); //KPVN_HANOI
-        }
+        } */
 
       } else {
         form.addButton("custpage_receiving_tag", "Print Receiving Tag", "window.open('" + url_1 + "')");

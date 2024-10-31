@@ -71,13 +71,12 @@ define(["N/record", "N/render", "N/query", "N/log", "N/error"], function (record
     var month = dateValue.getMonth();
     var actualMonth = month + 1;
     var simpleMonth = getSimpleEnglishMonthJson(actualMonth, true);
-
     var monthColor = getMonthColor(actualMonth);
 
     if (!jonum) {
       jonum = printRecord.getText({
         fieldId: "custbody412"
-      }) || "testqr";
+      }) || "----";
     }
 
     var deduct = 0; // Initialize the deduction counter
@@ -197,6 +196,39 @@ define(["N/record", "N/render", "N/query", "N/log", "N/error"], function (record
           items.push(itemData);
           log.error("Item Added", JSON.stringify(itemData));
         }
+      } else if (subsidiary == 18) {
+        temp = "CUSTTMPL_KPLIMA_RM_TAG";
+
+        var supplier = printRecord.getText({
+            fieldId: "custbodycust_sfli_vendor"
+          }),
+          refPoNo2 = printRecord.getText({
+            fieldId: "custbody56"
+          }),
+          drNo = printRecord.getText({
+            fieldId: "custbody28"
+          });
+
+        // Proceed if Adjustment Quantity is non-negative
+        if (quantity > 0) {
+          var itemData = {
+            itemUPC: itemUPC,
+            itemCode: item,
+            itemDescription: desc,
+            customer: customer,
+            supplier: supplier,
+            quantity: quantity,
+            dateReceived: formatDateToYYYYMMDD(dateValue),
+            refPoNo2: refPoNo2,
+            drNo: drNo,
+            dateDelivered: '',
+            orderedBy: '',
+            RrNo: '',
+            reveivedBy: '',            
+          };
+          items.push(itemData);
+          log.error("Item Added", JSON.stringify(itemData));
+        }
       }
     }
 
@@ -269,6 +301,19 @@ define(["N/record", "N/render", "N/query", "N/log", "N/error"], function (record
     };
 
     return colors[month] || 'default-background';
+  }
+
+  function formatDateToYYYYMMDD(trandate) {
+    var date = new Date(trandate);
+    var yyyy = date.getFullYear();
+    var mm = (date.getMonth() + 1).toString(); // Months are zero-indexed
+    var dd = date.getDate().toString();
+
+    // Custom padding logic (adds a leading zero if needed)
+    mm = mm.length < 2 ? '0' + mm : mm;
+    dd = dd.length < 2 ? '0' + dd : dd;
+
+    return yyyy + '-' + mm + '-' + dd;
   }
 
   // Return the onRequest function as the Suitelet's handler
