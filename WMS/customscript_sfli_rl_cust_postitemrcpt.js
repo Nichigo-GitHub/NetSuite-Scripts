@@ -30,7 +30,10 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 			var itemIterator = 0;
 			var targetSubsidiary = '';
 			var warehouseLocationName = '';
-			var drNumber = '', mrrNumber = '', preparedBy = '', inspectedBy = '';
+			var drNumber = '',
+				mrrNumber = '',
+				preparedBy = '',
+				inspectedBy = '';
 			var date = null;
 			var reasonForAdjustment = '';
 			var invoiceno = '';
@@ -58,8 +61,8 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 
 					var itemReceiptId = '';
 
-					if (utility.isValueValid(warehouseLocationId) && utility.isValueValid(transactionInternalId) && utility.isValueValid(transactionName)
-						&& utility.isValueValid(transactionType)) {
+					if (utility.isValueValid(warehouseLocationId) && utility.isValueValid(transactionInternalId) && utility.isValueValid(transactionName) &&
+						utility.isValueValid(transactionType)) {
 						var centralizesPurchasingandBilling = utility.isCentralizedPurchasingandBillingFeatureEnabled();
 						var systemRule = utility.getSystemRuleValueWithProcessType('Manually post item receipts?', warehouseLocationId, transactionType);
 
@@ -71,13 +74,16 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 								var poToLocationID = PORec[0]['location'];
 								targetSubsidiary = PORec[0]['targetsubsidiary'];
 
-								log.debug({ title: 'targetSubsidiary', details: targetSubsidiary });
+								log.debug({
+									title: 'targetSubsidiary',
+									details: targetSubsidiary
+								});
 
 								if (poToLocationID == null || poToLocationID == '') {
 									poToLocationID = warehouseLocationId;
 								}
-								if (poStatus == 'pendingReceipt' || poStatus == 'partiallyReceived' || poStatus == 'pendingRefundPartReceived'
-									|| poStatus == 'pendingBillPartReceived' || poStatus == 'pendingReceiptPartFulfilled' ||
+								if (poStatus == 'pendingReceipt' || poStatus == 'partiallyReceived' || poStatus == 'pendingRefundPartReceived' ||
+									poStatus == 'pendingBillPartReceived' || poStatus == 'pendingReceiptPartFulfilled' ||
 									poStatus == 'Pending Refund/Partially Received') {
 									var isMapReduceScriptInvoked = 'F';
 									var useitemcostflag = '';
@@ -86,7 +92,9 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 											type: 'transferorder',
 											id: transactionInternalId
 										});
-										useitemcostflag = transferordervalues.getValue({ fieldId: 'useitemcostastransfercost' });
+										useitemcostflag = transferordervalues.getValue({
+											fieldId: 'useitemcostastransfercost'
+										});
 										if ((useitemcostflag == null || useitemcostflag == '' || useitemcostflag == 'null') &&
 											useitemcostflag != false && useitemcostflag != true) {
 											var itemcostruleValue = inboundUtility.getItemCostRuleValue();
@@ -98,7 +106,9 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 										var opentaskSearchResults = inboundUtility.getOTResultsforIRPosting(transactionInternalId, '', '', '', warehouseLocationId);
 
 										if (opentaskSearchResults.length > 50) {
-											var schstatus = task.create({ taskType: task.TaskType.MAP_REDUCE });
+											var schstatus = task.create({
+												taskType: task.TaskType.MAP_REDUCE
+											});
 											schstatus.scriptId = 'customscript_wms_mr_postitemreceipt';
 											schstatus.deploymentId = 'customdeploy_wms_mr_postitemreceipt';
 											schstatus.params = {
@@ -125,22 +135,18 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 												for (var openTask = 0; openTask < opentaskSearchResults.length; openTask++) {
 													openTaskIdarray.push(parseInt(opentaskSearchResults[openTask].id));
 												}
-											}
-											else {
+											} else {
 												postItemReceiptResponse['errorMessage'] = translator.getTranslationString('ITEMRECEIPT_FAILED');
 												postItemReceiptResponse['isValid'] = false;
 
 											}
-										}
-										else if (isMapReduceScriptInvoked == 'T') {
+										} else if (isMapReduceScriptInvoked == 'T') {
 											postItemReceiptResponse['isMapReduceScriptInvoked'] = isMapReduceScriptInvoked;
 											postItemReceiptResponse['errorMessage'] = translator.getTranslationString('POSTITEMRECEIPT_SCHEDSCRIPT_INITIATED');
 											postItemReceiptResponse['isValid'] = true;
 										}
-									}
-									else {
-										if (transactionType == 'returnauthorization'
-) {
+									} else {
+										if (transactionType == 'returnauthorization') {
 											kitOTResults = inboundLib.getKitOTResultsforIRPosting(transactionInternalId, '', warehouseLocationId);
 											kitDetailsforRMA = inboundLib.getKitDetailsforRMA(transactionInternalId);
 
@@ -155,7 +161,9 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 										var opentaskSearchResults = inboundUtility.getOTResultsforIRPosting(transactionInternalId, '', '', '', warehouseLocationId);
 
 										if (opentaskSearchResults.length > 50) {
-											var schstatus = task.create({ taskType: task.TaskType.MAP_REDUCE });
+											var schstatus = task.create({
+												taskType: task.TaskType.MAP_REDUCE
+											});
 											schstatus.scriptId = 'customscript_wms_mr_postitemreceipt';
 											schstatus.deploymentId = null;
 											schstatus.params = {
@@ -192,11 +200,12 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 														fromType: record.Type.RETURN_AUTHORIZATION,
 														fromId: transactionInternalId,
 														toType: record.Type.ITEM_RECEIPT,
-														defaultValues: { orderinvtsub: locationSubsidiary },
+														defaultValues: {
+															orderinvtsub: locationSubsidiary
+														},
 														isDynamic: false
 													});
-												}
-												else {
+												} else {
 													trecord = record.transform({
 														fromType: recordType,
 														fromId: transactionInternalId,
@@ -204,11 +213,13 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 														isDynamic: false
 													});
 												}
-											}
-											else {
+											} else {
 
 												if (centralizesPurchasingandBilling == true) {
-													log.debug({ title: 'targetSubsidiary', details: targetSubsidiary });
+													log.debug({
+														title: 'targetSubsidiary',
+														details: targetSubsidiary
+													});
 													if (targetSubsidiary == null || targetSubsidiary == '' || targetSubsidiary == undefined || targetSubsidiary == 'undefined') {
 														targetSubsidiary = -1;
 													}
@@ -216,11 +227,12 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 														fromType: recordType,
 														fromId: transactionInternalId,
 														toType: record.Type.ITEM_RECEIPT,
-														defaultValues: { targetsub: targetSubsidiary },
+														defaultValues: {
+															targetsub: targetSubsidiary
+														},
 														isDynamic: false
 													});
-												}
-												else {
+												} else {
 													trecord = record.transform({
 														fromType: recordType,
 														fromId: transactionInternalId,
@@ -379,7 +391,10 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 
 												var ir_tranid = ir_record.getValue('tranid');
 
-												log.debug({ title: 'transactionName', details: transactionName });
+												log.debug({
+													title: 'transactionName',
+													details: transactionName
+												});
 												postItemReceiptResponse['transactionName'] = transactionName;
 												postItemReceiptResponse['itemteceiptId'] = itemReceiptId;
 												postItemReceiptResponse['isValid'] = true;
@@ -389,26 +404,22 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 													inboundLib.updateorCloneOpenTask(itemReceiptId, irUpdateOpenTaskId, splitOpenTaskId);
 
 												}
-											}
-											else {
+											} else {
 												postItemReceiptResponse['errorMessage'] = translator.getTranslationString('ITEMRECEIPT_FAILED');
 												postItemReceiptResponse['isValid'] = false;
 
 											}
-										}
-										else if (isMapReduceScriptInvoked == 'T') {
+										} else if (isMapReduceScriptInvoked == 'T') {
 											postItemReceiptResponse['isMapReduceScriptInvoked'] = isMapReduceScriptInvoked;
 											postItemReceiptResponse['errorMessage'] = translator.getTranslationString('POSTITEMRECEIPT_SCHEDSCRIPT_INITIATED');
 											postItemReceiptResponse['isValid'] = true;
 
-										}
-										else {
+										} else {
 											if (transactionType == 'purchaseorder') {
 												postItemReceiptResponse['errorMessage'] = translator.getTranslationString('PO_POSTITEMRECEIPT_NOMATCHING_OPEN_PUTAWAY');
 												postItemReceiptResponse['isValid'] = false;
 
-											}
-											else if (transactionType == 'returnauthorization') {
+											} else if (transactionType == 'returnauthorization') {
 												postItemReceiptResponse['errorMessage'] = translator.getTranslationString('RMA_POSTITEMRECEIPT_NOMATCHING_OPEN_PUTAWAY');
 												postItemReceiptResponse['isValid'] = false;
 
@@ -417,37 +428,37 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 										}
 
 									}
-									var itemReceipt = { 'itemreceiptid': itemReceiptId };
+									var itemReceipt = {
+										'itemreceiptid': itemReceiptId
+									};
 									impactedRecords = inboundUtility.noCodeSolForReceiving(transactionInternalId, '', itemReceipt, transactionType, openTaskIdarray, false);
-									log.debug({ title: 'impactedRecords :', details: impactedRecords });
+									log.debug({
+										title: 'impactedRecords :',
+										details: impactedRecords
+									});
 									postItemReceiptResponse.impactedRecords = impactedRecords;
-								}
-								else {
+								} else {
 									postItemReceiptResponse['errorMessage'] = translator.getTranslationString('ITEMRECEIPTPOSTING_DATA_NOMATCH');
 									postItemReceiptResponse['isValid'] = false;
 
 								}
-							}
-							else {
+							} else {
 								postItemReceiptResponse['errorMessage'] = translator.getTranslationString('ITEMRECEIPTPOSTING_DATA_NOMATCH');
 								postItemReceiptResponse['isValid'] = false;
 
 							}
-						}
-						else {
+						} else {
 							postItemReceiptResponse['errorMessage'] = translator.getTranslationString('MANNUALITEMRECEIPTPOSTING_SYSTEMRULE_NOT_CONFIGURED');
 							postItemReceiptResponse['isValid'] = false;
 
 						}
-					}
-					else {
+					} else {
 
 						postItemReceiptResponse['errorMessage'] = translator.getTranslationString('ITEMRECEIPTPOSTING_DATA_NOMATCH');
 						postItemReceiptResponse['isValid'] = false;
 
 					}
-				}
-				else {
+				} else {
 					postItemReceiptResponse['errorMessage'] = translator.getTranslationString('ITEMRECEIPTPOSTING_DATA_NOMATCH');
 					postItemReceiptResponse['isValid'] = false;
 
@@ -455,12 +466,14 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 
 				return postItemReceiptResponse;
 
-			}
-			catch (e) {
+			} catch (e) {
 				var orderList = {};
 				orderList['isValid'] = false;
 				orderList['errorMessage'] = e.message;
-				log.error({ title: 'errorMessage', details: e.message + " Stack :" + e.stack });
+				log.error({
+					title: 'errorMessage',
+					details: e.message + " Stack :" + e.stack
+				});
 				if (transactionType == 'returnauthorization' && utility.getObjectLength(kitIRPostObj)) {
 					if (RMAkitIterator == 0 && itemIterator == 0) {
 						orderList.errorMessage = translator.getTranslationString('ITEMRECEIPT_FAILED');

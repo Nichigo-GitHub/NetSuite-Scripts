@@ -2420,6 +2420,7 @@ var __rest = (this && this.__rest) || function (s, e) {
             'Cebu FG Rack 1': 'Cebu FG Rack 1',
             'Cebu RM Rack 1': 'Cebu RM Rack 1',
             'CF': 'CF',
+            'CF-008': 'CF-8',
             'CF-33': 'CF-33',
             'CF-34': 'CF-34',
             'CF-35': 'CF-35',

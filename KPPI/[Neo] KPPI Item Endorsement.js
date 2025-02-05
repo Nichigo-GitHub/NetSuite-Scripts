@@ -11,7 +11,7 @@ define(['N/currentRecord', 'N/search', 'N/record', 'N/log'], function (currentRe
       try {
         var currentUser = runtime.getCurrentUser();
         var subsidiaryId = currentUser.subsidiary;
-        
+
         var ipdNum = currentRecord.getText({
           fieldId: 'custrecord733'
         });
@@ -280,6 +280,25 @@ define(['N/currentRecord', 'N/search', 'N/record', 'N/log'], function (currentRe
           title: 'custrecord776',
           details: 'line: ' + [i + 1] + ' disabled'
         })
+      }
+    } else if (context.mode === 'create') {
+      var date = currentRecord.getText({
+        fieldId: 'custrecord709'
+      });
+
+      if (date) {
+        var dateParts = date.split('/');
+        if (dateParts.length === 3) {
+          var day = dateParts[1].padStart(2, '0');
+          var month = dateParts[0].padStart(2, '0');
+          var year = dateParts[2];
+
+          var formattedDate = day + '/' + month + '/' + year;
+          currentRecord.setText({
+            fieldId: 'custrecord736',
+            text: formattedDate
+          });
+        }
       }
     }
   }

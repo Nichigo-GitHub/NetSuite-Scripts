@@ -81,7 +81,7 @@ function suitelet(request, response) {
             }
         } else {
             var receivingTagTemplateFile = nlapiLoadFile("22162"); //(SFLI) receivingTagTemplate.xml
-            var orderedBy = "Ian and Ms Weng";
+            var orderedBy = "Weng De Villa";
         }
 
         var dataArray = getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy, subsidiary);
@@ -136,7 +136,7 @@ function suitelet(request, response) {
             }
         } else if (customform == 707 && subsidiary == 14) {
             var receivingTagTemplateFile = nlapiLoadFile("22162"); //(SFLI) receivingTagTemplate.xml
-            var orderedBy = "Ian and Ms Weng";
+            var orderedBy = "Weng De Villa";
         }
         var dataArray = getReceivingTagDataJsonForInventoryTransfer(receiptId, lineNo, orderedBy, customform, subsidiary);
 
@@ -181,6 +181,9 @@ function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy, subsidiary)
     var refPoNo2 = poRecord.getFieldText("createdfrom");
     var dateDelivered = poRecord.getFieldValue("custbody328");
     var drNo = poRecord.getFieldValue("custbody28"); //DR No. (Custom)
+    if (!drNo) {
+        drNo = "----"
+    }
     var reveivedBy = poRecord.getFieldText("custbody1"); //Prepared by (Custom)
     var dateReceived = poRecord.getFieldValue("trandate"); //Date
     var customer = poRecord.getFieldText("custbody41"); //Customer (Custom)
@@ -201,9 +204,12 @@ function getReceivingTagDataJson(poId, receiptId, lineNo, orderedBy, subsidiary)
 
     if (dateReceived) {
         if (subsidiary == 18) {
-            var dateParts = dateReceived.split('/');
-            var formattedDate = dateParts[2] + '/' + dateParts[1] + '/' + dateParts[0]; // Convert to DD/MM/YYYY
-            var receiveMonth = nlapiStringToDate(formattedDate).getMonth() + 1;
+            var dateObject = nlapiStringToDate(dateReceived); // Auto-detects user's date format
+
+            if (dateObject) {
+                var receiveMonth = dateObject.getMonth() + 1; // Get month (0-based index)
+                nlapiLogExecution('ERROR', 'receiveMonth', receiveMonth);
+            }
         } else if (subsidiary == 14) {
             var receiveMonth = (nlapiStringToDate(dateReceived).getMonth() + 1);
         }

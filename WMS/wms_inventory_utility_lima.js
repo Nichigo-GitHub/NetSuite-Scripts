@@ -371,6 +371,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             var statusArr = [];
             var quantityArr = [];
             var lotArrr = [];
+            var dateReceived = bintransferObj.dateReceived.value;
             if (!utility.isValueValid(stockConversionRate)) {
                 stockConversionRate = 1;
             }
@@ -443,6 +444,16 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 fieldId: 'trandate',
                 value: parsedCurrentDate
             });
+            if (dateReceived) {
+                var parsedDateReceived = format.parse({
+                    value: dateReceived,
+                    type: format.Type.DATE
+                });
+                binTransfer.setValue({
+                    fieldId: 'custbody_kplima_received_date',
+                    value: parsedDateReceived
+                });
+            }
             binTransfer.selectNewLine({
                 sublistId: 'inventory',
             });
@@ -1499,7 +1510,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 fieldId: 'trandate',
                 value: parsedCurrentDate
             });
-            
+
             var nextTranID = invTranID + '-T1'; // Start with the initial suffix
             var tranidExists = true; // Flag to control the loop
             var suffixNumber = 1; // Start with 1 for "-T1"

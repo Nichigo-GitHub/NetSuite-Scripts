@@ -3,7 +3,7 @@
  * @NScriptType Restlet
  * @NModuleScope public
  */
-define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', './wms_inventory_utility'],
+define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', './wms_inventory_utility_lima'],
 	/**
 	 * @param {search} search
 	 */
@@ -61,6 +61,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			var barcodeQuantity = '';
 			var toBinInternalId = '';
 			var toBinInternalLoctype = '';
+			var dateReceived = '';
 
 			try {
 				if (utility.isValueValid(requestBody)) {
@@ -95,6 +96,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					barcodeQuantity = requestParams.barcodeQuantity;
 					isTallyScanRequired = requestParams.isTallyScanRequired;
 					tallyScanBarCodeQty = requestParams.tallyScanBarCodeQty;
+					dateReceived = requestParams.dateReceived;
 
 					log.debug({
 						title: 'requestParams',
@@ -625,7 +627,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 												tallyScanObj = invtUtility.buildObjectFromTallyLoopObj(isTallyScanRequired, itemType, tallyLoopObj, tallyScanBarCodeQty);
 												log.debug('tallyScanObj', tallyScanObj);
 											}
-											impactRec = fnBinTransfer(itemType, warehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, fromStatusInternalId, statusInternalId, tallyScanObj, processType);
+											impactRec = fnBinTransfer(itemType, warehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, fromStatusInternalId, statusInternalId, tallyScanObj, processType, dateReceived);
 
 											if (utility.isValueValid(impactRec.inventoryCountId)) {
 												binTransferArr.push(impactRec.inventoryCountId);
@@ -758,7 +760,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			return impactRec;
 		}
 
-		function fnBinTransfer(itemType, warehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, fromStatusInternalId, statusInternalId, tallyScanObj, processType) {
+		function fnBinTransfer(itemType, warehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, fromStatusInternalId, statusInternalId, tallyScanObj, processType, dateReceived) {
 			var bintransferObj = {};
 			var impactRec = {};
 
@@ -774,6 +776,8 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			bintransferObj.stockConversionRate = stockConversionRate;
 			bintransferObj.opentaskQty = openTaskQty;
 			bintransferObj.processType = processType;
+			if (dateReceived)
+				bintransferObj.dateReceived = dateReceived;
 
 			if (tallyScanObj.isTallyScanRequired) {
 				bintransferObj.isTallyScanRequired = tallyScanObj.isTallyScanRequired;

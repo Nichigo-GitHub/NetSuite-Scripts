@@ -39,22 +39,55 @@ function loadSublistData(currentRecord, customer, contextMode) {
             start += pageSize;
         } while (resultCount === pageSize);
 
-        var matchedKeys = {};
+        var matchedKeys = {}; // Stores keys of processed POs and Items
+        var sublistKeys = {}; // Stores existing sublist entries for deletion tracking
 
-        // Process search results: Add or update sublist lines, and track matches
+        var lineCount = currentRecord.getLineCount({
+            sublistId: sublistId
+        });
+
+        // Step 1: Load sublist into sublistKeys
+        for (var i = 0; i < lineCount; i++) {
+            var poNumber = currentRecord.getSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord537',
+                line: i
+            });
+            var itemName = currentRecord.getSublistText({
+                sublistId: sublistId,
+                fieldId: 'custrecord538',
+                line: i
+            });
+
+            var key = poNumber + '-' + itemName;
+            sublistKeys[key] = i; // Store line index for later removal
+        }
+
+        // Step 2: Process search results
         searchResults.forEach(function (result) {
-            if (!checkAndUpdateSublist(currentRecord, result)) {
-                // If result is not found in sublist, add a new line
+            var poNumber = result.getValue('tranid');
+            var itemName = result.getText('item');
+            var key = poNumber + '-' + itemName;
+
+            if (sublistKeys.hasOwnProperty(key)) {
+                // If found in sublist, update and mark as matched
+                updateSublistLine(currentRecord, sublistKeys[key], result);
+                delete sublistKeys[key]; // Remove from deletion list
+            } else {
+                // If not found, add new line
                 populateSublistLine(currentRecord, result);
             }
 
-            var poNumber = result.getValue('tranid');
-            var itemName = result.getText('item');
-            matchedKeys[poNumber + '-' + itemName] = true;
+            matchedKeys[key] = true;
         });
 
-        // Second, iterate through sublist and remove unmatched lines
-        removeUnmatchedSublistLines(currentRecord, matchedKeys);
+        // Step 3: Remove unmatched sublist lines
+        Object.keys(sublistKeys).forEach(function (key) {
+            currentRecord.removeLine({
+                sublistId: sublistId,
+                line: sublistKeys[key]
+            });
+        });
 
         updateRemainingBalance(currentRecord);
         disableFields(currentRecord);
@@ -63,101 +96,49 @@ function loadSublistData(currentRecord, customer, contextMode) {
     }
 }
 
-// Function to update sublist and check for matches
-function checkAndUpdateSublist(currentRecord, result) {
-    var lineCount = currentRecord.getLineCount({
-        sublistId: sublistId
+// Update an existing sublist line
+function updateSublistLine(currentRecord, lineIndex, result) {
+    currentRecord.selectLine({
+        sublistId: sublistId,
+        line: lineIndex
     });
 
-    for (var i = 0; i < lineCount; i++) {
-        var currentPO = currentRecord.getSublistValue({
-            sublistId: sublistId,
-            fieldId: 'custrecord537',
-            line: i
-        });
-        var currentItem = currentRecord.getSublistText({
-            sublistId: sublistId,
-            fieldId: 'custrecord538',
-            line: i
-        });
-
-        // If there is a match, update and commit the sublist
-        if (currentPO === result.getValue('tranid') && currentItem === result.getText('item')) {
-            currentRecord.selectLine({
-                sublistId: sublistId,
-                line: i
-            });
-            var previousBal = currentRecord.getCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord540'
-            });
-            currentRecord.setCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord780',
-                value: previousBal
-            });
-            currentRecord.setCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord540',
-                value: result.getValue('formulanumeric')
-            });
-            currentRecord.setCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord700',
-                value: result.getValue('rate')
-            });
-            currentRecord.setCurrentSublistText({
-                sublistId: sublistId,
-                fieldId: 'custrecord695',
-                text: result.getText('mainname')
-            });
-            currentRecord.setCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord_remarks',
-                value: null
-            });
-
-            currentRecord.commitLine({
-                sublistId: sublistId
-            });
-
-            return true; // Match found
-        }
-    }
-
-    return false; // No match
-}
-
-// Function to remove sublist lines that have no matching entries in the search results
-function removeUnmatchedSublistLines(currentRecord, matchedKeys) {
-    var lineCount = currentRecord.getLineCount({
-        sublistId: sublistId
+    var previousBal = currentRecord.getCurrentSublistValue({
+        sublistId: sublistId,
+        fieldId: 'custrecord540'
+    });
+    currentRecord.setCurrentSublistValue({
+        sublistId: sublistId,
+        fieldId: 'custrecord780',
+        value: previousBal
+    });
+    currentRecord.setCurrentSublistValue({
+        sublistId: sublistId,
+        fieldId: 'custrecord540',
+        value: result.getValue('formulanumeric')
+    });
+    currentRecord.setCurrentSublistValue({
+        sublistId: sublistId,
+        fieldId: 'custrecord700',
+        value: result.getValue('rate')
+    });
+    currentRecord.setCurrentSublistText({
+        sublistId: sublistId,
+        fieldId: 'custrecord695',
+        text: result.getText('mainname')
+    });
+    currentRecord.setCurrentSublistValue({
+        sublistId: sublistId,
+        fieldId: 'custrecord_remarks',
+        value: null
     });
 
-    for (var i = lineCount - 1; i >= 0; i--) {
-        var currentPO = currentRecord.getSublistValue({
-            sublistId: sublistId,
-            fieldId: 'custrecord537',
-            line: i
-        });
-        var currentItem = currentRecord.getSublistText({
-            sublistId: sublistId,
-            fieldId: 'custrecord538',
-            line: i
-        });
-
-        var key = currentPO + '-' + currentItem;
-
-        if (!matchedKeys[key]) {
-            currentRecord.removeLine({
-                sublistId: sublistId,
-                line: i
-            });
-        }
-    }
+    currentRecord.commitLine({
+        sublistId: sublistId
+    });
 }
 
-// Populate a sublist line
+// Populate a new sublist line
 function populateSublistLine(currentRecord, result) {
     isFieldChangeScriptActive = false;
 
