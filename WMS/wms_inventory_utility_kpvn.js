@@ -1487,6 +1487,19 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             var rejectType24 = invtransferObj.rejectType24;
             var rejectType25 = invtransferObj.rejectType25;
             var rejectType26 = invtransferObj.rejectType26;
+            var rejectType27 = invtransferObj.rejectType27;
+            var rejectType28 = invtransferObj.rejectType28;
+            var rejectType29 = invtransferObj.rejectType29;
+            var rejectType30 = invtransferObj.rejectType30;
+            var rejectType31 = invtransferObj.rejectType31;
+            var rejectType32 = invtransferObj.rejectType32;
+            var rejectType33 = invtransferObj.rejectType33;
+            var rejectType34 = invtransferObj.rejectType34;
+            var rejectType35 = invtransferObj.rejectType35;
+            var rejectType36 = invtransferObj.rejectType36;
+            var rejectType37 = invtransferObj.rejectType37;
+            var rejectType38 = invtransferObj.rejectType38;
+            var rejectType39 = invtransferObj.rejectType39;
             
             var invTransfer = record.create({
                 type: record.Type.INVENTORY_TRANSFER,
@@ -1728,6 +1741,71 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                     sublistId: 'inventory',
                     fieldId: 'custcol570',
                     value: rejectType26
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol584',
+                    value: rejectType27
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol585',
+                    value: rejectType28
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol586',
+                    value: rejectType29
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol587',
+                    value: rejectType30
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol588',
+                    value: rejectType31
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol589',
+                    value: rejectType32
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol590',
+                    value: rejectType33
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol591',
+                    value: rejectType34
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol592',
+                    value: rejectType35
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol593',
+                    value: rejectType36
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol594',
+                    value: rejectType37
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol595',
+                    value: rejectType38
+                });
+                invTransfer.setCurrentSublistValue({
+                    sublistId: 'inventory',
+                    fieldId: 'custcol596',
+                    value: rejectType39
                 });
             }
             if (itemType == "inventoryitem" || itemType == "assemblyitem") {

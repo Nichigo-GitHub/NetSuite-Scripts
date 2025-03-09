@@ -165,12 +165,9 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 
 				if (context.fieldId !== '' && context.fieldId !== null && context.fieldId !== undefined) {
 					try {
-						var allResults = [];
 						var allExcludeResults = [];
 						var start = 0;
-						var end = 1000;
 						var batchSize = 1000;
-						var totalRecordsFetched;
 						var excludeSearchResults;
 
 						var excludeSearch = search.load({
@@ -193,11 +190,12 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 							start += batchSize;
 						} while (excludeSearchResults.length === batchSize);
 
-						// Get the current month (1-based, i.e., January is 1)
+						// Get the current month and year
 						var currentDate = new Date();
 						var currentMonth = currentDate.getMonth() + 1;
+						var currentYear = currentDate.getFullYear();
 
-						// Loop through each excludeSearch result and check the month of custrecord760
+						// Loop through each excludeSearch result and check month & year of custrecord760
 						for (var i = 0; i < allExcludeResults.length; i++) {
 							var result = allExcludeResults[i];
 
@@ -209,10 +207,11 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 							// Convert custrecord760 to a JavaScript Date object
 							if (custrecord760Date) {
 								var dateValue = new Date(custrecord760Date);
-								var custrecord760Month = dateValue.getMonth() + 1; // getMonth() is 0-indexed, so add 1 to match 1-based month
+								var custrecord760Month = dateValue.getMonth() + 1; // JavaScript months are 0-indexed
+								var custrecord760Year = dateValue.getFullYear();
 
-								// Compare the month of custrecord760 with the current month
-								if (custrecord760Month === currentMonth) {
+								// Compare both month & year
+								if (custrecord760Month === currentMonth && custrecord760Year === currentYear) {
 									// If there's a match, clear the customer field and show the alert
 									var customerName = currentRecord.getText({
 										fieldId: 'custrecord761'
@@ -225,14 +224,15 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 
 									dialog.alert({
 										title: 'GPR Forecast Exists',
-										message: 'There is already an existing GPR forecast for the customer: ' + customerName + ' in this month.'
+										message: 'There is already an existing GPR forecast for the customer: ' + customerName + ' in this month and year.'
 									});
 
-									return; // Exit the loop and function early since we found a match
+									return; // Exit the function early since we found a match
 								}
 							}
 						}
 
+						// Proceed with the original search if no match was found
 						var searchObj = search.load({
 							id: 'customsearch4381'
 						});
@@ -246,7 +246,6 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 						var allResults = [];
 						var start = 0;
 						var end = 1000;
-						var batchSize = 1000;
 						var totalRecordsFetched = 0;
 
 						do {
@@ -266,31 +265,24 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 						var count = 0;
 						allResults.forEach(function (result) {
 							var itemid = result.getValue({
-								name: "itemid"/* ,
-								summary: "GROUP"*/
+								name: "itemid"
 							});
 							var salesdesc = result.getValue({
-								name: "salesdescription"/* ,
-								summary: "GROUP"*/
+								name: "salesdescription"
 							});
 							var currency = result.getText({
 								name: "currency",
-								join: "pricing"/* ,
-								summary: "GROUP"*/
+								join: "pricing"
 							});
 							var unitprice = result.getValue({
 								name: "unitprice",
-								join: "pricing"/* ,
-								summary: "GROUP"*/
+								join: "pricing"
 							});
 							var formulanumeric = result.getValue({
-								name: "lastpurchaseprice"/* ,
-								summary: "MAXIMUM" */
+								name: "lastpurchaseprice"
 							});
-							
 							var itemClass = result.getText({
-								name: "class"/* ,
-								summary: "GROUP"*/
+								name: "class"
 							});
 
 							currentRecord.selectNewLine({

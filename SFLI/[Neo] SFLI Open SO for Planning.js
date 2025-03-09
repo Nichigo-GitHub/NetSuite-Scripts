@@ -6,7 +6,6 @@ define(['N/search', 'N/log'], function (search, log) {
     var previousCustomer = null;
     var isFieldChangeScriptActive = true;
     var populate = true;
-    var changed = false;
     var revert = false;
     var searchFulfillment = true;
     var contextMode = '';
@@ -52,7 +51,6 @@ define(['N/search', 'N/log'], function (search, log) {
 
         DRSname.isDisabled = true;
         date.isDisabled = true;
-
 
         contextMode = context.mode;
 
@@ -221,16 +219,18 @@ define(['N/search', 'N/log'], function (search, log) {
                             sublistId: sublistId
                         });
                     }
-                    for (var x = 0; x < currentDay; x++) {
-                        var field = currentRecord.getSublistField({
-                            sublistId: sublistId,
-                            fieldId: fieldIdsToCheck[x],
-                            line: x
-                        });
-                        if (field) {
-                            field.isDisabled = false;
+                    fieldIdsToCheck.forEach(function (fieldId) {
+                        for (var i = 0; i < lineCount; i++) {
+                            var field = currentRecord.getSublistField({
+                                sublistId: sublistId,
+                                fieldId: fieldId,
+                                line: i
+                            });
+                            if (field) {
+                                field.isDisabled = false;
+                            }
                         }
-                    }
+                    });
                 } finally {
                     isFieldChangeScriptActive = wasActive;
                     revert = true;
@@ -412,72 +412,81 @@ define(['N/search', 'N/log'], function (search, log) {
                 start += pageSize;
             } while (resultCount === pageSize);
 
-            /* var results = [];
+            var results = {}; // Dictionary to store results
+
             salesorderSearchObj.run().each(function (result) {
-                results.push({
-                    item: result.getText({
-                        name: 'item',
-                        summary: search.Summary.GROUP
-                    }),
-                    description: result.getValue({
-                        name: 'salesdescription',
-                        join: 'item',
-                        summary: search.Summary.GROUP
-                    }),
-                    quantity: result.getValue({
-                        name: 'formulanumeric',
-                        summary: search.Summary.SUM,
-                        formula: '{quantity}-{quantityshiprecv}'
-                    }),
-                    tranid: result.getValue({
-                        name: 'tranid',
-                        summary: search.Summary.GROUP,
-                    }),
-                    customer: result.getText({
-                        name: 'entity',
-                        summary: search.Summary.GROUP
-                    })
+                var itemId = result.getText({
+                    name: 'item',
+                    summary: search.Summary.GROUP
                 });
+
+                var itemDescription = result.getValue({
+                    name: 'salesdescription',
+                    join: 'item',
+                    summary: search.Summary.GROUP
+                });
+
+                var quantity = parseFloat(result.getValue({
+                    name: 'formulanumeric',
+                    summary: search.Summary.SUM,
+                    formula: '{quantity}-{quantityshiprecv}'
+                })) || 0;
+
+                var salesOrderId = result.getValue({
+                    name: 'tranid',
+                    summary: search.Summary.GROUP
+                });
+
+                // Ensure the item exists in the dictionary
+                if (!results[itemId]) {
+                    results[itemId] = {
+                        "Item ID": itemId,
+                        "Item Description": itemDescription,
+                        "Total Quantity": 0,
+                        "Sales Orders": []
+                    };
+                }
+
+                // Add quantity to the total
+                results[itemId]["Total Quantity"] += quantity;
+
+                // Append Sales Order ID if not already present
+                if (!results[itemId]["Sales Orders"].includes(salesOrderId)) {
+                    results[itemId]["Sales Orders"].push(salesOrderId);
+                }
+
                 return true;
             });
 
-            log.debug('SO Search Results', JSON.stringify(results)); */
+            log.debug("Formatted SO Search Results", JSON.stringify(results));
 
             var matchedKeys = {};
+
             // Process search results: Add or update sublist lines, and track matches
-            SOResults.forEach(function (result) {
-                if (!checkAndUpdateSublist(currentRecord, result, 'SO')) {
+            Object.keys(results).forEach(function (itemId) {
+                var itemData = results[itemId];
+
+                if (!checkAndUpdateSublist(currentRecord, itemData, 'SO', customer)) {
                     // If result is not found in sublist, add a new line
-                    populateSublistLine(currentRecord, result, contextMode);
-                } else {
-                    var soNumber = result.getValue({
-                        name: 'tranid',
-                        summary: search.Summary.GROUP
-                    });
-                    var itemInternalId = result.getValue({
-                        name: 'item',
-                        summary: search.Summary.GROUP
-                    });
-                    log.debug({
-                        title: 'key',
-                        details: soNumber + '-' + itemInternalId
-                    })
-                    matchedKeys[soNumber + '-' + itemInternalId] = true
+                    populateSublistLine(currentRecord, itemData, contextMode, 'SO', customer);
                 }
             });
 
+            // Second, iterate through sublist and remove unmatched lines
+            // removeUnmatchedSublistLines(currentRecord, matchedKeys);
+
             if (searchFulfillment) {
-                loadItemFulfillment(currentRecord, customer, contextMode)
+                loadItemFulfillment(currentRecord, customer)
             }
 
-            updateTotalDRquantity(currentRecord);
             disableFields(currentRecord);
         } catch (e) {
             throw e;
         }
     }
 
-    function loadItemFulfillment(currentRecord, customer, contextMode) {
+    // Load Item Fulfillment
+    function loadItemFulfillment(currentRecord, customer) {
         fulfillmentSearchObj = search.create({
             type: 'itemfulfillment',
             filters: [
@@ -569,7 +578,7 @@ define(['N/search', 'N/log'], function (search, log) {
             start += pageSize;
         } while (resultCount === pageSize);
 
-        /* var results = [];
+        var results = [];
         fulfillmentSearchObj.run().each(function (result) {
             results.push({
                 item: result.getText({
@@ -597,23 +606,19 @@ define(['N/search', 'N/log'], function (search, log) {
             return true;
         });
 
-        log.debug('DR Search Results', JSON.stringify(results)); */
+        log.debug('DR Search Results', JSON.stringify(results));
 
-        var matchedKeys = {};
         // Process search results: Add or update sublist lines, and track matches
         DRResults.forEach(function (result) {
-            if (!checkAndUpdateSublist(currentRecord, result, 'DR')) {
+            if (!checkAndUpdateSublist(currentRecord, result, 'DR', customer)) {
                 // If result is not found in sublist, add a new line
-                populateSublistLine(currentRecord, result, contextMode);
+                populateSublistLine(currentRecord, result, contextMode, 'DR', customer);
             }
         });
-
-        // Second, iterate through sublist and remove unmatched lines
-        /* removeUnmatchedSublistLines(currentRecord, matchedKeys); */
     }
 
     // Function to update sublist and check for matches
-    function checkAndUpdateSublist(currentRecord, result, recType) {
+    function checkAndUpdateSublist(currentRecord, results, recType, customer) {
         var lineCount = currentRecord.getLineCount({
             sublistId: sublistId
         });
@@ -638,122 +643,165 @@ define(['N/search', 'N/log'], function (search, log) {
             // If there is a match, update and commit the sublist
             if (currentSO && currentItem) {
                 if (recType === 'DR') {
-                    if (currentItem === result.getText({
+                    if (currentItem === results.getText({
                             name: 'item',
                             summary: search.Summary.GROUP
                         })) {
-                        if (currentSO === result.getText({
-                                name: 'createdfrom',
-                                summary: search.Summary.GROUP
-                            }).split('#')[1]) {
 
-                            log.debug({
-                                title: 'currentSO === createdFrom',
-                                details: currentSO + ' === ' + result.getText({
-                                    name: 'createdfrom',
-                                    summary: search.Summary.GROUP
-                                })
-                            })
-
-                            currentRecord.selectLine({
-                                sublistId: sublistId,
-                                line: i
-                            });
-
-                            if (!totalDRquantity) {
-                                totalDRquantity = 0
-
-                                currentRecord.setCurrentSublistValue({
-                                    sublistId: sublistId,
-                                    fieldId: 'custrecord845',
-                                    value: parseInt(result.getValue({
-                                        name: 'quantity',
-                                        summary: search.Summary.SUM
-                                    }))
-                                });
-                            } else {
-                                currentRecord.setCurrentSublistValue({
-                                    sublistId: sublistId,
-                                    fieldId: 'custrecord845',
-                                    value: totalDRquantity
-                                });
-                            }
-
-                            currentRecord.setCurrentSublistValue({
-                                sublistId: sublistId,
-                                fieldId: 'custrecord835',
-                                value: parseInt(result.getValue({
-                                    name: 'quantity',
-                                    summary: search.Summary.SUM
-                                }))
-                            });
-
-                            /* log.debug({
-                                title: 'Match Found in Line: ' + i,
-                                details: 'SO Number: ' + currentSO +
-                                    ' | Item: ' + currentItem + ' | totalDRquantity: ' + totalDRquantity + ' + ' + result.getValue({
-                                        name: 'quantity',
-                                        summary: search.Summary.SUM
-                                    }) + ' = ' + parseInt(totalDRquantity) + parseInt(result.getValue({
-                                        name: 'quantity',
-                                        summary: search.Summary.SUM
-                                    }))
-                            }); */
-
-                            currentRecord.commitLine({
-                                sublistId: sublistId
-                            });
-
-                            return true; // Match found
-                        }
-                    }
-                } else if (recType === 'SO') {
-                    if (currentItem === result.getText({
-                            name: 'item',
-                            summary: search.Summary.GROUP
-                        })) {
                         currentRecord.selectLine({
                             sublistId: sublistId,
                             line: i
                         });
 
-                        currentRecord.setCurrentSublistValue({
-                            sublistId: sublistId,
-                            fieldId: 'custrecord836',
-                            value: result.getValue({
-                                name: 'entity',
-                                summary: search.Summary.GROUP
-                            })
-                        });
-
-                        populate = false;
-                        if (currentSO === result.getValue({
-                                name: 'tranid',
-                                summary: search.Summary.GROUP,
-                            }) && !changed) {
-                            changed = false;
-
-                            currentRecord.commitLine({
-                                sublistId: sublistId
-                            });
-                        } else {
-
+                        if (totalDRquantity == null) {
                             currentRecord.setCurrentSublistValue({
                                 sublistId: sublistId,
-                                fieldId: 'custrecord786',
-                                value: result.getValue({
-                                    name: 'tranid',
-                                    summary: search.Summary.GROUP,
+                                fieldId: 'custrecord845',
+                                value: parseInt(results.getValue({
+                                    name: 'quantity',
+                                    summary: search.Summary.SUM
+                                }))
+                            });
+                        } else {
+                            currentRecord.setCurrentSublistValue({
+                                sublistId: sublistId,
+                                fieldId: 'custrecord845',
+                                value: totalDRquantity
+                            });
+                        }
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord835',
+                            value: parseInt(results.getValue({
+                                name: 'quantity',
+                                summary: search.Summary.SUM
+                            }))
+                        });
+
+                        var prevTotalDR = currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord845'
+                        });
+                        var totalDR = currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord835'
+                        });
+
+                        var gap = totalDR - prevTotalDR;
+
+                        fieldIdsToCheck.some(function (fieldId) {
+                            var fieldValue = currentRecord.getCurrentSublistValue({
+                                sublistId: sublistId,
+                                fieldId: fieldId
+                            });
+
+                            var field = currentRecord.getCurrentSublistField({
+                                sublistId: sublistId,
+                                fieldId: fieldId
+                            });
+
+                            // if (field.isDisabled == false) {
+                            if (gap > 0) {
+                                if (fieldValue < gap && fieldValue > 0) {
+                                    currentRecord.setCurrentSublistValue({
+                                        sublistId: sublistId,
+                                        fieldId: fieldId,
+                                        value: 0
+                                    });
+
+                                    gap -= fieldValue;
+                                } else if (fieldValue >= gap) {
+                                    currentRecord.setCurrentSublistValue({
+                                        sublistId: sublistId,
+                                        fieldId: fieldId,
+                                        value: parseInt(fieldValue - gap),
+                                    });
+                                    gap = 0;
+                                }
+                            } else if (gap < 0) {
+                                currentRecord.setCurrentSublistValue({
+                                    sublistId: sublistId,
+                                    fieldId: fieldId,
+                                    value: 0
+                                });
+
+                                gap = 0;
+                            }
+                            // }
+
+                            return gap === 0;
+                        });
+
+                        currentRecord.commitLine({
+                            sublistId: sublistId
+                        });
+
+                        return true; // Match found
+                    }
+                } else if (recType === 'SO') {
+                    /* Object.entries(results).forEach(function ([key, value]) {
+                        log.debug("Property", "Key: " + key + ", Value: " + JSON.stringify(value));
+                    }); */
+
+                    for (var key in results) {
+                        if (results.hasOwnProperty(key) && key == 'Item ID') {
+                            var itemData = results[key];
+
+                            if (itemData == currentItem) {
+                                log.debug({
+                                    title: itemData,
+                                    details: 'match'
                                 })
-                            });
+                                
+                                currentRecord.selectLine({
+                                    sublistId: sublistId,
+                                    line: i
+                                });
 
-                            currentRecord.commitLine({
-                                sublistId: sublistId
-                            });
+                                currentRecord.setCurrentSublistValue({
+                                    sublistId: sublistId,
+                                    fieldId: 'custrecord836',
+                                    value: customer
+                                });
 
-                            changed = true;
+                                populate = false;
 
-                            return true;
+                                var salesOrders = results["Sales Orders"];
+
+                                log.debug({
+                                    title: results["Item ID"] + ': ' + currentSO,
+                                    details: 'SO exist: ' + salesOrders.includes(currentSO)
+                                })
+
+                                if (salesOrders.includes(currentSO)) {
+                                    currentRecord.commitLine({
+                                        sublistId: sublistId
+                                    });
+
+                                    return true;
+                                } else {
+                                    var replacementSO = results["Sales Orders"].length > 0 ? results["Sales Orders"][0] : null;
+
+                                    log.debug({
+                                        title: 'SO closed',
+                                        details: 'replacement SO: ' + replacementSO
+                                    })
+
+                                    if (replacementSO) {
+                                        currentRecord.setCurrentSublistValue({
+                                            sublistId: sublistId,
+                                            fieldId: 'custrecord786',
+                                            value: replacementSO
+                                        });
+                                    }
+
+                                    currentRecord.commitLine({
+                                        sublistId: sublistId
+                                    });
+                                }
+
+                                break;
+                            }
                         }
                     }
                 }
@@ -764,7 +812,7 @@ define(['N/search', 'N/log'], function (search, log) {
     }
 
     // Populate a sublist line
-    function populateSublistLine(currentRecord, result, contextMode) {
+    function populateSublistLine(currentRecord, result, contextMode, recType, customer) {
         isFieldChangeScriptActive = false;
 
         if (populate) {
@@ -773,6 +821,13 @@ define(['N/search', 'N/log'], function (search, log) {
             });
 
             if (contextMode === 'edit') {
+                log.debug({
+                    title: 'DR',
+                    details: result.getValue({
+                        name: 'item',
+                        summary: search.Summary.GROUP
+                    })
+                })
                 currentRecord.setCurrentSublistValue({
                     sublistId: sublistId,
                     fieldId: 'custrecord784',
@@ -790,21 +845,36 @@ define(['N/search', 'N/log'], function (search, log) {
                         summary: search.Summary.GROUP
                     })
                 });
-                currentRecord.setCurrentSublistText({
+                if (recType == 'SO') {
+                    currentRecord.setCurrentSublistText({
+                        sublistId: sublistId,
+                        fieldId: 'custrecord786',
+                        text: result.getValue({
+                            name: 'tranid',
+                            summary: search.Summary.GROUP
+                        })
+                    });
+                } else if (recType == 'DR') {
+                    currentRecord.setCurrentSublistText({
+                        sublistId: sublistId,
+                        fieldId: 'custrecord786',
+                        text: result.getText({
+                            name: 'createdfrom',
+                            summary: search.Summary.GROUP
+                        }).split('#')[1]
+                    });
+                }
+                currentRecord.setCurrentSublistValue({
                     sublistId: sublistId,
-                    fieldId: 'custrecord786',
-                    text: result.getValue({
-                        name: 'tranid',
-                        summary: search.Summary.GROUP
-                    })
+                    fieldId: 'custrecord836',
+                    value: customer
                 });
                 currentRecord.setCurrentSublistValue({
                     sublistId: sublistId,
-                    fieldId: 'custrecord835',
-                    value: parseInt(result.getValue({
-                        name: 'quantity',
-                        summary: search.Summary.SUM
-                    }))
+                    fieldId: 'custrecord846',
+                    value: currentRecord.getValue({
+                        fieldId: 'custrecord837'
+                    })
                 });
             } else if (contextMode === 'create') {
                 currentRecord.setCurrentSublistValue({
@@ -824,35 +894,63 @@ define(['N/search', 'N/log'], function (search, log) {
                         summary: search.Summary.GROUP
                     })
                 });
-                currentRecord.setCurrentSublistText({
-                    sublistId: sublistId,
-                    fieldId: 'custrecord786',
-                    text: result.getValue({
-                        name: 'tranid',
-                        summary: search.Summary.GROUP
-                    })
-                });
-                currentRecord.setCurrentSublistValue({
-                    sublistId: sublistId,
-                    fieldId: 'custrecord836',
-                    value: result.getValue({
-                        name: 'entity',
-                        summary: search.Summary.GROUP
-                    })
-                });
+                if (recType == 'SO') {
+                    currentRecord.setCurrentSublistText({
+                        sublistId: sublistId,
+                        fieldId: 'custrecord786',
+                        text: result.getValue({
+                            name: 'tranid',
+                            summary: search.Summary.GROUP
+                        })
+                    });
+                    currentRecord.setCurrentSublistValue({
+                        sublistId: sublistId,
+                        fieldId: 'custrecord836',
+                        value: customer
+                    });
+                } else if (recType == 'DR') {
+                    currentRecord.setCurrentSublistText({
+                        sublistId: sublistId,
+                        fieldId: 'custrecord786',
+                        text: result.getText({
+                            name: 'createdfrom',
+                            summary: search.Summary.GROUP
+                        }).split('#')[1]
+                    });
+                    var quantity = parseInt(result.getValue({
+                        name: 'quantity',
+                        summary: search.Summary.SUM
+                    }));
+
+                    if (!quantity) {
+                        quantity = 0;
+                    }
+
+                    currentRecord.setCurrentSublistValue({
+                        sublistId: sublistId,
+                        fieldId: 'custrecord835',
+                        value: quantity
+                    });
+                    currentRecord.setCurrentSublistValue({
+                        sublistId: sublistId,
+                        fieldId: 'custrecord836',
+                        value: customer
+                    });
+                }
                 currentRecord.setCurrentSublistValue({
                     sublistId: sublistId,
                     fieldId: 'custrecord846',
                     value: currentMonthValue
                 });
             }
-            initializeSublistFieldsToZero(currentRecord, contextMode);
+            initializeSublistFieldsToZero(currentRecord, contextMode, recType);
             currentRecord.commitLine({
                 sublistId: sublistId
             });
         }
 
         populate = true;
+        isFieldChangeScriptActive = true;
     }
 
     // Function to remove sublist lines that have no matching entries in the search results
@@ -880,12 +978,17 @@ define(['N/search', 'N/log'], function (search, log) {
                     sublistId: sublistId,
                     line: i
                 });
+
+                /* log.debug({
+                    title: 'Removed line ' + i,
+                    details: 'key: ' + key
+                }) */
             }
         }
     }
 
     // Function to initialize sublist fields to zero
-    function initializeSublistFieldsToZero(currentRecord, contextMode) {
+    function initializeSublistFieldsToZero(currentRecord, contextMode, recType) {
         fieldIdsToCheck.forEach(function (fieldId) {
             currentRecord.setCurrentSublistValue({
                 sublistId: sublistId,
@@ -895,11 +998,13 @@ define(['N/search', 'N/log'], function (search, log) {
         });
 
         if (contextMode === 'create') {
-            currentRecord.setCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord835',
-                value: 0
-            });
+            if (recType == 'SO') {
+                currentRecord.setCurrentSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord835',
+                    value: 0
+                });
+            }
             currentRecord.setCurrentSublistValue({
                 sublistId: sublistId,
                 fieldId: 'custrecord845',
@@ -908,84 +1013,22 @@ define(['N/search', 'N/log'], function (search, log) {
         }
     }
 
-    // Function to update the total DR quantities
-    function updateTotalDRquantity(currentRecord) {
-        var lineCount = currentRecord.getLineCount({
-            sublistId: sublistId
-        });
-
-        for (var i = 0; i < lineCount; i++) {
-            currentRecord.selectLine({
-                sublistId: sublistId,
-                line: i
-            });
-
-            var prevTotalDR = currentRecord.getCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord845'
-            });
-            var totalDR = currentRecord.getCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord835'
-            });
-
-            var gap = totalDR - prevTotalDR;
-
-            fieldIdsToCheck.forEach(function (fieldId) {
-                var fieldValue = currentRecord.getCurrentSublistValue({
-                    sublistId: sublistId,
-                    fieldId: fieldId
-                });
-
-                var field = currentRecord.getCurrentSublistField({
-                    sublistId: sublistId,
-                    fieldId: fieldId
-                });
-
-                if (field.isDisabled == false) {
-                    if (gap > 0) {
-                        if (fieldValue < gap && fieldValue > 0) {
-                            currentRecord.setCurrentSublistValue({
-                                sublistId: sublistId,
-                                fieldId: fieldId,
-                                value: 0
-                            });
-
-                            gap -= fieldValue;
-                        } else if (fieldValue >= gap) {
-                            currentRecord.setCurrentSublistValue({
-                                sublistId: sublistId,
-                                fieldId: fieldId,
-                                value: parseInt(fieldValue - gap),
-                            });
-                            gap = 0;
-                        }
-                    }
-                }
-            });
-
-            currentRecord.commitLine({
-                sublistId: sublistId
-            });
-        }
-        isFieldChangeScriptActive = true;
-    }
-
     // Disable specific fields in sublist
     function disableFields(currentRecord) {
         var disableFieldIds = ['custrecord784', 'custrecord786', 'custrecord835', 'custrecord785', 'custrecord845', 'custrecord836', 'custrecord846'];
-        if (searchFulfillment) {
-            for (var x = 0; x < currentDay - 1; x++) {
-                disableFieldIds.push(fieldIdsToCheck[x]);
-            }
+        // if (searchFulfillment) {
+        for (var x = 0; x < currentDay - 1; x++) {
+            disableFieldIds.push(fieldIdsToCheck[x]);
         }
+        // }
+
 
         var lineCount = currentRecord.getLineCount({
             sublistId: sublistId
         });
 
         disableFieldIds.forEach(function (fieldId) {
-            for (var i = 0; i < lineCount - 1; i++) {
+            for (var i = 0; i < lineCount; i++) {
                 var field = currentRecord.getSublistField({
                     sublistId: sublistId,
                     fieldId: fieldId,

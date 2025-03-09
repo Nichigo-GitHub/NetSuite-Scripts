@@ -3,11 +3,15 @@
  * @NScriptType ClientScript
  */
 
-define(['N/search', 'N/record', 'N/ui/dialog', 'N/log'], function (search, record, dialog, log) {
+define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (search, record, dialog, log, format) {
   var previousCustomer = null;
   var contextMode = '';
   var isFieldChangeScriptActive = true;
   var isValidationRunning = false;
+  var removeRemarks = true;
+  const currentDate = new Date();
+  const today = currentDate.getDate();
+  var isInitializing = false; // Flag to track initialization phase
   const sublistId = 'recmachcustrecord500';
   const fieldIdsToCheck = [
     'custrecord541', 'custrecord542', 'custrecord543', 'custrecord544',
@@ -22,9 +26,75 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log'], function (search, recor
 
   // Page Init Function - Loads when the form is loaded
   function pageInit(context) {
+    isInitializing = true; // Disable fieldChanged logic during initialization
     var currentRecord = context.currentRecord;
 
     contextMode = context.mode;
+
+    if (contextMode === 'create') {
+      currentRecord.setValue({
+        fieldId: 'custrecord844',
+        value: currentDate
+      });
+      var lastModifiedField = currentRecord.getField({
+        fieldId: 'custrecord844'
+      })
+      lastModifiedField.isDisabled = true;
+    }
+    /* else if (contextMode === 'edit') {
+         var lastModifiedDate = currentRecord.getValue({
+           fieldId: 'custrecord844'
+         });
+
+         isFieldChangeScriptActive = false;
+
+         if (!lastModifiedDate) { // Simplified null/undefined check
+           currentRecord.setValue({
+             fieldId: 'custrecord844',
+             value: currentDate
+           });
+
+           lastModifiedDate = today
+         }
+
+         // Convert both dates to YYYY-MM-DD format for accurate comparison
+         var modifiedDate = new Date(lastModifiedDate);
+         modifiedDate.setHours(0, 0, 0, 0); // Remove time part
+
+         var todayFormatted = format.format({
+           value: currentDate,
+           type: format.Type.DATE
+         });
+
+         var recordedDate = format.format({
+           value: lastModifiedDate,
+           type: format.Type.DATE
+         });
+
+         log.debug({
+           title: 'dates',
+           details: 'today: ' + todayFormatted + ' | lastModifiedDate: ' + recordedDate
+         });
+
+         if (toString(recordedDate) === toString(todayFormatted)) {
+           log.debug('match', 'The record was last modified today.');
+         } else {
+           log.debug('not match', 'deleting remarks.');
+           removeRemarks = true;
+
+           currentRecord.setValue({
+             fieldId: 'custrecord844',
+             value: currentDate
+           });
+         }
+
+         var lastModifiedField = currentRecord.getField({
+           fieldId: 'custrecord844'
+         })
+
+         lastModifiedField.isDisabled = true;
+       } */
+
     if (contextMode === 'edit') {
       isFieldChangeScriptActive = false;
       var customer = currentRecord.getValue({
@@ -34,11 +104,12 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log'], function (search, recor
         loadSublistData(currentRecord, customer, contextMode);
       }
     }
+    isInitializing = false; // Re-enable fieldChanged logic after initialization
   }
 
   // Function to react when a field changes value
   function fieldChanged(context) {
-    if (!isFieldChangeScriptActive) return;
+    if (!isFieldChangeScriptActive || isInitializing) return; // Skip during initialization
 
     var currentRecord = context.currentRecord;
 
@@ -228,6 +299,7 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log'], function (search, recor
 
   // Clear sublist lines function
   function clearSublist(currentRecord) {
+    isFieldChangeScriptActive = false; // Disable fieldChanged logic during clearing
     var lineCount = currentRecord.getLineCount({
       sublistId: sublistId
     });
@@ -237,11 +309,13 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log'], function (search, recor
         line: i
       });
     }
+    isFieldChangeScriptActive = true; // Re-enable fieldChanged logic after clearing
   }
 
   // Load sublist data
   function loadSublistData(currentRecord, customer, contextMode) {
     try {
+      isFieldChangeScriptActive = false; // Disable fieldChanged logic during loading
       var searchObj = search.create({
         type: 'purchaseorder',
         filters: [
@@ -281,6 +355,22 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log'], function (search, recor
         start += pageSize;
       } while (resultCount === pageSize);
 
+      var results = [];
+      searchObj.run().each(function (result) {
+        results.push({
+          item: result.getText({
+            name: 'item',
+            sort: search.Sort.ASC
+          }),
+          tranid: result.getValue({
+            name: 'tranid'
+          })
+        });
+        return true;
+      });
+
+      log.debug('Search Results', JSON.stringify(results));
+
       var matchedKeys = {};
 
       // Process search results: Add or update sublist lines, and track matches
@@ -298,10 +388,11 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log'], function (search, recor
       // Second, iterate through sublist and remove unmatched lines
       removeUnmatchedSublistLines(currentRecord, matchedKeys);
 
-      updateRemainingBalance(currentRecord);
       disableFields(currentRecord);
     } catch (e) {
       throw e;
+    } finally {
+      isFieldChangeScriptActive = true; // Re-enable fieldChanged logic after loading
     }
   }
 
@@ -353,20 +444,308 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log'], function (search, recor
           fieldId: 'custrecord695',
           text: result.getText('mainname')
         });
-        currentRecord.setCurrentSublistValue({
+        /* if (removeRemarks) {
+          currentRecord.setCurrentSublistValue({
+            sublistId: sublistId,
+            fieldId: 'custrecord_remarks',
+            value: null
+          });
+        } */
+
+        var sum = fieldIdsToCheck.reduce(function (acc, fieldId) {
+          return acc + currentRecord.getCurrentSublistValue({
+            sublistId: sublistId,
+            fieldId: fieldId
+          });
+        }, 0);
+
+        var NetSuiteMonth = currentRecord.getCurrentSublistValue({
           sublistId: sublistId,
-          fieldId: 'custrecord_remarks',
-          value: null
+          fieldId: 'custrecord501'
         });
 
-        currentRecord.commitLine({
-          sublistId: sublistId
+        var systemMonth = new Date().getMonth();
+
+        var currentMonth = systemMonth + 1;
+
+        var nextMonth = currentMonth + 1;
+
+        if (nextMonth > 12) {
+          nextMonth = nextMonth - 12;
+        }
+
+        if (currentMonth > 1) {
+          var previousMonth = currentMonth - 1
+        } else {
+          var previousMonth = currentMonth + 11
+        }
+
+        var status = currentRecord.getCurrentSublistValue({
+          sublistId: sublistId,
+          fieldId: 'custrecord778'
         });
 
+        if (sum == 0) {
+          if (NetSuiteMonth == previousMonth && status == true || status === 'T') {
+            var previousMonthPO = currentRecord.getCurrentSublistValue({
+              sublistId: sublistId,
+              fieldId: 'custrecord537'
+            });
+            var previousMonthItem = currentRecord.getCurrentSublistValue({
+              sublistId: sublistId,
+              fieldId: 'custrecord538'
+            });
+            var updatedPObal = currentRecord.getCurrentSublistValue({
+              sublistId: sublistId,
+              fieldId: 'custrecord540'
+            });
+            var vendor = currentRecord.getCurrentSublistValue({
+              sublistId: sublistId,
+              fieldId: 'custrecord695'
+            });
+
+            currentRecord.removeLine({
+              sublistId: sublistId,
+              line: i
+            });
+
+            lineCount = currentRecord.getLineCount({
+              sublistId: sublistId
+            });
+
+            currentRecord.selectLine({
+              sublistId: sublistId,
+              line: i
+            });
+
+            if (previousMonthPO == currentRecord.getCurrentSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord537'
+              }) && previousMonthItem == currentRecord.getCurrentSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord538'
+              })) {
+              if (!currentRecord.getCurrentSublistValue({
+                  sublistId: sublistId,
+                  fieldId: 'custrecord780'
+                })) {
+                var currentToOldPObal = currentRecord.getCurrentSublistValue({
+                  sublistId: sublistId,
+                  fieldId: 'custrecord540'
+                })
+
+                currentRecord.setCurrentSublistValue({
+                  sublistId: sublistId,
+                  fieldId: 'custrecord780',
+                  value: currentToOldPObal
+                });
+              }
+
+              currentRecord.setCurrentSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord540',
+                value: updatedPObal
+              });
+
+              if (!currentRecord.getCurrentSublistValue({
+                  sublistId: sublistId,
+                  fieldId: 'custrecord695'
+                }))
+                currentRecord.setCurrentSublistValue({
+                  sublistId: sublistId,
+                  fieldId: 'custrecord695',
+                  value: vendor
+                });
+
+              var result = getGapAndSum(currentRecord);
+              var remainingBal = result.remainingBal;
+
+              currentRecord.setCurrentSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord775',
+                value: remainingBal
+              });
+            }
+            i--;
+          } else if (NetSuiteMonth != currentMonth) {
+            currentRecord.setCurrentSublistValue({
+              sublistId: sublistId,
+              fieldId: 'custrecord501',
+              value: new Date().getMonth() + 1
+            });
+          }
+        } else if (NetSuiteMonth == nextMonth) {} else {
+          if (NetSuiteMonth == previousMonth || NetSuiteMonth == currentMonth) {
+            var result = getGapAndSum(currentRecord);
+
+            currentRecord.selectLine({
+              sublistId: sublistId,
+              line: i
+            });
+
+            var poBalance = result.poBalance;
+            var gap = result.gap;
+            if (NetSuiteMonth == previousMonth && status == true || status === 'T') {
+              var updatedPObal = currentRecord.getCurrentSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord540'
+              });
+              var vendor = currentRecord.getCurrentSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord695'
+              });
+
+              currentRecord.removeLine({
+                sublistId: sublistId,
+                line: i
+              });
+
+              lineCount = currentRecord.getLineCount({
+                sublistId: sublistId
+              });
+
+              currentRecord.selectLine({
+                sublistId: sublistId,
+                line: i
+              });
+
+              if (!currentRecord.getCurrentSublistValue({
+                  sublistId: sublistId,
+                  fieldId: 'custrecord780'
+                })) {
+                var currentToOldPObal = currentRecord.getCurrentSublistValue({
+                  sublistId: sublistId,
+                  fieldId: 'custrecord540'
+                })
+
+                currentRecord.setCurrentSublistValue({
+                  sublistId: sublistId,
+                  fieldId: 'custrecord780',
+                  value: currentToOldPObal
+                });
+              }
+
+              currentRecord.setCurrentSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord540',
+                value: updatedPObal
+              });
+
+              if (!currentRecord.getCurrentSublistValue({
+                  sublistId: sublistId,
+                  fieldId: 'custrecord695'
+                }))
+                currentRecord.setCurrentSublistValue({
+                  sublistId: sublistId,
+                  fieldId: 'custrecord695',
+                  value: vendor
+                });
+
+              var result = getGapAndSum(currentRecord);
+              var remainingBal = result.remainingBal;
+
+              if (remainingBal != updatedPObal) {
+                currentRecord.setCurrentSublistValue({
+                  sublistId: sublistId,
+                  fieldId: 'custrecord775',
+                  value: remainingBal
+                });
+              }
+            } else {
+              var prevProjectedPOBal = currentRecord.getCurrentSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord775'
+              });
+
+              currentRecord.setCurrentSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord775',
+                value: poBalance
+              });
+
+              var projectedPOBalance = currentRecord.getCurrentSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord775'
+              });
+
+              var carryOver = 0;
+              if (gap > sum)
+                carryOver = gap - sum;
+
+              if (status == true || status === 'T' && carryOver > 0) {
+                currentRecord.commitLine({
+                  sublistId: sublistId
+                });
+
+                if (i < lineCount) {
+                  i++;
+
+                  currentRecord.selectLine({
+                    sublistId: sublistId,
+                    line: i
+                  });
+
+                  prevProjectedPOBal = currentRecord.getCurrentSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord540'
+                  });
+
+                  if (prevProjectedPOBal) {
+                    currentRecord.setCurrentSublistValue({
+                      sublistId: sublistId,
+                      fieldId: 'custrecord780',
+                      value: prevProjectedPOBal
+                    });
+                  }
+
+                  currentRecord.setCurrentSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord540',
+                    value: projectedPOBalance
+                  });
+
+                  currentRecord.setCurrentSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord775',
+                    value: prevProjectedPOBal - projectedPOBalance
+                  });
+
+                  currentRecord.commitLine({
+                    sublistId: sublistId
+                  });
+
+                  currentRecord.selectLine({
+                    sublistId: sublistId,
+                    line: i
+                  });
+                }
+              } else {
+                currentRecord.commitLine({
+                  sublistId: sublistId
+                });
+
+                currentRecord.selectLine({
+                  sublistId: sublistId,
+                  line: i
+                });
+              }
+            }
+          } else {
+            currentRecord.commitLine({
+              sublistId: sublistId
+            });
+
+            currentRecord.selectLine({
+              sublistId: sublistId,
+              line: i
+            });
+          }
+        }
+        isFieldChangeScriptActive = true;
         return true; // Match found
       }
     }
-
+    isFieldChangeScriptActive = true;
     return false; // No match
   }
 
@@ -402,6 +781,11 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log'], function (search, recor
   // Populate a sublist line
   function populateSublistLine(currentRecord, result) {
     isFieldChangeScriptActive = false;
+
+    log.debug({
+      title: 'populateSublistLine',
+      details: result.getValue('tranid') + ': ' + result.getText('item')
+    })
 
     currentRecord.selectNewLine({
       sublistId: sublistId
@@ -448,6 +832,11 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log'], function (search, recor
       fieldId: 'custrecord780',
       value: result.getValue('formulanumeric', '{quantity}-{quantityshiprecv}')
     });
+    currentRecord.setCurrentSublistValue({
+      sublistId: sublistId,
+      fieldId: 'custrecord775',
+      value: result.getValue('formulanumeric', '{quantity}-{quantityshiprecv}')
+    });
     initializeSublistFieldsToZero(currentRecord);
     currentRecord.setCurrentSublistValue({
       sublistId: sublistId,
@@ -458,312 +847,6 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log'], function (search, recor
     currentRecord.commitLine({
       sublistId: sublistId
     });
-  }
-
-  // Function to update remaining balance
-  function updateRemainingBalance(currentRecord) {
-    var lineCount = currentRecord.getLineCount({
-      sublistId: sublistId
-    });
-
-    for (var i = 0; i < lineCount; i++) {
-      currentRecord.selectLine({
-        sublistId: sublistId,
-        line: i
-      });
-
-      var sum = fieldIdsToCheck.reduce(function (acc, fieldId) {
-        return acc + currentRecord.getCurrentSublistValue({
-          sublistId: sublistId,
-          fieldId: fieldId
-        });
-      }, 0);
-
-      var NetSuiteMonth = currentRecord.getCurrentSublistValue({
-        sublistId: sublistId,
-        fieldId: 'custrecord501'
-      });
-
-      var systemMonth = new Date().getMonth();
-
-      var currentMonth = systemMonth + 1;
-
-      var nextMonth = currentMonth + 1;
-
-      if (nextMonth > 12) {
-        nextMonth = nextMonth - 12;
-      }
-
-      if (currentMonth > 1) {
-        var previousMonth = currentMonth - 1
-      } else {
-        var previousMonth = currentMonth + 11
-      }
-
-      var status = currentRecord.getCurrentSublistValue({
-        sublistId: sublistId,
-        fieldId: 'custrecord778'
-      });
-
-      if (sum == 0) {
-        if (NetSuiteMonth == previousMonth && status == true || status === 'T') {
-          var previousMonthPO = currentRecord.getCurrentSublistValue({
-            sublistId: sublistId,
-            fieldId: 'custrecord537'
-          });
-          var previousMonthItem = currentRecord.getCurrentSublistValue({
-            sublistId: sublistId,
-            fieldId: 'custrecord538'
-          });
-          var updatedPObal = currentRecord.getCurrentSublistValue({
-            sublistId: sublistId,
-            fieldId: 'custrecord540'
-          });
-          var vendor = currentRecord.getCurrentSublistValue({
-            sublistId: sublistId,
-            fieldId: 'custrecord695'
-          });
-
-          currentRecord.removeLine({
-            sublistId: sublistId,
-            line: i
-          });
-
-          lineCount = currentRecord.getLineCount({
-            sublistId: sublistId
-          });
-
-          currentRecord.selectLine({
-            sublistId: sublistId,
-            line: i
-          });
-
-          if (previousMonthPO == currentRecord.getCurrentSublistValue({
-              sublistId: sublistId,
-              fieldId: 'custrecord537'
-            }) && previousMonthItem == currentRecord.getCurrentSublistValue({
-              sublistId: sublistId,
-              fieldId: 'custrecord538'
-            })) {
-            if (!currentRecord.getCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord780'
-              })) {
-              var currentToOldPObal = currentRecord.getCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord540'
-              })
-
-              currentRecord.setCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord780',
-                value: currentToOldPObal
-              });
-            }
-
-            currentRecord.setCurrentSublistValue({
-              sublistId: sublistId,
-              fieldId: 'custrecord540',
-              value: updatedPObal
-            });
-
-            if (!currentRecord.getCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord695'
-              }))
-              currentRecord.setCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord695',
-                value: vendor
-              });
-
-            var result = getGapAndSum(currentRecord);
-            var remainingBal = result.remainingBal;
-
-            currentRecord.setCurrentSublistValue({
-              sublistId: sublistId,
-              fieldId: 'custrecord775',
-              value: remainingBal
-            });
-          }
-          i--;
-        } else if (NetSuiteMonth != currentMonth) {
-          currentRecord.setCurrentSublistValue({
-            sublistId: sublistId,
-            fieldId: 'custrecord501',
-            value: new Date().getMonth() + 1
-          });
-        }
-      } else if (NetSuiteMonth == nextMonth) {
-      } else {
-        if (NetSuiteMonth == previousMonth || NetSuiteMonth == currentMonth) {
-          var result = getGapAndSum(currentRecord);
-
-          currentRecord.selectLine({
-            sublistId: sublistId,
-            line: i
-          });
-
-          var poBalance = result.poBalance;
-          var gap = result.gap;
-          if (NetSuiteMonth == previousMonth && status == true || status === 'T') {
-            var updatedPObal = currentRecord.getCurrentSublistValue({
-              sublistId: sublistId,
-              fieldId: 'custrecord540'
-            });
-            var vendor = currentRecord.getCurrentSublistValue({
-              sublistId: sublistId,
-              fieldId: 'custrecord695'
-            });
-
-            currentRecord.removeLine({
-              sublistId: sublistId,
-              line: i
-            });
-
-            lineCount = currentRecord.getLineCount({
-              sublistId: sublistId
-            });
-
-            currentRecord.selectLine({
-              sublistId: sublistId,
-              line: i
-            });
-
-            if (!currentRecord.getCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord780'
-              })) {
-              var currentToOldPObal = currentRecord.getCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord540'
-              })
-
-              currentRecord.setCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord780',
-                value: currentToOldPObal
-              });
-            }
-
-            currentRecord.setCurrentSublistValue({
-              sublistId: sublistId,
-              fieldId: 'custrecord540',
-              value: updatedPObal
-            });
-
-            if (!currentRecord.getCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord695'
-              }))
-              currentRecord.setCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord695',
-                value: vendor
-              });
-
-            var result = getGapAndSum(currentRecord);
-            var remainingBal = result.remainingBal;
-
-            if (remainingBal != updatedPObal) {
-              currentRecord.setCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord775',
-                value: remainingBal
-              });
-            }
-          } else {
-            var prevProjectedPOBal = currentRecord.getCurrentSublistValue({
-              sublistId: sublistId,
-              fieldId: 'custrecord775'
-            });
-
-            currentRecord.setCurrentSublistValue({
-              sublistId: sublistId,
-              fieldId: 'custrecord775',
-              value: poBalance
-            });
-
-            var projectedPOBalance = currentRecord.getCurrentSublistValue({
-              sublistId: sublistId,
-              fieldId: 'custrecord775'
-            });
-
-            var carryOver = 0;
-            if (gap > sum)
-              carryOver = gap - sum;
-
-            if (status == true || status === 'T' && carryOver > 0) {
-              currentRecord.commitLine({
-                sublistId: sublistId
-              });
-
-              if (i < lineCount) {
-                i++;
-
-                currentRecord.selectLine({
-                  sublistId: sublistId,
-                  line: i
-                });
-
-                prevProjectedPOBal = currentRecord.getCurrentSublistValue({
-                  sublistId: sublistId,
-                  fieldId: 'custrecord540'
-                });
-
-                if (prevProjectedPOBal) {
-                  currentRecord.setCurrentSublistValue({
-                    sublistId: sublistId,
-                    fieldId: 'custrecord780',
-                    value: prevProjectedPOBal
-                  });
-                }
-
-                currentRecord.setCurrentSublistValue({
-                  sublistId: sublistId,
-                  fieldId: 'custrecord540',
-                  value: projectedPOBalance
-                });
-
-                currentRecord.setCurrentSublistValue({
-                  sublistId: sublistId,
-                  fieldId: 'custrecord775',
-                  value: prevProjectedPOBal - projectedPOBalance
-                });
-
-                currentRecord.commitLine({
-                  sublistId: sublistId
-                });
-
-                currentRecord.selectLine({
-                  sublistId: sublistId,
-                  line: i
-                });
-              }
-            } else {
-              currentRecord.commitLine({
-                sublistId: sublistId
-              });
-
-              currentRecord.selectLine({
-                sublistId: sublistId,
-                line: i
-              });
-            }
-          }
-        } else {
-          currentRecord.commitLine({
-            sublistId: sublistId
-          });
-
-          currentRecord.selectLine({
-            sublistId: sublistId,
-            line: i
-          });
-        }
-      }
-    }
-    isFieldChangeScriptActive = true;
   }
 
   // Handles field change validation logic
@@ -977,7 +1060,6 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log'], function (search, recor
             fieldId: fieldId,
             value: 0
           });
-
           gap -= fieldValue;
         } else if (fieldValue >= gap) {
           currentRecord.setCurrentSublistValue({

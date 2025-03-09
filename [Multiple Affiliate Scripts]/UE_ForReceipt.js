@@ -1,12 +1,4 @@
 /**
- * Module Description
- * 
- * Version    Date            Author           Remarks
-
- * 1.00       18 Apr 2016     Administrator
- *
- */
-/**
  * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
  * @appliedtorecord recordType
  *   
@@ -55,7 +47,8 @@ function userEventBeforeLoad(type, form, request) {
         } else if (transferlocation == 825) {
           form.addButton("custpage_receiving_tag", " Print RM Tag", "window.open('" + url_2 + "')");
         }
-        form.addButton("custpage_receiving_tag", "Print FG Tag", "window.open('" + url_3 + "')");
+        form.addButton("custpage_receiving_tag", "Print FG Tag", "var newWin = window.open('" + url_3 + "', '_blank', 'height=1056,width=1300,resizable=yes,scrollbars=yes,toolbar=no'); if (newWin) { newWin.focus(); }");
+
       } else if (subId == 14) {
         form.addButton("custpage_receiving_tag", " Print Receiving Tag", "window.open('" + url_2 + "')");
       } else if (subId == 15) {
@@ -103,9 +96,7 @@ function userEventBeforeLoad(type, form, request) {
           location == 814 ||
           location == 815 ||
           location == 860) {
-          form.addButton("custpage_receiving_tag", "Print Hanoi Receiving Tag", "window.open('" + url_6 + "')"); //KPVN_HANOI
-        } */
-
+          form.addButton("custpage_receiving_tag", "Print Hanoi Receiving Tag", "window.open('" + url_6 + "')"); //KPVN_HANOI*/
       } else {
         form.addButton("custpage_receiving_tag", "Print Receiving Tag", "window.open('" + url_1 + "')");
       }

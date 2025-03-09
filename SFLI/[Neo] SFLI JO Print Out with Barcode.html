@@ -151,7 +151,7 @@
                 border-top: 1px solid;
                 border-bottom: 1px solid;
             }
-            
+
             .floatRight1 {
                 padding-top: 10px;
                 float: left;
@@ -233,10 +233,10 @@
                     <p style="padding-top: -8px;">Date Needed: {DateNeed}</p>
                     <p style="padding-top: -5px;">Time Needed: {TimeNeed}</p>
                 </td>
-                <td rowspan="1" class="bold2">Drawing URL:</td>
+                <!-- <td rowspan="1" class="bold2">Drawing URL:</td>
                 <td rowspan="1" style="padding-top: -7px; padding-bottom: -7px;">
                     <barcode codetype="qrcode" style="height: 75px; width: 75px;" showtext="true" value="{drawingUPC}" />
-                </td>
+                </td> -->
             </tr>
         </table>
         <!-- tableMarginTop -->
@@ -249,7 +249,8 @@
         <table class="bottomlessBorder" width="100%" align="center">
             <tr>
                 <td class="tableColor padding bold3 borderBottom" align="center">CODE</td>
-                <td class="tableColor padding bold3 borderBottom" width="250px" align="center">DESCRIPTION/SPECIFICATION</td>
+                <td class="tableColor padding bold3 borderBottom" width="250px" align="center">DESCRIPTION/SPECIFICATION
+                </td>
                 <td class="tableColor padding bold3 borderBottom" align="center">
                     <p style="text-align: center;">REQD<br />QTY</p>
                 </td>
@@ -269,10 +270,10 @@
         </table>
         <table class="borderLeft borderTop tableMarginTop" width="100%" align="center">
             <tr>
-                <td class="tableColor padding bold3 borderBottom" style="vertical-align: middle; text-align: center;" rowspan="2"
-                    align="center">PROCESS</td>
-                <td class="tableColor padding bold3 borderBottom" style="vertical-align: middle; text-align: center;" rowspan="2"
-                    align="center">MATERIAL</td>
+                <td class="tableColor padding bold3 borderBottom" style="vertical-align: middle; text-align: center;"
+                    rowspan="2" align="center">PROCESS</td>
+                <td class="tableColor padding bold3 borderBottom" style="vertical-align: middle; text-align: center;"
+                    rowspan="2" align="center">MATERIAL</td>
                 <td class="tableColor padding bold3 borderBottom" rowspan="2" align="center">
                     <p style="text-align: center;">DIMENSION<br />(mm)</p>
                 </td>
@@ -478,16 +479,12 @@
                 <tr>
                     <td class="borderRight borderLeft borderTop">Prepared By:</td>
                     <td class="borderRight borderTop">Noted By:</td>
-                    <td class="borderRight borderTop">Approved By:</td>
                     <td class="borderRight borderTop">Issued By:</td>
                     <td class="borderRight borderTop">Received By:</td>
                     <td class="borderRight borderTop" style="font-weight: bold;" align="center">{joNum2}</td>
                 </tr>
                 <tr>
                     <td class="borderLeft borderRight borderBottom">
-                        <p></p>
-                    </td>
-                    <td class="borderRight borderBottom">
                         <p></p>
                     </td>
                     <td class="borderRight borderBottom">
