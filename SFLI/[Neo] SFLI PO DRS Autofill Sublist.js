@@ -8,10 +8,10 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
   var contextMode = '';
   var isFieldChangeScriptActive = true;
   var isValidationRunning = false;
-  var removeRemarks = true;
+  var removeRemarks = false;
   const currentDate = new Date();
   const today = currentDate.getDate();
-  var isInitializing = false; // Flag to track initialization phase
+  var isInitializing = false;
   const sublistId = 'recmachcustrecord500';
   const fieldIdsToCheck = [
     'custrecord541', 'custrecord542', 'custrecord543', 'custrecord544',
@@ -40,60 +40,47 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
         fieldId: 'custrecord844'
       })
       lastModifiedField.isDisabled = true;
+    } else if (contextMode === 'edit') {
+      var lastModifiedDate = currentRecord.getValue({
+        fieldId: 'custrecord844'
+      });
+
+      isFieldChangeScriptActive = false;
+
+      currentRecord.setValue({
+        fieldId: 'custrecord844',
+        value: currentDate
+      });
+
+      currentDate.setHours(0, 0, 0, 0);
+
+      // Convert both dates to YYYY-MM-DD format for accurate comparison
+      var modifiedDate = new Date(lastModifiedDate);
+      modifiedDate.setHours(0, 0, 0, 0);
+
+      log.debug({
+        title: 'dates',
+        details: 'today: ' + currentDate.toDateString() + ' | lastModifiedDate: ' + modifiedDate.toDateString()
+      });
+
+      if (modifiedDate.getTime() === currentDate.getTime()) {
+        log.debug('match', 'The record was last modified today.');
+      } else {
+        log.debug('not match', 'deleting remarks.');
+        removeRemarks = true;
+
+        currentRecord.setValue({
+          fieldId: 'custrecord844',
+          value: currentDate
+        });
+      }
+
+      var lastModifiedField = currentRecord.getField({
+        fieldId: 'custrecord844'
+      })
+
+      lastModifiedField.isDisabled = true;
     }
-    /* else if (contextMode === 'edit') {
-         var lastModifiedDate = currentRecord.getValue({
-           fieldId: 'custrecord844'
-         });
-
-         isFieldChangeScriptActive = false;
-
-         if (!lastModifiedDate) { // Simplified null/undefined check
-           currentRecord.setValue({
-             fieldId: 'custrecord844',
-             value: currentDate
-           });
-
-           lastModifiedDate = today
-         }
-
-         // Convert both dates to YYYY-MM-DD format for accurate comparison
-         var modifiedDate = new Date(lastModifiedDate);
-         modifiedDate.setHours(0, 0, 0, 0); // Remove time part
-
-         var todayFormatted = format.format({
-           value: currentDate,
-           type: format.Type.DATE
-         });
-
-         var recordedDate = format.format({
-           value: lastModifiedDate,
-           type: format.Type.DATE
-         });
-
-         log.debug({
-           title: 'dates',
-           details: 'today: ' + todayFormatted + ' | lastModifiedDate: ' + recordedDate
-         });
-
-         if (toString(recordedDate) === toString(todayFormatted)) {
-           log.debug('match', 'The record was last modified today.');
-         } else {
-           log.debug('not match', 'deleting remarks.');
-           removeRemarks = true;
-
-           currentRecord.setValue({
-             fieldId: 'custrecord844',
-             value: currentDate
-           });
-         }
-
-         var lastModifiedField = currentRecord.getField({
-           fieldId: 'custrecord844'
-         })
-
-         lastModifiedField.isDisabled = true;
-       } */
 
     if (contextMode === 'edit') {
       isFieldChangeScriptActive = false;
@@ -104,7 +91,7 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
         loadSublistData(currentRecord, customer, contextMode);
       }
     }
-    isInitializing = false; // Re-enable fieldChanged logic after initialization
+    isInitializing = false;
   }
 
   // Function to react when a field changes value
@@ -319,12 +306,15 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
       var searchObj = search.create({
         type: 'purchaseorder',
         filters: [
-          ['type', 'anyof', 'PurchOrd'], 'AND', ['mainline', 'is', 'F'],
-          'AND', ['subsidiary', 'anyof', '14'], 'AND', ['vendtype', 'noneof', '3'],
-          'AND', ['status', 'noneof', 'PurchOrd:C', 'PurchOrd:G', 'PurchOrd:H', 'PurchOrd:A'],
-          'AND', ['formulanumeric: {quantity}-{quantityshiprecv}', 'notlessthanorequalto', '0'],
-          'AND', ['closed', 'is', 'F'], 'AND', ['custcol50', 'contains', 'DRS'],
-          'AND', ['custbody41', 'anyof', customer]
+          ['type', 'anyof', 'PurchOrd'], 'AND',
+          ['mainline', 'is', 'F'], 'AND',
+          ['subsidiary', 'anyof', '14'], 'AND',
+          ['vendtype', 'noneof', '3'], 'AND',
+          ['status', 'noneof', 'PurchOrd:C', 'PurchOrd:G', 'PurchOrd:H'/* , 'PurchOrd:A' */], 'AND',
+          ['formulanumeric: {quantity}-{quantityshiprecv}', 'notlessthanorequalto', '0'], 'AND',
+          ['closed', 'is', 'F'], 'AND',
+          ['custcol50', 'contains', 'DRS'], 'AND',
+          ['custbody41', 'anyof', customer]
         ],
         columns: [
           'custbody39', 'rate', 'trandate', 'tranid', 'memo', 'custbody41', 'mainname',
@@ -354,22 +344,6 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
         resultCount = pagedResults.length;
         start += pageSize;
       } while (resultCount === pageSize);
-
-      var results = [];
-      searchObj.run().each(function (result) {
-        results.push({
-          item: result.getText({
-            name: 'item',
-            sort: search.Sort.ASC
-          }),
-          tranid: result.getValue({
-            name: 'tranid'
-          })
-        });
-        return true;
-      });
-
-      log.debug('Search Results', JSON.stringify(results));
 
       var matchedKeys = {};
 
@@ -424,11 +398,20 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
           sublistId: sublistId,
           fieldId: 'custrecord540'
         });
-        currentRecord.setCurrentSublistValue({
-          sublistId: sublistId,
-          fieldId: 'custrecord780',
-          value: previousBal
-        });
+
+        if (previousBal < result.getValue('formulanumeric')) {
+          currentRecord.setCurrentSublistValue({
+            sublistId: sublistId,
+            fieldId: 'custrecord780',
+            value: result.getValue('formulanumeric')
+          });
+        } else {
+          currentRecord.setCurrentSublistValue({
+            sublistId: sublistId,
+            fieldId: 'custrecord780',
+            value: previousBal
+          });
+        }
         currentRecord.setCurrentSublistValue({
           sublistId: sublistId,
           fieldId: 'custrecord540',
@@ -444,13 +427,13 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
           fieldId: 'custrecord695',
           text: result.getText('mainname')
         });
-        /* if (removeRemarks) {
+        if (removeRemarks) {
           currentRecord.setCurrentSublistValue({
             sublistId: sublistId,
             fieldId: 'custrecord_remarks',
             value: null
           });
-        } */
+        }
 
         var sum = fieldIdsToCheck.reduce(function (acc, fieldId) {
           return acc + currentRecord.getCurrentSublistValue({
@@ -583,7 +566,7 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
               line: i
             });
 
-            var poBalance = result.poBalance;
+            var remainingBal = result.remainingBal;
             var gap = result.gap;
             if (NetSuiteMonth == previousMonth && status == true || status === 'T') {
               var updatedPObal = currentRecord.getCurrentSublistValue({
@@ -660,7 +643,7 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
               currentRecord.setCurrentSublistValue({
                 sublistId: sublistId,
                 fieldId: 'custrecord775',
-                value: poBalance
+                value: remainingBal
               });
 
               var projectedPOBalance = currentRecord.getCurrentSublistValue({
@@ -781,11 +764,6 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
   // Populate a sublist line
   function populateSublistLine(currentRecord, result) {
     isFieldChangeScriptActive = false;
-
-    log.debug({
-      title: 'populateSublistLine',
-      details: result.getValue('tranid') + ': ' + result.getText('item')
-    })
 
     currentRecord.selectNewLine({
       sublistId: sublistId
@@ -1101,6 +1079,30 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
     });
   }
 
+  function parseDate(dateStr) {
+    var months = {
+      "Jan": 0,
+      "Feb": 1,
+      "Mar": 2,
+      "Apr": 3,
+      "May": 4,
+      "Jun": 5,
+      "Jul": 6,
+      "Aug": 7,
+      "Sep": 8,
+      "Oct": 9,
+      "Nov": 10,
+      "Dec": 11
+    };
+
+    var parts = dateStr.split("-");
+    var day = parseInt(parts[0], 10);
+    var month = months[parts[1]];
+    var year = parseInt(parts[2], 10);
+
+    return new Date(year, month, day); // Year, Month (0-based), Day
+  }
+
   function errorDialog(currentRecord, context, i) {
     // Temporarily disable validation
     isValidationRunning = false;
@@ -1126,8 +1128,8 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
 
   // Disable specific fields in sublist
   function disableFields(currentRecord) {
-    var disableFieldIds = ['custrecord695', 'custrecord698', 'custrecord537',
-      'custrecord538', 'custrecord700', 'custrecord540', 'custrecord539', 'custrecord780'
+    var disableFieldIds = [ /* 'custrecord501', */ 'custrecord537', 'custrecord538', 'custrecord539', 'custrecord540',
+      'custrecord695', 'custrecord698', 'custrecord700', 'custrecord775', 'custrecord780'
     ];
 
     disableFieldIds.forEach(function (fieldId) {
@@ -1141,7 +1143,23 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
           line: i
         });
         if (field) {
+          /* if (fieldId == 'custrecord501') {
+            month = currentRecord.getSublistValue({
+              sublistId: sublistId,
+              fieldId: fieldId,
+              line: i
+            })
+
+            var currentMonth = new Date().getMonth() + 1;
+
+            if (month == currentMonth) {
+              field.isDisabled = true;
+            } else {
+              field.isDisabled = false;
+            }
+          } else { */
           field.isDisabled = true;
+          // }
         }
       }
     });

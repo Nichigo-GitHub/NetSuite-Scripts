@@ -4,76 +4,84 @@
  */
 define(['N/record', 'N/search', 'N/log'], function (record, search, log) {
     const fieldIdsToCheck = [
-        'custrecord788', 'custrecord789', 'custrecord790', 'custrecord791',
-        'custrecord792', 'custrecord793', 'custrecord794', 'custrecord795',
-        'custrecord796', 'custrecord797', 'custrecord798', 'custrecord799',
-        'custrecord800', 'custrecord801', 'custrecord802', 'custrecord803',
-        'custrecord804', 'custrecord805', 'custrecord806', 'custrecord807',
-        'custrecord808', 'custrecord809', 'custrecord810', 'custrecord811',
-        'custrecord812', 'custrecord813', 'custrecord814', 'custrecord815',
-        'custrecord816', 'custrecord817', 'custrecord818'
+        'custrecord541', 'custrecord542', 'custrecord543', 'custrecord544',
+        'custrecord545', 'custrecord546', 'custrecord547', 'custrecord548',
+        'custrecord549', 'custrecord550', 'custrecord551', 'custrecord552',
+        'custrecord553', 'custrecord554', 'custrecord555', 'custrecord556',
+        'custrecord557', 'custrecord558', 'custrecord559', 'custrecord560',
+        'custrecord561', 'custrecord562', 'custrecord563', 'custrecord564',
+        'custrecord565', 'custrecord566', 'custrecord567', 'custrecord568',
+        'custrecord569', 'custrecord570', 'custrecord571'
     ];
 
     function afterSubmit(context) {
         if (context.type !== context.UserEventType.CREATE) {
+            log.debug('Exit', 'Not a CREATE event');
             return;
         }
 
         try {
             var itemReceipt = context.newRecord;
+            log.debug('Script Execution', 'Processing Item Receipt ID: ' + itemReceipt.id);
 
             // Subsidiary check
             var subsidiary = itemReceipt.getValue({
                 fieldId: 'subsidiary'
             });
-            if (subsidiary !== '14') return;
+            log.debug('Subsidiary', 'Subsidiary ID: ' + subsidiary);
+            if (subsidiary !== '14') {
+                log.debug('Exit', 'Subsidiary is not 14');
+                return;
+            }
 
-            var vendor = itemReceipt.getValue({
+            var vendor = itemReceipt.getText({
                 fieldId: 'entity'
-            }); // Vendor ID
+            });
             var purchaseOrderId = itemReceipt.getText({
                 fieldId: 'createdfrom'
-            }).split('#')[1]; // PO ID
+            }).split('#')[1];
+            log.debug('Vendor & PO', 'Vendor: ' + vendor + ', PO ID: ' + purchaseOrderId);
 
             var itemDetails = {}; // Object to store itemID => quantity
-
-            // Extract item codes and quantities from Item Receipt
             var itemCount = itemReceipt.getLineCount({
                 sublistId: 'item'
             });
+            log.debug('Item Count', 'Total Items: ' + itemCount);
+
+            // Extract item codes and quantities
             for (var i = 0; i < itemCount; i++) {
-                var itemCode = itemReceipt.getSublistValue({
+                var itemCode = itemReceipt.getSublistText({
                     sublistId: 'item',
-                    fieldId: 'item',
+                    fieldId: 'itemname',
                     line: i
                 });
-
                 var itemQuantity = itemReceipt.getSublistValue({
                     sublistId: 'item',
                     fieldId: 'quantity',
                     line: i
                 });
-
-                itemDetails[itemCode] = itemQuantity;
+                if (itemQuantity) {
+                    itemDetails[itemCode] = itemQuantity;
+                }
             }
-
-            log.debug('Extracted Item Receipt Data', itemDetails);
+            log.debug('Extracted Item Receipt Data', JSON.stringify(itemDetails));
 
             // Search for existing custom records
             var customRecordSearch = search.create({
-                type: 'customrecord1027', // Purchase Order DRS Sublist Line
+                type: 'customrecord1027',
                 filters: [
-                    ['custrecord695', 'is', vendor], // Vendor filter
+                    ['custrecord695', 'is', vendor],
                     'AND',
-                    ['custrecord537', 'is', purchaseOrderId] // PO filter
+                    ['custrecord537', 'is', purchaseOrderId]
                 ],
-                columns: ['internalid', 'custrecord538'] // Get Internal ID & Item Code
+                columns: ['internalid', 'custrecord538']
             });
 
             var searchResults = customRecordSearch.run().getRange({
                 start: 0,
                 end: 999
             });
+            log.debug('Custom Record Search', 'Records Found: ' + searchResults.length);
 
             if (searchResults.length === 0) {
                 log.debug('No matching custom records found');
@@ -87,11 +95,11 @@ define(['N/record', 'N/search', 'N/log'], function (record, search, log) {
                 var existingItemCode = result.getValue({
                     name: 'custrecord538'
                 });
+                log.debug('Processing Custom Record', 'ID: ' + customRecordId + ', Item Code: ' + existingItemCode);
 
                 if (itemDetails.hasOwnProperty(existingItemCode)) {
                     var matchedQuantity = itemDetails[existingItemCode];
-
-                    log.debug('Updating Custom Record', 'ID: ' + customRecordId + ', Item Code: ' + existingItemCode + ', Quantity: ' + matchedQuantity);
+                    log.debug('Match Found', 'Item Code: ' + existingItemCode + ', Quantity: ' + matchedQuantity);
 
                     var customRecord = record.load({
                         type: 'customrecord1027',
@@ -99,37 +107,40 @@ define(['N/record', 'N/search', 'N/log'], function (record, search, log) {
                         isDynamic: true
                     });
 
-                    var previousBal = currentRecord.getValue({
+                    var previousBal = customRecord.getValue({
                         fieldId: 'custrecord540'
                     });
-                    currentRecord.getValue({
+                    log.debug('Previous Balance', 'Value: ' + previousBal);
+
+                    customRecord.setValue({
                         fieldId: 'custrecord780',
                         value: previousBal
                     });
-                    currentRecord.setValue({
+                    customRecord.setValue({
                         fieldId: 'custrecord540',
                         value: previousBal - matchedQuantity
                     });
 
                     var sum = fieldIdsToCheck.reduce(function (acc, fieldId) {
-                        var value = currentRecord.getValue({
+                        var value = customRecord.getValue({
                             fieldId: fieldId
-                        }) || 0; // Default to 0 if null/undefined
+                        }) || 0;
                         return acc + value;
                     }, 0);
 
                     var gap = sum - matchedQuantity;
+                    log.debug('Gap Calculation', 'Sum: ' + sum + ', Gap: ' + gap);
 
-                    CurrentRecord.setValue({
+                    customRecord.setValue({
                         fieldId: 'custrecord775',
                         value: gap
-                    })
+                    });
 
-                    // Loop through fields and update them
                     fieldIdsToCheck.some(function (fieldId) {
                         var fieldValue = customRecord.getValue({
                             fieldId: fieldId
                         });
+                        log.debug('Checking Field', 'Field: ' + fieldId + ', Value: ' + fieldValue);
 
                         if (fieldValue < matchedQuantity && fieldValue > 0) {
                             customRecord.setValue({
@@ -140,12 +151,12 @@ define(['N/record', 'N/search', 'N/log'], function (record, search, log) {
                         } else if (fieldValue >= matchedQuantity) {
                             customRecord.setValue({
                                 fieldId: fieldId,
-                                value: parseInt(fieldValue - matchedQuantity),
+                                value: parseInt(fieldValue - matchedQuantity)
                             });
                             matchedQuantity = 0;
                         }
 
-                        return matchedQuantity === 0; // Stop loop when matchedQuantity is zero
+                        return matchedQuantity === 0;
                     });
 
                     var savedRecordId = customRecord.save();
