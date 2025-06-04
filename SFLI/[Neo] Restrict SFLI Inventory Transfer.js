@@ -8,7 +8,11 @@ define(['N/record', 'N/log', 'N/error'], function (record, log, error) {
         var newRecord = context.newRecord;
 
         // Check if the record is an inventory transfer and the transferlocation field is '669'
-        if (newRecord.type === record.Type.INVENTORY_TRANSFER && newRecord.getValue({ fieldId: 'transferlocation' }) == 669) {
+        if (newRecord.type === record.Type.INVENTORY_TRANSFER && newRecord.getValue({
+                fieldId: 'transferlocation'
+            }) == 669 && newRecord.getValue({
+                fieldId: 'location'
+            }) != 664) {
             log.debug({
                 title: 'If',
                 details: 'true'

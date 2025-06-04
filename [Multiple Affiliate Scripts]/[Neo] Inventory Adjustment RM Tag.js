@@ -68,8 +68,10 @@ define(["N/record", "N/render", "N/query", "N/log", "N/error"], function (record
       });
 
     var dateValue = new Date(date);
+    var day = dateValue.getDate();
     var month = dateValue.getMonth();
     var actualMonth = month + 1;
+    var year = dateValue.getFullYear();
     var simpleMonth = getSimpleEnglishMonthJson(actualMonth, true);
     var monthColor = getMonthColor(actualMonth);
 
@@ -181,6 +183,8 @@ define(["N/record", "N/render", "N/query", "N/log", "N/error"], function (record
       } else if (subsidiary == 14) {
         temp = "CUSTTMPL_152_3389427_SB1_671";
 
+        var dateFormat = day + '/' + actualMonth + '/' + year;
+
         // Proceed if Adjustment Quantity is non-negative
         if (quantity > 0) {
           var itemData = {
@@ -191,7 +195,8 @@ define(["N/record", "N/render", "N/query", "N/log", "N/error"], function (record
             description: desc,
             itemUPC: itemUPC,
             unit: unit,
-            monthColor: monthColor
+            monthColor: monthColor,
+            date: dateFormat
           };
           items.push(itemData);
           log.error("Item Added", JSON.stringify(itemData));

@@ -2,7 +2,7 @@
  * @NApiVersion 2.x
  * @NScriptType ClientScript
  */
-define(['N/currentRecord'], function (currentRecord) {
+define(['N/currentRecord', 'N/search'], function (currentRecord, search) {
   function lineInit(context) {
     var currentRecord = context.currentRecord;
 
@@ -75,7 +75,27 @@ define(['N/currentRecord'], function (currentRecord) {
     var sublistFieldValue = context.currentRecord.getCurrentSublistValue({
       sublistId: 'item',
       fieldId: 'item_display'
+    }),
+    itemSource = context.currentRecord.getCurrentSublistValue({
+      sublistId: 'item',
+      fieldId: 'itemsource'
     });
+    
+    log.debug({
+      title: 'itemSource',
+      details: itemSource
+    });
+
+    if (itemSource == 'WORK_ORDER') {
+      context.currentRecord.setValue({
+        fieldId: 'location',
+        value: ''
+      })
+      log.debug({
+        title: 'location',
+        details: 'set to null'
+      })
+    }
 
     if (sublistFieldValue === null || sublistFieldValue === "<Type then tab>") {
       // Field is null
@@ -88,8 +108,36 @@ define(['N/currentRecord'], function (currentRecord) {
     }
   }
 
+  function fieldChanged(context) {
+    if (context.fieldId === 'assemblyitem') {
+      var rec = currentRecord.get();
+      var itemId = rec.getValue({
+        fieldId: 'assemblyitem'
+      });
+
+      if (itemId) {
+        // Lookup the custom field value from the assembly item
+        var itemLookup = search.lookupFields({
+          type: 'lotnumberedassemblyitem',
+          id: itemId,
+          columns: ['custitem24']
+        });
+
+        var custValue = itemLookup.custitem24 && itemLookup.custitem24.length ? itemLookup.custitem24[0].value : null;
+
+        if (custValue) {
+          rec.setValue({
+            fieldId: 'entity',
+            value: custValue
+          });
+        }
+      }
+    }
+  }
+
   return {
     lineInit: lineInit,
-    validateLine: validateLine
+    validateLine: validateLine,
+    fieldChanged: fieldChanged
   };
 });

@@ -5,6 +5,7 @@ function suitelet(request, response) {
 	var custfrm = workorder.getFieldValue('customform');
 	var htmlId = (subsidary == "4" ? "custscript_html_indonesia" : subsidary == "18" ? "custscript74" : subsidary == "15" && custfrm == "719" ? "custscript79" : subsidary == "15" && custfrm == "692" ? "custscript80" : "custscript26");
 	html = context.getSetting('SCRIPT', htmlId);
+	var drawingUPC = workorder.getFieldValue('custbodydraw');
 
 	tablerow = '';
 	var lineCount = workorder.getLineItemCount('item');
@@ -105,10 +106,12 @@ function suitelet(request, response) {
 	html = html.replace('{excess}', excess);
 	html = html.replace('{deptLocation}', workorder.getFieldValue('custbody485') || "");
 	html = html.replace('{deptLocationUPC}', workorder.getFieldValue('custbody485') || "");
-	html = html.replace('{drawingUPC}', workorder.getFieldValue('custbody491') || "");
 
 	// Add Process Rows
 	if (subsidary == 14) {
+		if (drawingUPC)
+			var drawingQR = addDrawing_SFLI(drawingUPC)
+
 		function SFLIrow(processText, a, b, c, d, e, f, g, Num) {
 			return row1 = "<tr>" +
 				"<td class='padding borderRight borderBottom'>" + Num + "." + processText + "</td>" +
@@ -141,6 +144,7 @@ function suitelet(request, response) {
 			}
 		}
 
+		html = html.replace('{drawingUPC}', drawingQR);
 		html = html.replace(/&/g, '&amp;');
 
 		nlapiLogExecution('ERROR', 'Generated HTML', html);
@@ -390,6 +394,12 @@ function suitelet(request, response) {
 		var file = nlapiXMLToPDF(html);
 		response.setContentType('PDF', 'JobOrder.pdf', 'inline');
 		response.write(file.getValue());
+	}
+
+	// Functions for RM rows
+	function addDrawing_SFLI(drawingUPC) {
+		return row1 = "<td rowspan='2' style='padding-top: -5px; padding-bottom: -5px; padding-left: -8px;'>" +
+			"<barcode codetype='qrcode' style='height: 75px; width: 75px;' showtext='false' value='" + drawingUPC + "' /></td>";
 	}
 
 	// Functions for RM rows

@@ -15,10 +15,6 @@ define(['N/currentRecord', 'N/record', 'N/search', 'N/log'], function (currentRe
     ];
 
     function saveRecord(context) {
-        log.debug({
-            title: "saveRecord",
-            details: "Start saveRecord"
-        });
         var rec = currentRecord.get();
 
         if (!rec.id) {
@@ -46,10 +42,6 @@ define(['N/currentRecord', 'N/record', 'N/search', 'N/log'], function (currentRe
             var itemDetails = {};
             var itemCount = itemReceipt.getLineCount({
                 sublistId: 'item'
-            });
-            log.debug({
-                title: "Item Count",
-                details: itemCount
             });
 
             for (var i = 0; i < itemCount; i++) {
@@ -79,7 +71,9 @@ define(['N/currentRecord', 'N/record', 'N/search', 'N/log'], function (currentRe
                 filters: [
                     ['custrecord695', 'is', vendor],
                     'AND',
-                    ['custrecord537', 'is', purchaseOrderId]
+                    ['custrecord537', 'is', purchaseOrderId],
+                    'AND',
+                    ['custrecord501', 'is', currentMonth]
                 ],
                 columns: ['internalid', 'custrecord500', 'custrecord538']
             });
@@ -89,22 +83,50 @@ define(['N/currentRecord', 'N/record', 'N/search', 'N/log'], function (currentRe
                 end: 999
             });
 
-            log.debug({
-                title: "Search Results",
-                details: searchResults
-            });
-
             if (searchResults.length === 0) {
-                log.debug({
-                    title: "PO Not Found",
-                    details: "Prompting user for confirmation"
-                });
                 var confirmPO = window.confirm(
                     '⚠️ Warning! Please Check with CS Team First\n\n' +
                     'The Purchase Order is not found in any PO DRS. Do you still want to save this Item Receipt?');
                 if (!confirmPO) return false;
             }
 
+            // Check quantity for all search results before processing
+            for (var i = 0; i < searchResults.length; i++) {
+                var result = searchResults[i];
+                var existingItemCode = result.getValue({
+                    name: 'custrecord538'
+                });
+
+                if (itemDetails.hasOwnProperty(existingItemCode)) {
+                    var matchedQuantity = itemDetails[existingItemCode];
+
+                    var customRecord = record.load({
+                        type: 'customrecord1027',
+                        id: result.getValue({
+                            name: 'internalid'
+                        }),
+                        isDynamic: true
+                    });
+
+                    var sum = fieldIdsToCheck.reduce(function (acc, fieldId) {
+                        var value = customRecord.getValue({
+                            fieldId: fieldId
+                        }) || 0;
+                        return acc + value;
+                    }, 0);
+
+                    if (sum < matchedQuantity) {
+                        var confirmQty = window.confirm(
+                            '⚠️ Warning! Please Check with CS Team First\n\n' +
+                            'The Quantity to Receive (' + matchedQuantity + ') for Item ' + existingItemCode + ' Exceeds The Scheduled Amount (' + sum + ').\n\n' +
+                            'Do you still want to save this Item Receipt?'
+                        );
+                        if (!confirmQty) return false;
+                    }
+                }
+            }
+
+            // Now process each result as before
             for (var i = 0; i < searchResults.length; i++) {
                 var result = searchResults[i];
 
@@ -125,6 +147,9 @@ define(['N/currentRecord', 'N/record', 'N/search', 'N/log'], function (currentRe
                 var existingItemCode = result.getValue({
                     name: 'custrecord538'
                 });
+                var NetSuiteMonth = customRecord.getValue({
+                    fieldId: 'custrecord501'
+                });
 
                 if (itemDetails.hasOwnProperty(existingItemCode)) {
                     var matchedQuantity = itemDetails[existingItemCode];
@@ -135,22 +160,6 @@ define(['N/currentRecord', 'N/record', 'N/search', 'N/log'], function (currentRe
                         isDynamic: true
                     });
 
-                    var NetSuiteMonth = customRecord.getValue({
-                        fieldId: 'custrecord501'
-                    });
-                    log.debug({
-                        title: "NetSuiteMonth",
-                        details: NetSuiteMonth
-                    });
-
-                    if (NetSuiteMonth !== currentMonth) {
-                        log.debug({
-                            title: "Skip",
-                            details: "NetSuiteMonth does not match currentMonth"
-                        });
-                        continue;
-                    }
-
                     var previousBal = customRecord.getValue({
                         fieldId: 'custrecord540'
                     });
@@ -158,28 +167,6 @@ define(['N/currentRecord', 'N/record', 'N/search', 'N/log'], function (currentRe
                         fieldId: 'custrecord780',
                         value: previousBal
                     });
-                    log.debug({
-                        title: "previousBal",
-                        details: previousBal
-                    });
-
-                    var sum = fieldIdsToCheck.reduce(function (acc, fieldId) {
-                        var value = customRecord.getValue({
-                            fieldId: fieldId
-                        }) || 0;
-                        return acc + value;
-                    }, 0);
-
-                    // log.debug({ title: "Sum for Item", details: { existingItemCode, sum, matchedQuantity } });
-
-                    if (sum < matchedQuantity) {
-                        var confirmQty = window.confirm(
-                            '⚠️ Warning! Please Check with CS Team First\n\n' +
-                            'The Quantity to Receive (' + matchedQuantity + ') for Item ' + existingItemCode + ' Exceeds The Scheduled Amount (' + sum + ').\n\n' +
-                            'Do you still want to save this Item Receipt?'
-                        );
-                        if (!confirmQty) return false;
-                    }
 
                     if (parentLocked) {
                         var queueRecord = record.create({
@@ -206,20 +193,12 @@ define(['N/currentRecord', 'N/record', 'N/search', 'N/log'], function (currentRe
                             value: matchedQuantity
                         });
                         queueRecord.save();
-                        log.debug({
-                            title: "Queued update",
-                            details: customRecordId
-                        });
                     } else {
                         var newPObal = previousBal - matchedQuantity;
                         newPObal = newPObal < 0 ? 0 : newPObal;
                         customRecord.setValue({
                             fieldId: 'custrecord540',
                             value: newPObal
-                        });
-                        log.debug({
-                            title: "Updated custrecord540",
-                            details: newPObal
                         });
 
                         fieldIdsToCheck.some(function (fieldId) {
@@ -238,7 +217,6 @@ define(['N/currentRecord', 'N/record', 'N/search', 'N/log'], function (currentRe
                                     fieldId: fieldId,
                                     value: fieldValue - matchedQuantity < 0 ? 0 : fieldValue - matchedQuantity
                                 });
-                                log.debug("Reduced fieldId", fieldValue - matchedQuantity < 0 ? 0 : fieldValue - matchedQuantity);
                                 matchedQuantity = 0;
                             }
                             return matchedQuantity === 0;
@@ -251,30 +229,15 @@ define(['N/currentRecord', 'N/record', 'N/search', 'N/log'], function (currentRe
                             return acc + value;
                         }, 0);
 
-                        log.debug({
-                            title: "newSum",
-                            details: newSum
-                        });
-
                         customRecord.setValue({
                             fieldId: 'custrecord775',
                             value: newPObal - newSum < 0 ? 0 : newPObal - newSum
                         });
-                        log.debug("Set custrecord775", newPObal - newSum < 0 ? 0 : newPObal - newSum);
-
                         customRecord.save();
-                        log.debug({
-                            title: "Custom Record Saved",
-                            details: customRecordId
-                        });
                     }
                 }
             }
         }
-        log.debug({
-            title: "saveRecord",
-            details: "End saveRecord"
-        });
         return true;
     }
 

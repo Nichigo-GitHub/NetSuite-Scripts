@@ -371,6 +371,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			var statusArr = [];
 			var quantityArr = [];
 			var lotArrr = [];
+            var dateReceived = bintransferObj.dateReceived.value;
 			if (!utility.isValueValid(stockConversionRate)) {
 				stockConversionRate = 1;
 			}
@@ -443,9 +444,18 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				fieldId: 'trandate',
 				value: parsedCurrentDate
 			});
+            if (dateReceived) {
+                var parsedDateReceived = format.parse({
+                    value: dateReceived,
+                    type: format.Type.DATE
+                });
+                binTransfer.setValue({
+                    fieldId: 'custbody_kplima_received_date',
+                    value: parsedDateReceived
+                });
+            }
 			binTransfer.selectNewLine({
 				sublistId: 'inventory',
-
 			});
 			binTransfer.setCurrentSublistValue({
 				sublistId: 'inventory',
@@ -1527,7 +1537,6 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			});
 			invTransfer.selectNewLine({
 				sublistId: 'inventory',
-
 			});
 			invTransfer.setCurrentSublistValue({
 				sublistId: 'inventory',
@@ -2563,6 +2572,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 							fieldId: 'quantity',
 							value: scannedQuantity
 						});
+
 
 						log.debug('inventoryStatus inventoryStatus', inventoryStatus);
 						if (inventoryStatus != null && inventoryStatus != '') {

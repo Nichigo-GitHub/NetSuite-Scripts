@@ -72,8 +72,6 @@
             }
 
             .dateProcess {
-                width: 195px;
-
                 font-weight: bold;
                 font-size: 16px;
                 vertical-align: top;
@@ -126,7 +124,7 @@
             }
 
             .april-background {
-                background-color: #ffa500;
+                background-color: #e67e22;
                 /* Orange */
             }
 
@@ -203,9 +201,10 @@
                 </table>
                 <table border="1px solid black">
                     <tr>
-                        <td border-right="1px solid black" style='width: 55px;' rowspan="2">
+                        <td border-right="1px solid black" style='width: 55px;' rowspan="2" align="center"
+                            valign="middle">
                             <barcode style="float: left; margin: -20px -25px -20px -25px; " codetype='qrcode'
-                                showtext='true' height='130' width='100' value='${item.itemUPC}' />
+                                showtext='true' height='100' width='70' value='${item.itemUPC}' />
                         </td>
                         <td>
                             <span style='float: left; font-size: 30px; font-weight: bold;'>RAW-MATS CODE:
@@ -228,37 +227,40 @@
                 </table>
                 <table border="1px solid black" border-top="0">
                     <tr>
-                        <td class='title3' style='width: 391px; border-right: 1px solid black'>PERSON IN CHARGE:</td>
-                        <td class='title3' style='font-size: 27px'>JO NUMBER:</td>
+                        <td class='title3' style='font-size: 27px; border-right: 1px solid black' align="center">JO#: ${item.joNum}</td>
+                        <td class='title3'>PERSON IN CHARGE:</td>
                     </tr>
                     <tr>
-                        <td class='border borderWidth' style='height: 45px; border-right: 1px solid black'></td>
-                        <td class='border borderWidth field'>
-                            <barcode codetype='qrcode' showtext='true' height='100' width='100' value='${item.joNum}'
-                                style='margin-top: -25px; margin-left: -9px; margin-bottom: -10px;' />
-                            <p style='margin-top: -50px; margin-left: 10px;'>${item.joNum}</p>
+                        <td class='border  field' style='height: 45px; border-right: 1px solid black' align="center">
+                            <barcode codetype='qrcode' showtext='true' height='80' width='80' value='${item.joNum}'
+                                style='margin-top: -25px; margin-left: -10px; margin-bottom: -10px;' />
                         </td>
+                        <td class='border'></td>
                     </tr>
                 </table>
                 <table border="1px solid black" border-top="0">
                     <tr>
-                        <td class='dateProcess border' style="border-right: 1px solid black;">PRODUCTION QA
-                            DATE<br></br>PROCESS:</td>
-                        <td class='title4 border' style='width: 195px; border-right: 1px solid black;'>DEL. DATE:</td>
-                        <td class='title4 border'>CUSTOMER:</td>
+                        <td class='dateProcess border'>PRODUCTION / QA
+                            <br></br>PROCESS DATE:</td>
+                        <td class='title4 border' style="border-right: 1px solid black;" rowspan="2">
+                            <barcode codetype='qrcode' showtext='true' height='80' width='80' value='${item.date}'
+                                style='margin-top: -10px; margin-left: -10px; margin-bottom: -10px;' />
+                        </td>
+                        <td class='title4 border' style="width: 428px;">CUSTOMER:</td>
                     </tr>
                     <tr>
-                        <td class='border borderWidth' style='height: 45px; border-right: 1px solid black;'></td>
-                        <td class='border borderWidth' style='height: 45px; border-right: 1px solid black;'></td>
-                        <td class='border borderWidth field' style='height: 45px'>${item.customer}</td>
+                        <td class='border'
+                            style='height: 45px; font-weight: bold; font-size: 30px;'>
+                            ${item.date}</td>
+                        <td class='border  field' style='height: 45px;'>${item.customer}</td>
                     </tr>
                 </table>
                 <table border="1px solid black" border-top="0">
                     <tr>
-                        <td class='title5 border borderWidth' style='width: 195px; border-right: 1px solid black;'>
+                        <td class='title5 border' style='border-right: 1px solid black;'>
                             QUANTITY:</td>
-                        <td style="text-align: center;">
-                            <table width='85%' style='margin: 0; padding: 0;'>
+                        <td style="text-align: center; border-right: 1px solid black; width: 225px;" align="center">
+                            <table style='margin: 0; padding: 0;'>
                                 <tr>
                                     <td align="center" style='font-weight: bold; font-size: 30px;'>
                                         ${item.quantity} ${item.unit}
@@ -266,44 +268,48 @@
                                 </tr>
                                 <tr>
                                     <td align="center">
-                                        <span style='font-size: 15px; margin-top: -50px;'>(note: This is the quantity for adjustment)</span>
+                                        <span style='font-size: 15px; margin-top: -50px;'>(This is the quantity
+                                            for adjustment)</span>
                                     </td>
                                 </tr>
                             </table>
                         </td>
+                        <td class='title4 border' style='width: 225px; border-right: 1px solid black;'
+                            valign="top">
+                            DEL. DATE:</td>
                     </tr>
                 </table>
                 <table border="1px solid black" border-top="0">
                     <tr>
-                        <td class='title6 border borderWidth' style='width: 150px; border-right: 1px solid black;'>
+                        <td class='title6 border' style='width: 150px; border-right: 1px solid black;'>
                             ORIGINAL</td>
-                        <td align='center' class='title6 border borderWidth'>1st</td>
-                        <td align='center' class='title6 border borderWidth'>2nd</td>
-                        <td align='center' class='title6 border borderWidth'>3rd</td>
-                        <td align='center' class='title6 border borderWidth'>4th</td>
-                        <td align='center' class='title6 border borderWidth'>5th</td>
+                        <td align='center' class='title6 border'>1st</td>
+                        <td align='center' class='title6 border'>2nd</td>
+                        <td align='center' class='title6 border'>3rd</td>
+                        <td align='center' class='title6 border'>4th</td>
+                        <td align='center' class='title6 border'>5th</td>
                     </tr>
                     <tr>
-                        <td class='border borderWidth'
+                        <td class='border'
                             style='height: 85px; width: 115px; border-right: 1px solid black;'></td>
-                        <td class='border borderWidth' style='height: 85px; border-right: 1px solid black;'></td>
-                        <td class='border borderWidth' style='height: 85px; border-right: 1px solid black;'></td>
-                        <td class='border borderWidth' style='height: 85px; border-right: 1px solid black;'></td>
-                        <td class='border borderWidth' style='height: 85px; border-right: 1px solid black;'></td>
-                        <td class='border borderWidth' style='height: 85px'></td>
+                        <td class='border' style='height: 85px; border-right: 1px solid black;'></td>
+                        <td class='border' style='height: 85px; border-right: 1px solid black;'></td>
+                        <td class='border' style='height: 85px; border-right: 1px solid black;'></td>
+                        <td class='border' style='height: 85px; border-right: 1px solid black;'></td>
+                        <td class='border' style='height: 85px'></td>
                     </tr>
                 </table>
                 <table border="1px solid black" border-top="0">
                     <tr>
-                        <td class='title6 border borderWidth' style='height: 20px'></td>
-                        <td class='title6 border borderWidth'></td>
+                        <td class='title6 border' style='height: 20px'></td>
+                        <td class='title6 border'></td>
                     </tr>
                 </table>
                 <table border="1px solid black" border-top="0">
                     <tr>
-                        <td class='title7 border borderWidth' style='width: 195px; border-right: 1px solid black;'>
+                        <td class='title7 border' style='width: 195px; border-right: 1px solid black;'>
                             REMARKS:</td>
-                        <td class='title7 border borderWidth' style="border-right: 1px solid black;"></td>
+                        <td class='title7 border' style="border-right: 1px solid black;"></td>
                     </tr>
                 </table>
             </#list>

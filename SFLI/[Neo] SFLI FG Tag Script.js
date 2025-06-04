@@ -59,7 +59,7 @@ function suitelet(request, response) {
     //prdQAdate = (prdQAdate == null) ? "" : prdQAdate;
     PreparedBy = (PreparedBy == null) ? "" : PreparedBy;
     custm = (custm == null) ? "" : custm;
-    JoNum = (JoNum == null) ? "" : JoNum;
+    JoNum = (JoNum == null) ? "----" : JoNum;
 
     // Split the date string into day, month, and year
     var parts = date.split('/');
@@ -88,7 +88,8 @@ function suitelet(request, response) {
     nlapiLogExecution('ERROR', 'Month color', color);
 
     html = html.replace('{header}', subsidiary);
-    html = html.replace('{date}', date);    
+    html = html.replace('{date}', date);
+    html = html.replace('{date2}', date);
     html = html.replace('{prdQA}', line4);
     html = html.replace('{prepby}', PreparedBy);
     html = html.replace('{customer}', custm);

@@ -20,28 +20,28 @@ function userEventBeforeLoad(type, form) {
             nlapiLogExecution('ERROR', 'Subsidiary', 'KPI');
             form.addButton("custpage_ppo2", "Print Work Order", KPIJO);
 
-        } else if (sub == '5' || sub == '18' || custfrm == '656') { // Kanepackage Philippine Inc
+        } else if (sub == '5' || sub == '18') { // Kanepackage Philippine Inc
             nlapiLogExecution('ERROR', 'Subsidiary', 'KPPI');
             location = nlapiGetFieldValue('location');
 
-            if (userRole == '1239') {
+            if (location == '825' || custfrm == '736') {
                 form.addButton("custpage_ppo2", "KP FPIP JO Printout", KPLIMAJO);
-            } else if (location == '797' || location == '835' || location == '836' || location == '798') {
+            } else if (location == '798' || custfrm == '735') {
                 form.addButton("custpage_ppo2", "KP Cebu JO Printout", KPLIMAJO);
-            }else {
+            } else if (location == '792' || custfrm == '656') {
                 form.addButton("custpage_ppo2", "KPLIMA JO Printout", KPLIMAJO);
             }
         } else if (sub == '15') { // Kanepackage Vietnam Co.,Ltd
             nlapiLogExecution('ERROR', 'Subsidiary', 'KPVN');
-            if (custfrm == '719') {
+            /* if (custfrm == '719') {
                 nlapiLogExecution('ERROR', 'Form', 'Hanoi');
                 form.addButton("custpage_ppo2", "Print Job Order", KPIJO);
-            } else if (custfrm == '692') {
+            } else */
+            if (custfrm == '692') {
                 nlapiLogExecution('ERROR', 'Form', 'Amata');
             } else {
                 form.addButton("custpage_ppo2", "Print Job Order", KPIJO);
             }
-
         }
     }
 }

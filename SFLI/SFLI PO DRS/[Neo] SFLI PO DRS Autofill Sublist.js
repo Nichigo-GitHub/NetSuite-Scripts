@@ -58,17 +58,8 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
       var modifiedDate = new Date(lastModifiedDate);
       modifiedDate.setHours(0, 0, 0, 0);
 
-      log.debug({
-        title: 'dates',
-        details: 'today: ' + currentDate.toDateString() + ' | lastModifiedDate: ' + modifiedDate.toDateString()
-      });
-
-      if (modifiedDate.getTime() === currentDate.getTime()) {
-        log.debug('match', 'The record was last modified today.');
-      } else {
-        log.debug('not match', 'deleting remarks.');
+      if (modifiedDate.getTime() !== currentDate.getTime()) {
         removeRemarks = true;
-
         currentRecord.setValue({
           fieldId: 'custrecord844',
           value: currentDate
@@ -99,6 +90,31 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
     if (!isFieldChangeScriptActive || isInitializing) return; // Skip during initialization
 
     var currentRecord = context.currentRecord;
+
+    if (context.sublistId === sublistId && context.fieldId === 'custrecord_remarks') {
+      var remarks = currentRecord.getCurrentSublistValue({
+        sublistId: sublistId,
+        fieldId: 'custrecord_remarks'
+      }) || '';
+
+      // Get today's date in YYYY-MM-DD format
+      var today = new Date();
+      var yyyy = today.getFullYear();
+      var mm = String(today.getMonth() + 1).padStart(2, '0');
+      var dd = String(today.getDate()).padStart(2, '0');
+      var dateStr = mm + '/' + dd + '/' + yyyy;
+      var dateStamp = ' [' + dateStr + ']';
+
+      // Remove any existing date stamp at the end
+      remarks = remarks.replace(/\s*\[\d{4}-\d{2}-\d{2}\]$/, '');
+      remarks += dateStamp;
+
+      currentRecord.setCurrentSublistValue({
+        sublistId: sublistId,
+        fieldId: 'custrecord_remarks',
+        value: remarks
+      });
+    }
 
     // Handle 'custrecord_customer' field change
     if (context.fieldId === 'custrecord_customer') {
@@ -310,7 +326,7 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
           ['mainline', 'is', 'F'], 'AND',
           ['subsidiary', 'anyof', '14'], 'AND',
           ['vendtype', 'noneof', '3'], 'AND',
-          ['status', 'noneof', 'PurchOrd:C', 'PurchOrd:G', 'PurchOrd:H'/* , 'PurchOrd:A' */], 'AND',
+          ['status', 'noneof', 'PurchOrd:C', 'PurchOrd:G', 'PurchOrd:H' /* , 'PurchOrd:A' */ ], 'AND',
           ['formulanumeric: {quantity}-{quantityshiprecv}', 'notlessthanorequalto', '0'], 'AND',
           ['closed', 'is', 'F'], 'AND',
           ['custcol50', 'contains', 'DRS'], 'AND',
@@ -442,6 +458,17 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
           });
         }, 0);
 
+        var poBalance = currentRecord.getCurrentSublistValue({
+          sublistId: sublistId,
+          fieldId: 'custrecord540'
+        });
+        var remainingBal = poBalance - sum;
+        currentRecord.setCurrentSublistValue({
+          sublistId: sublistId,
+          fieldId: 'custrecord775',
+          value: remainingBal
+        });
+
         var NetSuiteMonth = currentRecord.getCurrentSublistValue({
           sublistId: sublistId,
           fieldId: 'custrecord501'
@@ -557,7 +584,16 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
               value: new Date().getMonth() + 1
             });
           }
-        } else if (NetSuiteMonth == nextMonth) {} else {
+        } else if (NetSuiteMonth == nextMonth) {
+          currentRecord.commitLine({
+            sublistId: sublistId
+          });
+
+          currentRecord.selectLine({
+            sublistId: sublistId,
+            line: i
+          });
+        } else {
           if (NetSuiteMonth == previousMonth || NetSuiteMonth == currentMonth) {
             var result = getGapAndSum(currentRecord);
 
@@ -635,11 +671,6 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
                 });
               }
             } else {
-              var prevProjectedPOBal = currentRecord.getCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord775'
-              });
-
               currentRecord.setCurrentSublistValue({
                 sublistId: sublistId,
                 fieldId: 'custrecord775',
@@ -1077,30 +1108,6 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
         value: 0
       });
     });
-  }
-
-  function parseDate(dateStr) {
-    var months = {
-      "Jan": 0,
-      "Feb": 1,
-      "Mar": 2,
-      "Apr": 3,
-      "May": 4,
-      "Jun": 5,
-      "Jul": 6,
-      "Aug": 7,
-      "Sep": 8,
-      "Oct": 9,
-      "Nov": 10,
-      "Dec": 11
-    };
-
-    var parts = dateStr.split("-");
-    var day = parseInt(parts[0], 10);
-    var month = months[parts[1]];
-    var year = parseInt(parts[2], 10);
-
-    return new Date(year, month, day); // Year, Month (0-based), Day
   }
 
   function errorDialog(currentRecord, context, i) {

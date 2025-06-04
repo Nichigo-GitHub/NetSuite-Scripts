@@ -20,7 +20,7 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 					var month = dateParts[0].padStart(2, '0');
 					var year = dateParts[2];
 
-					var formattedDate = day + '/' + month + '/' + year;
+					var formattedDate = month + '/' + day + '/' + year;
 					currentRecord.setText({
 						fieldId: 'custrecord773',
 						text: formattedDate

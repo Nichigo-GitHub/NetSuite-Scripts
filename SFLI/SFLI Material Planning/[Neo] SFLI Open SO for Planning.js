@@ -22,7 +22,9 @@ define(['N/search', 'N/log'], function (search, log) {
     ];
     const currentDate = new Date();
     const currentDay = currentDate.getDate();
-    const currentMonthValue = currentDate.getMonth() + 1;
+    var currentMonthValue = currentDate.getMonth() + 1;
+    const nextMonthValue = currentMonthValue === 12 ? 1 : currentMonthValue + 1;
+    const nextYearValue = currentMonthValue === 12 ? currentDate.getFullYear() + 1 : currentDate.getFullYear();
     const monthNames = [
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
@@ -35,6 +37,9 @@ define(['N/search', 'N/log'], function (search, log) {
 
         var DRSname = currentRecord.getField({
             fieldId: 'custrecorddrs_name'
+        });
+        var customer = currentRecord.getText({
+            fieldId: 'custrecord782'
         });
         var date = currentRecord.getField({
             fieldId: 'custrecord781'
@@ -55,13 +60,14 @@ define(['N/search', 'N/log'], function (search, log) {
         contextMode = context.mode;
 
         if (contextMode === 'edit') {
+            log.debug('Context Mode', 'Edit');
             if (advanceDRS == 1) {
-                monthField.isDisabled = true;
+                monthField.isDisabled = false;
+                log.debug({
+                    title: 'Advance DRS == 1',
+                    details: 'Month field enabled'
+                })
             }
-
-            var customer = currentRecord.getText({
-                fieldId: 'custrecord782'
-            });
 
             if (month == currentMonthValue) {
                 currentRecord.setValue({
@@ -72,13 +78,27 @@ define(['N/search', 'N/log'], function (search, log) {
                 advanceDRS = currentRecord.getValue({
                     fieldId: 'custrecord838'
                 });
+
+                log.debug({
+                    title: 'month == currentMonthValue',
+                    details: 'Advance DRS set to 2'
+                })
             }
 
-            if (customer && advanceDRS == 2) {
+            if (customer /*  && advanceDRS == 2 */ ) {
+                if (advanceDRS == 1) {
+                    searchFulfillment = false;
+                    log.debug({
+                        title: 'Advance DRS == 1',
+                        details: 'Search Fulfillment disabled'
+                    })
+                }
+
                 isFieldChangeScriptActive = false;
                 loadSublistData(currentRecord, customer, contextMode);
             }
         } else {
+            log.debug('Context Mode', 'Not Edit');
             currentRecord.setValue({
                 fieldId: 'custrecord837',
                 value: currentMonthValue
@@ -95,6 +115,10 @@ define(['N/search', 'N/log'], function (search, log) {
 
     // Function to react when a field changes value
     function fieldChanged(context) {
+        log.debug({
+            title: 'isFieldChangeScriptActive',
+            details: isFieldChangeScriptActive
+        })
         if (!isFieldChangeScriptActive) return;
 
         var currentRecord = context.currentRecord;
@@ -104,10 +128,60 @@ define(['N/search', 'N/log'], function (search, log) {
                 fieldId: 'custrecord782'
             });
 
-            currentRecord.setValue({
-                fieldId: 'custrecorddrs_name',
-                value: customer + ' DRS [ ' + currentMonthText + ' ' + currentDate.getFullYear() + ' ]'
+            var drsName = customer + ' DRS [ ' + currentMonthText + ' ' + currentDate.getFullYear() + ' ]';
+
+            // Search for other records with the same DRS name
+            var drsSearch = search.create({
+                type: 'customrecord1874',
+                filters: [
+                    ['custrecorddrs_name', 'is', drsName]
+                ],
+                columns: ['custrecorddrs_name']
             });
+
+            var hasMatch = false;
+            drsSearch.run().each(function (result) {
+                var matchedName = result.getValue({
+                    name: 'custrecorddrs_name'
+                });
+
+                if (matchedName == drsName) {
+                    hasMatch = true;
+                }
+
+                return false;
+            });
+
+            if (hasMatch) {
+                log.debug('Duplicate DRS Name found', drsName);
+                currentRecord.setValue({
+                    fieldId: 'custrecorddrs_name',
+                    value: customer + ' DRS [ ' + nextMonthValue + ' ' + nextYearValue + ' ]'
+                });
+
+                currentMonthValue = nextMonthValue;
+
+                currentRecord.setValue({
+                    fieldId: 'custrecord837',
+                    value: currentMonthValue
+                });
+
+                currentRecord.setValue({
+                    fieldId: 'custrecord838',
+                    value: 2
+                });
+
+                var monthField = currentRecord.getField({
+                    fieldId: 'custrecord837'
+                });
+
+                monthField.isDisabled = true;
+            } else {
+                currentRecord.setValue({
+                    fieldId: 'custrecorddrs_name',
+                    value: drsName
+                });
+            }
 
             if (customer !== previousCustomer && customer != '') {
                 previousCustomer = customer;
@@ -157,32 +231,42 @@ define(['N/search', 'N/log'], function (search, log) {
         }
 
         if (context.fieldId === 'custrecord838') {
-            if (currentRecord.getValue({
-                    fieldId: 'custrecord838'
-                }) == 1) {
+            log.debug('Field Changed', 'custrecord838 field changed');
+            var advanceDRSValue = currentRecord.getValue({
+                fieldId: 'custrecord838'
+            });
+            log.debug('Advance DRS Value', advanceDRSValue);
+
+            if (advanceDRSValue == 1) {
+                log.debug('Advance DRS is 1', 'Processing for Advance DRS = 1');
                 var monthField = currentRecord.getField({
                     fieldId: 'custrecord837'
                 });
                 var month = currentRecord.getValue({
                     fieldId: 'custrecord837'
                 });
+                log.debug('Current Month Value', month);
+
+                monthField.isDisabled = false;
 
                 if (month > 0 && month < 11) {
                     currentRecord.setValue({
                         fieldId: 'custrecord837',
                         value: parseInt(month) + 1
-                    })
+                    });
+                    log.debug('Updated Month Value', parseInt(month) + 1);
                 } else if (month == 12) {
                     currentRecord.setValue({
                         fieldId: 'custrecord837',
                         value: 1
-                    })
+                    });
+                    log.debug('Updated Month Value', 1);
                 }
 
-                monthField.isDisabled = false;
-
-                if (contextMode === 'create')
+                if (contextMode === 'create') {
                     searchFulfillment = false;
+                    log.debug('Search Fulfillment Disabled', 'Context Mode is Create');
+                }
 
                 const wasActive = isFieldChangeScriptActive;
                 isFieldChangeScriptActive = false;
@@ -191,6 +275,8 @@ define(['N/search', 'N/log'], function (search, log) {
                     var lineCount = currentRecord.getLineCount({
                         sublistId: sublistId
                     });
+                    log.debug('Sublist Line Count', lineCount);
+
                     for (var i = 0; i < lineCount; i++) {
                         currentRecord.selectLine({
                             sublistId: sublistId,
@@ -218,30 +304,19 @@ define(['N/search', 'N/log'], function (search, log) {
                         currentRecord.commitLine({
                             sublistId: sublistId
                         });
+                        log.debug('Updated Sublist Line', 'Line ' + i + ' updated');
                     }
-                    fieldIdsToCheck.forEach(function (fieldId) {
-                        for (var i = 0; i < lineCount; i++) {
-                            var field = currentRecord.getSublistField({
-                                sublistId: sublistId,
-                                fieldId: fieldId,
-                                line: i
-                            });
-                            if (field) {
-                                field.isDisabled = false;
-                            }
-                        }
-                    });
                 } finally {
                     isFieldChangeScriptActive = wasActive;
                     revert = true;
+                    log.debug('Revert Flag Set', revert);
                 }
-            } else if (currentRecord.getValue({
-                    fieldId: 'custrecord838'
-                }) == 2) {
-
+            } else if (advanceDRSValue == 2) {
+                log.debug('Advance DRS is 2', 'Processing for Advance DRS = 2');
                 var lineCount = currentRecord.getLineCount({
                     sublistId: sublistId
                 });
+                log.debug('Sublist Line Count', lineCount);
 
                 for (var i = 0; i < lineCount; i++) {
                     currentRecord.selectLine({
@@ -256,33 +331,36 @@ define(['N/search', 'N/log'], function (search, log) {
                     currentRecord.commitLine({
                         sublistId: sublistId
                     });
+                    log.debug('Updated Sublist Line', 'Line ' + i + ' updated');
                 }
 
                 if (contextMode === 'create' && revert) {
+                    log.debug('Reverting Changes', 'Loading Item Fulfillment');
                     searchFulfillment = true;
                     customer = currentRecord.getValue({
                         fieldId: 'custrecord782'
                     });
-                    loadItemFulfillment(currentRecord, customer, contextMode)
+                    loadItemFulfillment(currentRecord, customer, contextMode);
                     revert = false;
+                    log.debug('Revert Flag Reset', revert);
                 }
 
                 var month = currentRecord.getValue({
                     fieldId: 'custrecord837'
                 });
+                log.debug('Resetting Month Value', currentMonthValue);
 
                 currentRecord.setValue({
                     fieldId: 'custrecord837',
                     value: currentMonthValue
-                })
+                });
 
                 var monthField = currentRecord.getField({
                     fieldId: 'custrecord837'
                 });
 
                 monthField.isDisabled = true;
-
-                disableFields(currentRecord);
+                log.debug('Month Field Disabled', true);
             }
         }
     }
@@ -505,6 +583,8 @@ define(['N/search', 'N/log'], function (search, log) {
             }
 
             disableFields(currentRecord);
+
+            isFieldChangeScriptActive = true
         } catch (e) {
             throw e;
         }
@@ -640,6 +720,12 @@ define(['N/search', 'N/log'], function (search, log) {
                 populateSublistLine(currentRecord, result, contextMode, 'DR', customer);
             }
         });
+
+        isFieldChangeScriptActive = true;
+        log.debug({
+            title: 'loadItemFulfillment',
+            details: 'isFieldChangeScriptActive: ' + isFieldChangeScriptActive
+        })
     }
 
     // Function to update sublist and check for matches
@@ -659,13 +745,21 @@ define(['N/search', 'N/log'], function (search, log) {
                 fieldId: 'custrecord784',
                 line: i
             });
+            var currentItemId = currentRecord.getSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord784',
+                line: i
+            });
             var totalDRquantity = currentRecord.getSublistValue({
                 sublistId: sublistId,
                 fieldId: 'custrecord835',
                 line: i
             });
-
-
+            var currentComponents = currentRecord.getSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord857',
+                line: i
+            });
 
             // If there is a match, update and commit the sublist
             if (currentSO && currentItem) {
@@ -771,9 +865,8 @@ define(['N/search', 'N/log'], function (search, log) {
                             if (currentItem == results['Item Code']) {
                                 log.debug({
                                     title: results['Item Code'],
-                                    details: results['Found']
+                                    details: 'Found'
                                 })
-                                results['Found'] = true;
                                 currentRecord.selectLine({
                                     sublistId: sublistId,
                                     line: i
@@ -788,6 +881,19 @@ define(['N/search', 'N/log'], function (search, log) {
                                 populate = false;
 
                                 var salesOrders = results["Sales Orders"];
+
+                                log.debug({
+                                    title: 'currentComponents',
+                                    details: currentComponents
+                                })
+
+                                if (!currentComponents) {
+                                    currentRecord.setCurrentSublistValue({
+                                        sublistId: sublistId,
+                                        fieldId: 'custrecord857',
+                                        value: getMemberItems(currentItemId)
+                                    });
+                                }
 
                                 if (salesOrders.includes(currentSO)) {
                                     currentRecord.commitLine({
@@ -833,219 +939,230 @@ define(['N/search', 'N/log'], function (search, log) {
 
         log.debug({
             title: 'populateSublistLine',
+            details: results
+        })
+
+        log.debug({
+            title: 'populate',
             details: 'true'
         })
 
-        if (populate) {
+        currentRecord.selectNewLine({
+            sublistId: sublistId
+        });
 
-            log.debug({
-                title: 'populate',
-                details: 'true'
-            })
-
-            currentRecord.selectNewLine({
-                sublistId: sublistId
-            });
-
-            if (contextMode === 'edit') {
-                if (recType == 'SO') {
-                    for (var key in results) {
-                        if (results.hasOwnProperty(key) && key == 'Item ID') {
-                            currentRecord.setCurrentSublistValue({
-                                sublistId: sublistId,
-                                fieldId: 'custrecord784',
-                                value: results[key]
-                            });
-                            currentRecord.setCurrentSublistValue({
-                                sublistId: sublistId,
-                                fieldId: 'custrecord785',
-                                value: results["Item Description"]
-                            });
-                            currentRecord.setCurrentSublistText({
-                                sublistId: sublistId,
-                                fieldId: 'custrecord786',
-                                text: results["Sales Orders"][0]
-                            });
-                            currentRecord.setCurrentSublistValue({
-                                sublistId: sublistId,
-                                fieldId: 'custrecord835',
-                                value: 0
-                            });
-                            currentRecord.setCurrentSublistValue({
-                                sublistId: sublistId,
-                                fieldId: 'custrecord845',
-                                value: 0
-                            });
-                            currentRecord.setCurrentSublistValue({
-                                sublistId: sublistId,
-                                fieldId: 'custrecord836',
-                                value: customer
-                            });
-                            currentRecord.setCurrentSublistValue({
-                                sublistId: sublistId,
-                                fieldId: 'custrecord846',
-                                value: currentRecord.getValue({
-                                    fieldId: 'custrecord837'
-                                })
-                            });
-
-                            break;
-                        }
-                    }
-                } else if (recType == 'DR') {
-                    log.debug({
-                        title: 'DR',
-                        details: results.getValue({
-                            name: 'item',
-                            summary: search.Summary.GROUP
+        if (contextMode === 'edit') {
+            if (recType == 'SO') {
+                for (var key in results) {
+                    if (results.hasOwnProperty(key) && key == 'Item ID') {
+                        log.debug({
+                            title: 'populate',
+                            details: results
                         })
-                    })
-                    currentRecord.setCurrentSublistValue({
-                        sublistId: sublistId,
-                        fieldId: 'custrecord784',
-                        value: results.getValue({
-                            name: 'item',
-                            summary: search.Summary.GROUP
-                        })
-                    });
-                    currentRecord.setCurrentSublistValue({
-                        sublistId: sublistId,
-                        fieldId: 'custrecord785',
-                        value: results.getValue({
-                            name: 'salesdescription',
-                            join: 'item',
-                            summary: search.Summary.GROUP
-                        })
-                    });
-                    currentRecord.setCurrentSublistText({
-                        sublistId: sublistId,
-                        fieldId: 'custrecord786',
-                        text: results.getText({
-                            name: 'createdfrom',
-                            summary: search.Summary.GROUP
-                        }).split('#')[1]
-                    });
-                    currentRecord.setCurrentSublistValue({
-                        sublistId: sublistId,
-                        fieldId: 'custrecord835',
-                        value: 0
-                    });
-                    currentRecord.setCurrentSublistValue({
-                        sublistId: sublistId,
-                        fieldId: 'custrecord845',
-                        value: 0
-                    });
-                    currentRecord.setCurrentSublistValue({
-                        sublistId: sublistId,
-                        fieldId: 'custrecord836',
-                        value: customer
-                    });
-                    currentRecord.setCurrentSublistValue({
-                        sublistId: sublistId,
-                        fieldId: 'custrecord846',
-                        value: currentRecord.getValue({
-                            fieldId: 'custrecord837'
-                        })
-                    });
-                }
-            } else if (contextMode === 'create') {
-                if (recType == 'SO') {
-                    for (var key in results) {
-                        if (results.hasOwnProperty(key) && key == 'Item ID') {
-                            log.debug({
-                                title: 'results',
-                                details: results
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord784',
+                            value: results[key]
+                        });
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord857',
+                            value: getMemberItems(results[key])
+                        });
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord785',
+                            value: results["Item Description"]
+                        });
+                        currentRecord.setCurrentSublistText({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord786',
+                            text: results["Sales Orders"][0]
+                        });
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord835',
+                            value: 0
+                        });
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord845',
+                            value: 0
+                        });
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord836',
+                            value: customer
+                        });
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord846',
+                            value: currentRecord.getValue({
+                                fieldId: 'custrecord837'
                             })
-                            currentRecord.setCurrentSublistValue({
-                                sublistId: sublistId,
-                                fieldId: 'custrecord784',
-                                value: results[key]
-                            });
-                            currentRecord.setCurrentSublistText({
-                                sublistId: sublistId,
-                                fieldId: 'custrecord785',
-                                text: results["Item Description"]
-                            });
-                            currentRecord.setCurrentSublistText({
-                                sublistId: sublistId,
-                                fieldId: 'custrecord786',
-                                text: results["Sales Orders"][0]
-                            });
-                            currentRecord.setCurrentSublistValue({
-                                sublistId: sublistId,
-                                fieldId: 'custrecord835',
-                                value: 0
-                            });
-                            currentRecord.setCurrentSublistValue({
-                                sublistId: sublistId,
-                                fieldId: 'custrecord845',
-                                value: 0
-                            });
-                            currentRecord.setCurrentSublistValue({
-                                sublistId: sublistId,
-                                fieldId: 'custrecord836',
-                                value: customer
-                            });
-                        }
+                        });
+
+                        break;
                     }
-                } else if (recType == 'DR') {
-                    currentRecord.setCurrentSublistValue({
-                        sublistId: sublistId,
-                        fieldId: 'custrecord784',
-                        value: results.getValue({
-                            name: 'item',
-                            summary: search.Summary.GROUP
-                        })
-                    });
-                    currentRecord.setCurrentSublistText({
-                        sublistId: sublistId,
-                        fieldId: 'custrecord785',
-                        text: results.getValue({
-                            name: 'salesdescription',
-                            join: 'item',
-                            summary: search.Summary.GROUP
-                        })
-                    });
-                    currentRecord.setCurrentSublistText({
-                        sublistId: sublistId,
-                        fieldId: 'custrecord786',
-                        text: results.getText({
-                            name: 'createdfrom',
-                            summary: search.Summary.GROUP
-                        }).split('#')[1]
-                    });
-                    var quantity = parseInt(results.getValue({
-                        name: 'quantity',
-                        summary: search.Summary.SUM
-                    }));
-
-                    if (!quantity) {
-                        quantity = 0;
-                    }
-
-                    currentRecord.setCurrentSublistValue({
-                        sublistId: sublistId,
-                        fieldId: 'custrecord835',
-                        value: quantity
-                    });
-                    currentRecord.setCurrentSublistValue({
-                        sublistId: sublistId,
-                        fieldId: 'custrecord836',
-                        value: customer
-                    });
-
                 }
+            } else if (recType == 'DR') {
+                log.debug({
+                    title: 'DR',
+                    details: results.getValue({
+                        name: 'item',
+                        summary: search.Summary.GROUP
+                    })
+                })
+                currentRecord.setCurrentSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord784',
+                    value: results.getValue({
+                        name: 'item',
+                        summary: search.Summary.GROUP
+                    })
+                });
+                currentRecord.setCurrentSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord785',
+                    value: results.getValue({
+                        name: 'salesdescription',
+                        join: 'item',
+                        summary: search.Summary.GROUP
+                    })
+                });
+                currentRecord.setCurrentSublistText({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord786',
+                    text: results.getText({
+                        name: 'createdfrom',
+                        summary: search.Summary.GROUP
+                    }).split('#')[1]
+                });
+                currentRecord.setCurrentSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord835',
+                    value: 0
+                });
+                currentRecord.setCurrentSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord845',
+                    value: 0
+                });
+                currentRecord.setCurrentSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord836',
+                    value: customer
+                });
                 currentRecord.setCurrentSublistValue({
                     sublistId: sublistId,
                     fieldId: 'custrecord846',
-                    value: currentMonthValue
+                    value: currentRecord.getValue({
+                        fieldId: 'custrecord837'
+                    })
                 });
             }
-            initializeSublistFieldsToZero(currentRecord, contextMode, recType);
-            currentRecord.commitLine({
-                sublistId: sublistId
+        } else if (contextMode === 'create') {
+            if (recType == 'SO') {
+                for (var key in results) {
+                    if (results.hasOwnProperty(key) && key == 'Item ID') {
+                        log.debug({
+                            title: 'results',
+                            details: results
+                        })
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord784',
+                            value: results[key]
+                        });
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord857',
+                            value: getMemberItems(results[key])
+                        });
+                        currentRecord.setCurrentSublistText({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord785',
+                            text: results["Item Description"]
+                        });
+                        currentRecord.setCurrentSublistText({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord786',
+                            text: results["Sales Orders"][0]
+                        });
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord835',
+                            value: 0
+                        });
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord845',
+                            value: 0
+                        });
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord836',
+                            value: customer
+                        });
+                    }
+                }
+            } else if (recType == 'DR') {
+                currentRecord.setCurrentSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord784',
+                    value: results.getValue({
+                        name: 'item',
+                        summary: search.Summary.GROUP
+                    })
+                });
+                currentRecord.setCurrentSublistText({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord785',
+                    text: results.getValue({
+                        name: 'salesdescription',
+                        join: 'item',
+                        summary: search.Summary.GROUP
+                    })
+                });
+                currentRecord.setCurrentSublistText({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord786',
+                    text: results.getText({
+                        name: 'createdfrom',
+                        summary: search.Summary.GROUP
+                    }).split('#')[1]
+                });
+                var quantity = parseInt(results.getValue({
+                    name: 'quantity',
+                    summary: search.Summary.SUM
+                }));
+
+                if (!quantity) {
+                    quantity = 0;
+                }
+
+                currentRecord.setCurrentSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord835',
+                    value: quantity
+                });
+                currentRecord.setCurrentSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord836',
+                    value: customer
+                });
+
+            }
+            currentRecord.setCurrentSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord846',
+                value: currentMonthValue
             });
         }
+        initializeSublistFieldsToZero(currentRecord, contextMode, recType);
+        currentRecord.commitLine({
+            sublistId: sublistId
+        });
 
         populate = true;
         isFieldChangeScriptActive = true;
@@ -1077,10 +1194,45 @@ define(['N/search', 'N/log'], function (search, log) {
         }
     }
 
+    // Function to fetch components or member items of an item
+    function getMemberItems(itemId) {
+        var memberItems = [];
+
+        try {
+            var itemSearch = search.create({
+                type: 'item',
+                filters: [
+                    ['internalid', 'is', itemId]
+                ],
+                columns: [
+                    search.createColumn({
+                        name: 'memberitem'
+                    })
+                ]
+            });
+
+            itemSearch.run().each(function (result) {
+                memberItems.push(result.getValue({
+                    name: 'memberitem'
+                }));
+                return true; // Continue iterating
+            });
+
+            log.debug({
+                title: 'Components of ' + itemId,
+                details: memberItems
+            })
+        } catch (e) {
+            log.error('Error fetching member items', e.message);
+        }
+
+        return memberItems;
+    }
+
     // Disable specific fields in sublist
     function disableFields(currentRecord) {
         var disableFieldIds = ['custrecord784', 'custrecord786', 'custrecord835', 'custrecord785', 'custrecord845', 'custrecord836', 'custrecord846', 'custrecord856'];
-        
+
         /* for (var x = 0; x < currentDay - 1; x++) {
             disableFieldIds.push(fieldIdsToCheck[x]);
         } */

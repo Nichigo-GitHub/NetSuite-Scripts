@@ -52,6 +52,8 @@
 
             body {
                 font-size: 12px;
+                font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+
             }
 
             .paddingSFLIadd {
@@ -148,7 +150,7 @@
             }
 
             .april-background {
-                background-color: #ffa500;
+                background-color: #e67e22;
                 /* Orange */
             }
 
@@ -253,6 +255,22 @@
                 border-bottom: 2px solid #000000;
             }
 
+            .borderNoBottom {
+                border-left: 2px solid #000000;
+                border-right: 2px solid #000000;
+                border-top: 2px solid #000000;
+            }
+
+            .borderTopLeft {
+                border-left: 2px solid #000000;
+                border-top: 2px solid #000000;
+            }
+
+            .borderTopRight {
+                border-right: 2px solid #000000;
+                border-top: 2px solid #000000;
+            }
+
             .fonts {
                 font-size: 19px;
                 font-weight: bold;
@@ -283,7 +301,7 @@
     <body size="A4">
         <table class="borderAll" width="100%">
             <tr>
-                <td class="borderAll {color}" colspan="1" height="50px" width="28%" style="font-size:45px;">
+                <td class="borderAll {color}" colspan="1" height="50px" width="200px" style="font-size:45px;">
                     <b></b>
                 </td>
                 <td class="borderAll" height="50px" colspan="3" valign="center" align="center" width="72%"
@@ -302,63 +320,80 @@
             </tr>
         </table>
         <!-- ***********************************FG Table *********************************** -->
-        <table class="borderAll" width="100%">
+        <table class="borderNoBottom" width="100%">
             <tr>
-                <td class="borderAll" width="20%" colspan="1" align="center">
-                    <barcode style="width: 90%; height: 90%; padding: -15px -20px -20px -20px;" codetype="qrcode"
-                        showtext="true" value="{body4}" />
+                <td class="borderTopLeft" width="100px" colspan="1" align="center" valign="top">
+                    <barcode style="width: 85px; height: 125px; padding-top: -20px; padding-right: -30px; padding-left: -30px; padding-bottom: -35px;" codetype="qrcode"
+                        showtext="false" value="{body4}" />
                 </td>
-                <td class="borderAll" width="80%" colspan="3">
-                    <p align="left" valign="top" style="font-size:30px;">FG Code:</p>
-                    <p align="center" style="font-size:55px; padding-top:-30px;">
-                        <b>{body}</b>
-                    </p>
+                <td class="borderTopRight" colspan="3" style="padding-left: 10px">
+                    <p align="left" valign="top" style="font-size: 25px; padding-bottom: -30px">FG Code:</p>
+                    <span align="center" valign="top" style="font-size: 55px; font-weight: bold; padding-top: -30px;">
+                        {body}
+                    </span>
                 </td>
             </tr>
+        </table>
+        <table class="borderNoBottom" width="100%">
             <tr>
-                <td class="borderAll" width="100%" colspan="4" valign="center" align="center" style="font-size:30px;"
+                <td class="borderNoBottom" width="100%" colspan="4" valign="top" align="left" style="font-size:30px;"
                     height="80px">FG Item Description:<br />
                     <b>{body2}</b>
                 </td>
             </tr>
-            <tr>
-                <td class="borderAll" width="50%" colspan="2" align="left" style="font-size:20px;" height="80px"
-                    valign="top">PERSON IN CHARGE : <br />
-                    <br />
-                    <b>{prepby}</b>
+        </table>
+        <table class="borderNoBottom" width="100%">
+            <tr height="92px">
+                <td class="borderTopLeft" width="100px" valign="top">
+                    <barcode style="width: 80px; height: 125px; padding-top: -20px; padding-right: -30px; padding-left: -21px; padding-bottom: -35px;" codetype="qrcode"
+                        showtext="false" value="{Jonumber}" />
                 </td>
-                <td class="borderAll" width="50%" colspan="2" align="left" style="font-size:20px;" height="80px"
-                    valign="top">REF JO NUMBER :
-                    <barcode style="width: 50%; height: 50%; padding: -25px -10px -20px -10px;" codetype="qrcode"
-                        showtext="true" value="{Jonumber}" />
-                    <b>{Jonumber2}</b>
+                <td class="borderTopRight">
+                    <p align="left" valign="top" colspan="3" style="font-size:20px; padding-bottom: -10px">REFERENCE JO#:</p>
+                    <span align="center" style="font-size:35px; font-weight: bold; padding-top: -10px;">
+                        {Jonumber2}
+                    </span>
                 </td>
             </tr>
+        </table>
+        <table class="borderNoBottom" width="100%">
             <tr>
-                <td class="borderAll" width="25%" colspan="2" align="left" style="font-size:16px;" height="100px"
-                    valign="top">CUSTOMER : <br />
-                    <br />
-                    <b>{customer} </b>
+                <td class="borderNoBottom" width="100%" colspan="4" valign="top" align="left" style="font-size:16px;"
+                    height="50px">CUSTOMER: <br />
+                    <span style="font-size: 20px; font-weight: bold;">{customer}</span>
                 </td>
-                <td class="borderAll" width="25%" colspan="1" align="left" style="font-size:16px;" height="100px"
-                    valign="top">DEL DATE : <br />
-                    <br />
-                    <b>{prdQA}</b>
+            </tr>
+        </table>
+        <table class="borderNoBottom" width="100%" >
+            <tr>
+                <td class="borderTopLeft" width="100px" valign="top">
+                    <barcode style="width: 80px; height: 120px; padding-top: -20px; padding-right: -30px; padding-left: -21px; padding-bottom: -30px;" codetype="qrcode"
+                        showtext="false" value="{date}" />
                 </td>
-                <td class="borderAll" width="50%" colspan="1" align="left" style="font-size:16px;" height="100px"
-                    valign="top">PROD/QA DATE PROCESS : <br />
-                    <br />
-                    <b>{date}</b>
+                <td class="borderTopRight">
+                    <p align="left" valign="top" style="font-size: 16px; padding-bottom: -10px">PROD / QA PROCESS DATE:</p>
+                    <span align="center" style="font-size:35px; font-weight: bold; padding-top: -10px;">
+                        {date2}
+                    </span>
+                </td>
+                <td class="borderNoBottom" width="25%" colspan="1" align="left" style="font-size: 16px; padding-bottom: -10px"
+                    valign="top">DELIVERY DATE:
+                    <span style="font-size: 35px; font-weight: bold; padding-top: -10px;" valign="top">{prdQA}</span>
+                </td>
+                <td class="borderNoBottom" width="25%" colspan="1" align="left" style="font-size: 16px; padding-bottom: -10px"
+                    valign="top">PERSON IN CHARGE: 
+                    <p style="font-size: 20px; font-weight: bold; padding-top: -20px;" valign="top">{prepby} </p>
                 </td>
             </tr>
         </table>
         <!-- ***********************************Quantity Table*********************************** -->
         <table class="borderAll" width="100%">
             <tr>
-                <td class="borderAll" width="30%" valign="center" style="font-size:20px;" height="50px">QUANTITY </td>
-                <td class="borderAll" width="70%" align="center" colspan="5" style="font-size:20px;" height="50px">
-                    ACTUAL QUANTITY <br />
-                    Note: Pls. indicate the remaining qty after partial)</td>
+                <td class="borderAll" width="30%" valign="middle" align="center" style="font-size:20px;" height="50px">QUANTITY </td>
+                <td class="borderAll" width="70%" valign="middle" align="center" colspan="5" style="font-size:20px;" height="50px">
+                    ACTUAL QUANTITY
+                    <p style="font-size: 15px; padding-top: -20px;" valign="middle" align="center">(Note: Pls. indicate the remaining qty after partial)</p>
+                </td>
             </tr>
             <tr>
                 <td class="borderAll" width="30%px" align="center" style="font-size:20px;">ORIGINAL</td>
@@ -369,7 +404,7 @@
                 <td class="borderAll" width="14%" align="center" style="font-size:20px;">5TH</td>
             </tr>
             <tr>
-                <td class="borderAll" width="30%" align="center" style="font-size:30px;">
+                <td class="borderAll" width="30%" align="center" valign="middle" style="font-size:30px;">
                     <b>{body3}</b>
                 </td>
                 <td class="borderAll" width="14%" align="center" height="80px">
