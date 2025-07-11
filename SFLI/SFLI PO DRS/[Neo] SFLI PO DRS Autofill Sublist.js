@@ -91,31 +91,6 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
 
     var currentRecord = context.currentRecord;
 
-    if (context.sublistId === sublistId && context.fieldId === 'custrecord_remarks') {
-      var remarks = currentRecord.getCurrentSublistValue({
-        sublistId: sublistId,
-        fieldId: 'custrecord_remarks'
-      }) || '';
-
-      // Get today's date in YYYY-MM-DD format
-      var today = new Date();
-      var yyyy = today.getFullYear();
-      var mm = String(today.getMonth() + 1).padStart(2, '0');
-      var dd = String(today.getDate()).padStart(2, '0');
-      var dateStr = mm + '/' + dd + '/' + yyyy;
-      var dateStamp = ' [' + dateStr + ']';
-
-      // Remove any existing date stamp at the end
-      remarks = remarks.replace(/\s*\[\d{4}-\d{2}-\d{2}\]$/, '');
-      remarks += dateStamp;
-
-      currentRecord.setCurrentSublistValue({
-        sublistId: sublistId,
-        fieldId: 'custrecord_remarks',
-        value: remarks
-      });
-    }
-
     // Handle 'custrecord_customer' field change
     if (context.fieldId === 'custrecord_customer') {
       var customer = currentRecord.getValue({

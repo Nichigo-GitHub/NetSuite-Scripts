@@ -28,7 +28,7 @@ function printRR(request, response) {
 	//invoice = (itemreceiptRecord.getFieldValue('custbody29') == null)? '-': itemreceiptRecord.getFieldValue('custbody29');
 	/*ponofull = itemreceiptRecord.getFieldText('createdfrom');
 	//pono = ponofull.split('#')[1] */
-    ponofull = itemreceiptRecord.getFieldText('createdfrom');
+	ponofull = itemreceiptRecord.getFieldText('createdfrom');
 	pono = ponofull.substring(16);
 
 
@@ -73,6 +73,11 @@ function printRR(request, response) {
 		// html = html.replace('{row}', getHeaderRow(invno, truckno));
 	} else if (subsidiaryid == '14') {
 		html = html.replace('{logohere}', '');
+		if (preparedby != 'Jhustine Tabafunda') {
+			if (preparedby != 'Ivan Michael Llamoso') {
+				preparedby = nlapiLookupField('employee', nlapiGetUser(), 'entityid', false);
+			}
+		}
 		drsize = 93;
 		posize = 125;
 		itemsize = 140;
@@ -84,7 +89,7 @@ function printRR(request, response) {
 	html = html.replace('{subsidiaryname}', subsidiary);
 	html = html.replace('{body}', concat);
 	html = html.replace('{kpNo}', kpno);
-    html = html.replace('{kpNo2}', kpno);
+	html = html.replace('{kpNo2}', kpno);
 	html = html.replace('{drsize}', drsize);
 	html = html.replace('{posize}', posize);
 	html = html.replace('{itemsize}', itemsize);

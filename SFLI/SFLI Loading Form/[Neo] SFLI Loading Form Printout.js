@@ -60,6 +60,19 @@ define(['N/record', 'N/runtime', 'N/format', 'N/search'], function (record, runt
                     sublistId: sublistId,
                     fieldId: 'custrecord853',
                     line: i
+                }),
+                balance: (function () {
+                    var val = loadingFormDetails.getSublistValue({
+                        sublistId: sublistId,
+                        fieldId: 'custrecord934',
+                        line: i
+                    });
+                    return val == null || val === '' ? 0 : val;
+                })(),
+                remarks: loadingFormDetails.getSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord855',
+                    line: i
                 })
             });
         }
@@ -72,7 +85,7 @@ define(['N/record', 'N/runtime', 'N/format', 'N/search'], function (record, runt
         // Generate sorted table rows
         var tableRow = '';
         sublistData.forEach(function (row) {
-            tableRow += add1row(row.item, row.desc, row.SOnum, row.qty, row.customer);
+            tableRow += add1row(row.item, row.desc, row.SOnum, row.qty, row.customer, row.balance, row.remarks);
         });
 
         // Replace the placeholder in the template with dynamic item data
@@ -87,10 +100,9 @@ define(['N/record', 'N/runtime', 'N/format', 'N/search'], function (record, runt
         });
     }
 
-    function add1row(item, desc, SOnum, qty, customer) {
+    function add1row(item, desc, SOnum, qty, customer, balance, remarks) {
         var custQrCodeURL = "https://quickchart.io/qr?text=" + encodeURIComponent(customer) + "&size=75";
         var itemQrCodeURL = "https://quickchart.io/qr?text=" + encodeURIComponent(customer) + "&size=75";
-        var soNumCodeURL = "https://quickchart.io/qr?text=" + encodeURIComponent(customer) + "&size=75";
 
         return row1 = "<td class='padding borderLeft borderBottom borderRight' align='center' style='text-align: center; font-size: 12px;'>" +
             "<table style='width: 100%; border-collapse: collapse;'><tr>" +
@@ -108,11 +120,11 @@ define(['N/record', 'N/runtime', 'N/format', 'N/search'], function (record, runt
             "<td class='padding borderBottom borderRight' align='center' style='text-align: center; font-size: 12px; width: 120px;'>" +
             "<table style='width: 100%; border-collapse: collapse;'><tr>" +
             "<td style='text-align: left; font-size: 12px;'>" + SOnum + "</td>" +
-            "<td style='text-align: right;'><img src='" + soNumCodeURL + "' style='height: 75px; width: 75px;' />" +
             "</tr></table>" +
             "</td>" +
             "<td class='padding borderBottom borderRight' align='center' style='text-align: center; font-size: 12px;'>" + qty + '</td>' +
-            "<td class='padding borderBottom borderRight' align='center' style='text-align: center; font-size: 12px;'></td>" +
+            "<td class='padding borderBottom borderRight' align='center' style='text-align: center; font-size: 12px;'>" + balance + '</td>' +
+            "<td class='padding borderBottom borderRight' align='center' style='text-align: center; font-size: 12px;'>" + remarks + '</td>' +
             "</tr>";
     }
 

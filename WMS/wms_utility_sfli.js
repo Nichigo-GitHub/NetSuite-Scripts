@@ -7353,11 +7353,14 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 		function getBinTransferInHistory(params) {
 			var results = [];
 			var savedSearch = '';
+			var dateField = '';
 
 			if (params.whLocation == 670) {
 				savedSearch = 'customsearch4991'
+				dateField = 'trandate';
 			} else if (params.whLocation == 792) {
 				savedSearch = 'customsearch5007'
+				dateField = 'custbody_kplima_received_date';
 			}
 
 			log.debug('getBinTransferInHistory - params', params);
@@ -7423,7 +7426,7 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 					});
 
 					var receivedDate = result.getValue({
-						name: 'custbody_kplima_received_date',
+						name: dateField,
 						join: 'transaction',
 						summary: search.Summary.MIN
 					});

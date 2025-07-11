@@ -64,6 +64,58 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 				preparedBy = '';
 			var deliveryDate = '';
 			var invTranID = '';
+			var rejectType1 = '';
+			var rejectType2 = '';
+			var rejectType3 = '';
+			var rejectType4 = '';
+			var rejectType5 = '';
+			var rejectType6 = '';
+			var rejectType7 = '';
+			var rejectType8 = '';
+			var rejectType9 = '';
+			var rejectType10 = '';
+			var rejectType11 = '';
+			var rejectType12 = '';
+			var rejectType13 = '';
+			var rejectType14 = '';
+			var rejectType15 = '';
+			var rejectType16 = '';
+			var rejectType17 = '';
+			var rejectType18 = '';
+			var rejectType19 = '';
+			var rejectType20 = '';
+			var rejectType21 = '';
+			var rejectType22 = '';
+			var rejectType23 = '';
+			var rejectType24 = '';
+			var rejectType25 = '';
+			var rejectType26 = '';
+			var rejectType27 = '';
+			var rejectType28 = '';
+			var rejectType29 = '';
+			var rejectType30 = '';
+			var rejectType31 = '';
+			var rejectType32 = '';
+			var rejectType33 = '';
+			var rejectType34 = '';
+			var rejectType35 = '';
+			var rejectType36 = '';
+			var rejectType37 = '';
+			var rejectType38 = '';
+			var rejectType39 = '';
+			var rejectType40 = '';
+			var rejectType41 = '';
+			var rejectType42 = '';
+			var rejectType43 = '';
+			var rejectType44 = '';
+			var rejectType45 = '';
+			var rejectType46 = '';
+			var rejectType47 = '';
+			var rejectType48 = '';
+			var rejectType49 = '';
+			var rejectType50 = '';
+			var rejectType51 = '';
+			var rejectType52 = '';
 
 
 			try {
@@ -102,6 +154,58 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					barcodeQuantity = requestParams.barcodeQuantity;
 					isTallyScanRequired = requestParams.isTallyScanRequired;
 					tallyScanBarCodeQty = requestParams.tallyScanBarCodeQty;
+					rejectType1 = requestParams.rejectType1;
+					rejectType2 = requestParams.rejectType2;
+					rejectType3 = requestParams.rejectType3;
+					rejectType4 = requestParams.rejectType4;
+					rejectType5 = requestParams.rejectType5;
+					rejectType6 = requestParams.rejectType6;
+					rejectType7 = requestParams.rejectType7;
+					rejectType8 = requestParams.rejectType8;
+					rejectType9 = requestParams.rejectType9;
+					rejectType10 = requestParams.rejectType10;
+					rejectType11 = requestParams.rejectType11;
+					rejectType12 = requestParams.rejectType12;
+					rejectType13 = requestParams.rejectType13;
+					rejectType14 = requestParams.rejectType14;
+					rejectType15 = requestParams.rejectType15;
+					rejectType16 = requestParams.rejectType16;
+					rejectType17 = requestParams.rejectType17;
+					rejectType18 = requestParams.rejectType18;
+					rejectType19 = requestParams.rejectType19;
+					rejectType20 = requestParams.rejectType20;
+					rejectType21 = requestParams.rejectType21;
+					rejectType22 = requestParams.rejectType22;
+					rejectType23 = requestParams.rejectType23;
+					rejectType24 = requestParams.rejectType24;
+					rejectType25 = requestParams.rejectType25;
+					rejectType26 = requestParams.rejectType26;
+					rejectType27 = requestParams.rejectType27;
+					rejectType28 = requestParams.rejectType28;
+					rejectType29 = requestParams.rejectType29;
+					rejectType30 = requestParams.rejectType30;
+					rejectType31 = requestParams.rejectType31;
+					rejectType32 = requestParams.rejectType32;
+					rejectType33 = requestParams.rejectType33;
+					rejectType34 = requestParams.rejectType34;
+					rejectType35 = requestParams.rejectType35;
+					rejectType36 = requestParams.rejectType36;
+					rejectType37 = requestParams.rejectType37;
+					rejectType38 = requestParams.rejectType38;
+					rejectType39 = requestParams.rejectType39;
+					rejectType40 = requestParams.rejectType40;
+					rejectType41 = requestParams.rejectType41;
+					rejectType42 = requestParams.rejectType42;
+					rejectType43 = requestParams.rejectType43;
+					rejectType44 = requestParams.rejectType44;
+					rejectType45 = requestParams.rejectType45;
+					rejectType46 = requestParams.rejectType46;
+					rejectType47 = requestParams.rejectType47;
+					rejectType48 = requestParams.rejectType48;
+					rejectType49 = requestParams.rejectType49;
+					rejectType50 = requestParams.rejectType50;
+					rejectType51 = requestParams.rejectType51;
+					rejectType52 = requestParams.rejectType52;
 
 					log.debug({
 						title: 'requestParams',
@@ -591,7 +695,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 												log.debug('tallyScanObj for inv transfer', tallyScanObj);
 											}
 											impactRec = fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId,
-												toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID);
+												toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID, rejectType1, rejectType2, rejectType3, rejectType4, rejectType5, rejectType6, rejectType7, rejectType8, rejectType9, rejectType10, rejectType11, rejectType12, rejectType13, rejectType14, rejectType15, rejectType16, rejectType17, rejectType18, rejectType19, rejectType20, rejectType21, rejectType22, rejectType23, rejectType24, rejectType25, rejectType26, rejectType27, rejectType28, rejectType29, rejectType30, rejectType31, rejectType32, rejectType33, rejectType34, rejectType35, rejectType36, rejectType37, rejectType38, rejectType39, rejectType40, rejectType41, rejectType42, rejectType43, rejectType44, rejectType45, rejectType46, rejectType47, rejectType48, rejectType49, rejectType50, rejectType51, rejectType52);
 											log.debug('fninvtransfer', impactRec);
 
 
@@ -712,7 +816,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			return impactRec;
 		}
 
-		function fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID) {
+		function fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID, rejectType1, rejectType2, rejectType3, rejectType4, rejectType5, rejectType6, rejectType7, rejectType8, rejectType9, rejectType10, rejectType11, rejectType12, rejectType13, rejectType14, rejectType15, rejectType16, rejectType17, rejectType18, rejectType19, rejectType20, rejectType21, rejectType22, rejectType23, rejectType24, rejectType25, rejectType26, rejectType27, rejectType28, rejectType29, rejectType30, rejectType31, rejectType32, rejectType33, rejectType34, rejectType35, rejectType36, rejectType37, rejectType38, rejectType39, rejectType40, rejectType41, rejectType42, rejectType43, rejectType44, rejectType45, rejectType46, rejectType47, rejectType48, rejectType49, rejectType50, rejectType51, rejectType52) {
 			var invtransferObj = {};
 			var impactRec = {};
 
@@ -732,6 +836,68 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			if (utility.isValueValid(toBinInternalId)) {
 				invtransferObj.toBinId = toBinInternalId;
 			}
+			log.debug({
+				title: 'toWarehouseLocationId value and type',
+				details: 'Value: ' + toWarehouseLocationId + ', Type: ' + typeof toWarehouseLocationId
+			});
+			if (parseInt(toWarehouseLocationId) == 665) {
+				log.debug({
+					title: 'Condition met',
+					details: 'parseInt(toWarehouseLocationId) == 665 is TRUE'
+				});
+				invtransferObj.rejectType1 = rejectType1;
+				invtransferObj.rejectType2 = rejectType2;
+				invtransferObj.rejectType3 = rejectType3;
+				invtransferObj.rejectType4 = rejectType4;
+				invtransferObj.rejectType5 = rejectType5;
+				invtransferObj.rejectType6 = rejectType6;
+				invtransferObj.rejectType7 = rejectType7;
+				invtransferObj.rejectType8 = rejectType8;
+				invtransferObj.rejectType9 = rejectType9;
+				invtransferObj.rejectType10 = rejectType10;
+				invtransferObj.rejectType11 = rejectType11;
+				invtransferObj.rejectType12 = rejectType12;
+				invtransferObj.rejectType13 = rejectType13;
+				invtransferObj.rejectType14 = rejectType14;
+				invtransferObj.rejectType15 = rejectType15;
+				invtransferObj.rejectType16 = rejectType16;
+				invtransferObj.rejectType17 = rejectType17;
+				invtransferObj.rejectType18 = rejectType18;
+				invtransferObj.rejectType19 = rejectType19;
+				invtransferObj.rejectType20 = rejectType20;
+				invtransferObj.rejectType21 = rejectType21;
+				invtransferObj.rejectType22 = rejectType22;
+				invtransferObj.rejectType23 = rejectType23;
+				invtransferObj.rejectType24 = rejectType24;
+				invtransferObj.rejectType25 = rejectType25;
+				invtransferObj.rejectType26 = rejectType26;
+				invtransferObj.rejectType27 = rejectType27;
+				invtransferObj.rejectType28 = rejectType28;
+				invtransferObj.rejectType29 = rejectType29;
+				invtransferObj.rejectType30 = rejectType30;
+				invtransferObj.rejectType31 = rejectType31;
+				invtransferObj.rejectType32 = rejectType32;
+				invtransferObj.rejectType33 = rejectType33;
+				invtransferObj.rejectType34 = rejectType34;
+				invtransferObj.rejectType35 = rejectType35;
+				invtransferObj.rejectType36 = rejectType36;
+				invtransferObj.rejectType37 = rejectType37;
+				invtransferObj.rejectType38 = rejectType38;
+				invtransferObj.rejectType39 = rejectType39;
+				invtransferObj.rejectType40 = rejectType40;
+				invtransferObj.rejectType41 = rejectType41;
+				invtransferObj.rejectType42 = rejectType42;
+				invtransferObj.rejectType43 = rejectType43;
+				invtransferObj.rejectType44 = rejectType44;
+				invtransferObj.rejectType45 = rejectType45;
+				invtransferObj.rejectType46 = rejectType46;
+				invtransferObj.rejectType47 = rejectType47;
+				invtransferObj.rejectType48 = rejectType48;
+				invtransferObj.rejectType49 = rejectType49;
+				invtransferObj.rejectType50 = rejectType50;
+				invtransferObj.rejectType51 = rejectType51;
+				invtransferObj.rejectType52 = rejectType52;
+			}
 			invtransferObj.batchno = lotName;
 			invtransferObj.actualBeginTime = actualBeginTime;
 			invtransferObj.units = stockUnitName;
@@ -745,6 +911,11 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 				invtransferObj.statusArray = tallyScanObj.statusArray;
 				invtransferObj.quantity = tallyScanObj.tallyScanBarCodeQty;
 			}
+
+			log.debug({
+				title: 'before invtUtility.inventoryInvTransfer',
+				details: invtransferObj
+			})
 
 			impactRec = invtUtility.inventoryInvTransfer(invtransferObj);
 			return impactRec;

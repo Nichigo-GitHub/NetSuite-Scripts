@@ -13,6 +13,12 @@ define(['N/ui/serverWidget'], function (ui) {
             });
 
             context.form.addButton({
+                id: 'custpage_print_labels',
+                label: '🖨️ Print Lot Labels (OQA)',
+                functionName: 'openLabelOqaPDF'
+            });
+
+            context.form.addButton({
                 id: 'custpage_kpbig_labels',
                 label: '🖨️ KPCebu Big Lot Labels',
                 functionName: 'openLabelKPbigPDF'

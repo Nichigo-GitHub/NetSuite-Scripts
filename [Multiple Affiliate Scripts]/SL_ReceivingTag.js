@@ -307,6 +307,16 @@ function getReceivingTagDataJsonForInventoryTransfer(receiptId, lineNo, orderedB
     } else if (subsidiary == 18) {
         dateReceived = itRecord.getFieldValue("trandate");
         dateReceived = formatDateToYYYYMMDD(dateReceived);
+    } else if (customform == 620 && subsidiary == 4) {
+        dateReceived = itRecord.getFieldValue("trandate");
+        // Add current time in HH:mm:ss format
+        var now = new Date();
+        var hours = ('0' + now.getHours()).slice(-2);
+        var minutes = ('0' + now.getMinutes()).slice(-2);
+        // Convert to 12-hour format with AM/PM
+        var hours12 = hours % 12 || 12;
+        var ampm = hours < 12 ? 'AM' : 'PM';
+        dateReceived += ' ' + hours12 + ':' + minutes + ' ' + ampm;
     } else {
         dateReceived = itRecord.getFieldValue("trandate");
     }

@@ -139,7 +139,7 @@ define(['N/search', './wms_utility_sfli', './wms_translator_sfli', './big_open',
 
 							//objBinDetails=woUtility.getWOPickBinDetails(pickBinDetails);
 							objBinDetails = utility.getRecommendedBins(itemObjDtl, 'workorder');
-							// objBinDetails = utility.getBinTransferLines(itemInternalId, warehouseLocationId);
+							//objBinDetails = utility.getBinTransferLines(itemInternalId, warehouseLocationId);
 							log.debug({
 								title: 'objBinDetails',
 								details: objBinDetails

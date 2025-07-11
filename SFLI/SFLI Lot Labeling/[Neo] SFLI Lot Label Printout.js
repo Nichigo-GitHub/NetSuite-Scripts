@@ -15,6 +15,13 @@ define(['N/currentRecord'], function (currentRecord) {
         window.open(url, '_blank');
     }
 
+    function openLabelOqaPDF() {
+        var rec = currentRecord.get();
+        var id = rec.id;
+        var url = '/app/site/hosting/scriptlet.nl?script=customscript_sfli_lot_label_pdf&deploy=1&recordId=' + id + '&oqa=T';
+        window.open(url, '_blank');
+    }
+
     function openLabelKPbigPDF() {
         var rec = currentRecord.get();
         var id = rec.id;
@@ -32,6 +39,7 @@ define(['N/currentRecord'], function (currentRecord) {
     return {
         pageInit: pageInit,
         openLabelPDF: openLabelPDF,
+        openLabelOqaPDF: openLabelOqaPDF,
         openLabelKPbigPDF: openLabelKPbigPDF,
         openLabelKPsmallPDF: openLabelKPsmallPDF
     };

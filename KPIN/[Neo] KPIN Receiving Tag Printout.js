@@ -48,8 +48,33 @@ define(['N/runtime', 'N/record', 'N/file', 'N/xml', 'N/format', 'N/query'],
             let desc = null;
             let quantity = null;
 
-            var receiveMonth = date ? (new Date(date).getMonth() + 1) : "";
+            function getUserDateFormat() {
+                var user = runtime.getCurrentUser();
+                return user.getPreference({ name: 'DATEFORMAT' }); // e.g. 'MM/DD/YYYY' or 'DD/MM/YYYY'
+            }
 
+            function getMonthFromDateString(dateString, userDateFormat) {
+                if (!dateString) return null;
+                var parts = dateString.split(/[\/\-\.]/);
+                if (parts.length !== 3) return null;
+
+                let monthNum;
+                // Check for D/M/YYYY or M/D/YYYY
+                if (userDateFormat && userDateFormat.match(/^D\/M\//i)) {
+                    // D/M/YYYY: month is parts[1]
+                    monthNum = parseInt(parts[1], 10);
+                } else if (userDateFormat && userDateFormat.match(/^M\/D\//i)) {
+                    // M/D/YYYY: month is parts[0]
+                    monthNum = parseInt(parts[0], 10);
+                } else {
+                    // Default to M/D/YYYY if format is unknown
+                    monthNum = parseInt(parts[0], 10);
+                }
+                return monthNum;
+            }
+
+            var userDateFormat = getUserDateFormat(); // e.g., 'D/M/YYYY' or 'M/D/YYYY'
+            var receiveMonth = date ? getMonthFromDateString(date, userDateFormat) : "";
             var month = getSimpleEnglishMonthJson(receiveMonth, true);
 
             for (let i = 0; i < lineCount; i++) {
