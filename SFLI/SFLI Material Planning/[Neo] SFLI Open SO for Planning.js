@@ -377,15 +377,328 @@ define(['N/search', 'N/log'], function (search, log) {
                     fieldId: forecastFieldId
                 })) || 0;
 
-                // Deduct changed value from forecast
-                var newForecastValue = forecastValue - changedValue;
+                    // Deduct changed value from forecast
+                    if (forecastDRSSnapshot[context.line] && forecastDRSSnapshot[context.line][forecastFieldId] !== undefined) {
+                        var snapshot = forecastDRSSnapshot[context.line][forecastFieldId];
 
-                // Update forecast field
-                currentRecord.setValue({
-                    fieldId: forecastFieldId,
-                    value: newForecastValue
-                });
+                        if (sum > snapshot) {
+                            newForecastValue = 0;
+
+                            remainder = sum - snapshot;
+                        } else if (sum > snapshot) {
+                            newForecastValue = 0;
+                        } else if (sum < snapshot && sum >= 0) {
+                            newForecastValue = snapshot - sum;
+                        } else {
+                            newForecastValue = snapshot - sum;
+                        }
+                    }
+
+                    log.debug({
+                        title: 'Forecast Update (sublist)',
+                        details: 'fieldId: ' + context.fieldId +
+                            ', changedValue: ' + changedValue +
+                            ', sum: ' + sum +
+                            ', forecastFieldId: ' + forecastFieldId +
+                            ', forecastValue: ' + forecastValue +
+                            ', newForecastValue: ' + newForecastValue
+                    });
+
+                    // Update forecast field in sublist line
+                    currentRecord.setCurrentSublistValue({
+                        sublistId: sublistId,
+                        fieldId: forecastFieldId,
+                        value: newForecastValue
+                    });
+
+                    log.debug({
+                        title: 'ForecastDRS Changed',
+                        details: 'Set ' + forecastFieldId + ' on line ' + context.line + ' to value: ' + newForecastValue + ' (fieldChanged)'
+                    });
+
+                    if (remainder > 0) {
+                        var nextIndex = forecastIndex;
+                        var totalForecastValue = currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord995'
+                        });
+                        var maybeNegative = 0;
+                        while (remainder > 0) {
+                            nextIndex += 1;
+                            if (nextIndex < forecastDRS.length) {
+                                var nextForecastFieldId = forecastDRS[nextIndex];
+                                var nextForecastValue = Number(currentRecord.getCurrentSublistValue({
+                                    sublistId: sublistId,
+                                    fieldId: nextForecastFieldId
+                                })) || 0;
+
+                                if (nextForecastValue >= remainder) {
+                                    newForecastValue = nextForecastValue - remainder;
+                                    totalForecastValue -= remainder;
+                                    remainder = 0;
+                                } else {
+                                    newForecastValue = 0;
+                                    remainder -= nextForecastValue;
+                                    totalForecastValue -= remainder;
+                                }
+
+                                currentRecord.setCurrentSublistValue({
+                                    sublistId: sublistId,
+                                    fieldId: nextForecastFieldId,
+                                    value: newForecastValue
+                                });
+
+                                currentRecord.setCurrentSublistValue({
+                                    sublistId: sublistId,
+                                    fieldId: 'custrecord995',
+                                    value: totalForecastValue
+                                });
+
+                                log.debug({
+                                    title: 'ForecastDRS Changed',
+                                    details: 'Set ' + nextForecastFieldId + ' on line ' + context.line + ' to value: ' + newForecastValue + ' (fieldChanged, remainder loop)'
+                                });
+
+                            } else {
+                                log.debug('No more forecast fields to update');
+                                break;
+                            }
+                        }
+                    } else {
+                        var total = forecastDRSSnapshot[context.line]['custrecord995'] || 0;
+                        var sum1 = 0;
+                        for (var i = 0; i < 3; i++) {
+                            sum1 += Number(currentRecord.getCurrentSublistValue({
+                                sublistId: sublistId,
+                                fieldId: fieldIdsToCheck[i]
+                            })) || 0;
+                        }
+
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: forecastDRS[0],
+                            value: Math.max(forecastDRSSnapshot[context.line][forecastDRS[0]] - sum1, 0)
+                        });
+
+                        log.debug({
+                            title: 'ForecastDRS Changed',
+                            details: 'Set ' + forecastDRS[0] + ' on line ' + context.line + ' to value: ' + Math.max(forecastDRSSnapshot[context.line][forecastDRS[0]] - sum1, 0) + ' (fieldChanged, else block)'
+                        });
+
+                        var sum2 = 0;
+                        for (var i = 3; i < 6; i++) {
+                            sum2 += Number(currentRecord.getCurrentSublistValue({
+                                sublistId: sublistId,
+                                fieldId: fieldIdsToCheck[i]
+                            })) || 0;
+                        }
+
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: forecastDRS[1],
+                            value: Math.max(forecastDRSSnapshot[context.line][forecastDRS[1]] - sum2, 0)
+                        });
+
+                        log.debug({
+                            title: 'ForecastDRS Changed',
+                            details: 'Set ' + forecastDRS[1] + ' on line ' + context.line + ' to value: ' + Math.max(forecastDRSSnapshot[context.line][forecastDRS[1]] - sum2, 0) + ' (fieldChanged, else block)'
+                        });
+
+                        var sum3 = 0;
+                        for (var i = 6; i < 9; i++) {
+                            sum3 += Number(currentRecord.getCurrentSublistValue({
+                                sublistId: sublistId,
+                                fieldId: fieldIdsToCheck[i]
+                            })) || 0;
+                        }
+
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: forecastDRS[2],
+                            value: Math.max(forecastDRSSnapshot[context.line][forecastDRS[2]] - sum3, 0)
+                        });
+
+                        log.debug({
+                            title: 'ForecastDRS Changed',
+                            details: 'Set ' + forecastDRS[2] + ' on line ' + context.line + ' to value: ' + Math.max(forecastDRSSnapshot[context.line][forecastDRS[2]] - sum3, 0) + ' (fieldChanged, else block)'
+                        });
+
+                        var sum4 = 0;
+                        for (var i = 9; i < 12; i++) {
+                            sum4 += Number(currentRecord.getCurrentSublistValue({
+                                sublistId: sublistId,
+                                fieldId: fieldIdsToCheck[i]
+                            })) || 0;
+                        }
+
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: forecastDRS[3],
+                            value: Math.max(forecastDRSSnapshot[context.line][forecastDRS[3]] - sum4, 0)
+                        });
+
+                        log.debug({
+                            title: 'ForecastDRS Changed',
+                            details: 'Set ' + forecastDRS[3] + ' on line ' + context.line + ' to value: ' + Math.max(forecastDRSSnapshot[context.line][forecastDRS[3]] - sum4, 0) + ' (fieldChanged, else block)'
+                        });
+
+                        var sum5 = 0;
+                        for (var i = 12; i < 15; i++) {
+                            sum5 += Number(currentRecord.getCurrentSublistValue({
+                                sublistId: sublistId,
+                                fieldId: fieldIdsToCheck[i]
+                            })) || 0;
+                        }
+
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: forecastDRS[4],
+                            value: Math.max(forecastDRSSnapshot[context.line][forecastDRS[4]] - sum5, 0)
+                        });
+
+                        log.debug({
+                            title: 'ForecastDRS Changed',
+                            details: 'Set ' + forecastDRS[4] + ' on line ' + context.line + ' to value: ' + Math.max(forecastDRSSnapshot[context.line][forecastDRS[4]] - sum5, 0) + ' (fieldChanged, else block)'
+                        });
+
+                        var sum6 = 0;
+                        for (var i = 15; i < 18; i++) {
+                            sum6 += Number(currentRecord.getCurrentSublistValue({
+                                sublistId: sublistId,
+                                fieldId: fieldIdsToCheck[i]
+                            })) || 0;
+                        }
+
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: forecastDRS[5],
+                            value: Math.max(forecastDRSSnapshot[context.line][forecastDRS[5]] - sum6, 0)
+                        });
+
+                        log.debug({
+                            title: 'ForecastDRS Changed',
+                            details: 'Set ' + forecastDRS[5] + ' on line ' + context.line + ' to value: ' + Math.max(forecastDRSSnapshot[context.line][forecastDRS[5]] - sum6, 0) + ' (fieldChanged, else block)'
+                        });
+
+                        var sum7 = 0;
+                        for (var i = 18; i < 21; i++) {
+                            sum7 += Number(currentRecord.getCurrentSublistValue({
+                                sublistId: sublistId,
+                                fieldId: fieldIdsToCheck[i]
+                            })) || 0;
+                        }
+
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: forecastDRS[6],
+                            value: Math.max(forecastDRSSnapshot[context.line][forecastDRS[6]] - sum7, 0)
+                        });
+
+                        log.debug({
+                            title: 'ForecastDRS Changed',
+                            details: 'Set ' + forecastDRS[6] + ' on line ' + context.line + ' to value: ' + Math.max(forecastDRSSnapshot[context.line][forecastDRS[6]] - sum7, 0) + ' (fieldChanged, else block)'
+                        });
+
+                        var sum8 = 0;
+                        for (var i = 21; i < 24; i++) {
+                            sum8 += Number(currentRecord.getCurrentSublistValue({
+                                sublistId: sublistId,
+                                fieldId: fieldIdsToCheck[i]
+                            })) || 0;
+                        }
+
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: forecastDRS[7],
+                            value: Math.max(forecastDRSSnapshot[context.line][forecastDRS[7]] - sum8, 0)
+                        });
+
+                        log.debug({
+                            title: 'ForecastDRS Changed',
+                            details: 'Set ' + forecastDRS[7] + ' on line ' + context.line + ' to value: ' + Math.max(forecastDRSSnapshot[context.line][forecastDRS[7]] - sum8, 0) + ' (fieldChanged, else block)'
+                        });
+
+                        var sum9 = 0;
+                        for (var i = 24; i < 27; i++) {
+                            sum9 += Number(currentRecord.getCurrentSublistValue({
+                                sublistId: sublistId,
+                                fieldId: fieldIdsToCheck[i]
+                            })) || 0;
+                        }
+
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: forecastDRS[8],
+                            value: Math.max(forecastDRSSnapshot[context.line][forecastDRS[8]] - sum9, 0)
+                        });
+
+                        log.debug({
+                            title: 'ForecastDRS Changed',
+                            details: 'Set ' + forecastDRS[8] + ' on line ' + context.line + ' to value: ' + Math.max(forecastDRSSnapshot[context.line][forecastDRS[8]] - sum9, 0) + ' (fieldChanged, else block)'
+                        });
+
+                        var sum10 = 0;
+                        for (var i = 27; i < 30; i++) {
+                            sum10 += Number(currentRecord.getCurrentSublistValue({
+                                sublistId: sublistId,
+                                fieldId: fieldIdsToCheck[i]
+                            })) || 0;
+                        }
+
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: forecastDRS[9],
+                            value: Math.max(forecastDRSSnapshot[context.line][forecastDRS[9]] - sum10, 0)
+                        });
+
+                        log.debug({
+                            title: 'ForecastDRS Changed',
+                            details: 'Set ' + forecastDRS[9] + ' on line ' + context.line + ' to value: ' + Math.max(forecastDRSSnapshot[context.line][forecastDRS[9]] - sum10, 0) + ' (fieldChanged, else block)'
+                        });
+
+                        total -= newForecastValue;
+
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord995',
+                            value: total
+                        });
+                    }
+                    isFieldChangeScriptActive = true;
+                }
             }
+            isFieldChangeScriptActive = true;
+        }
+
+        var fieldIndex = forecastDRS.indexOf(context.fieldId);
+        if (fieldIndex !== -1) {
+            var line = currentRecord.getCurrentSublistIndex({
+                sublistId: sublistId
+            });
+            var value = currentRecord.getCurrentSublistValue({
+                sublistId: sublistId,
+                fieldId: context.fieldId
+            });
+            var totalForecastValue = currentRecord.getCurrentSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord995'
+            });
+            isFieldChangeScriptActive = false;
+            // Sum all forecastDRS field values for this line
+            var forecastSum = 0;
+            forecastDRS.forEach(function (forecastFieldId) {
+                forecastSum += Number(currentRecord.getCurrentSublistValue({
+                    sublistId: sublistId,
+                    fieldId: forecastFieldId
+                })) || 0;
+            });
+            currentRecord.setCurrentSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord995',
+                value: forecastSum
+            });
+            captureForecastDRSSnapshot(currentRecord, line, context.fieldId, value, true);
+            isFieldChangeScriptActive = true;
         }
     }
 
