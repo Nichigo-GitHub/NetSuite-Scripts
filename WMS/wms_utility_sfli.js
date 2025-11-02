@@ -5,8 +5,8 @@
  * @NModuleScope public
  */
 define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', './big_open', './wms_translator_sfli', 'N/url',
-		'N/wms/recommendedBins', 'N/query', 'N/internal/elasticLogger', 'N/ui/serverWidget'
-	],
+	'N/wms/recommendedBins', 'N/query', 'N/internal/elasticLogger', 'N/ui/serverWidget'
+],
 	function (search, file, runtime, record, config, format, Big, translator, url, binApi, query, loggerFactory, serverWidget) {
 
 
@@ -4221,7 +4221,7 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 									'sortBySeq': 0
 								};
 								preferBinDetailsObj.push(currentRowValues);
-							} else {}
+							} else { }
 						}
 					}
 				} else {
@@ -6232,8 +6232,8 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 					name: 'location'
 				});
 				if (itemresults[0].getValue({
-						name: 'isinactive'
-					}) == true) {
+					name: 'isinactive'
+				}) == true) {
 					itemValidateDetails['error'] = translator.getTranslationString('PO_ITEMVALIDATE.INACTIVE_ITEM');
 				} else if ((_isValueValid(itemLoc)) && (itemLoc != wareHouseLocationId)) {
 					itemValidateDetails['error'] = translator.getTranslationString('PO_ITEMVALIDATE.WAREHOUSE_NOT_MATCHED');
@@ -7353,14 +7353,11 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 		function getBinTransferInHistory(params) {
 			var results = [];
 			var savedSearch = '';
-			var dateField = '';
 
 			if (params.whLocation == 670) {
-				savedSearch = 'customsearch4991'
-				dateField = 'trandate';
+				savedSearch = 'customsearch4991';
 			} else if (params.whLocation == 792) {
-				savedSearch = 'customsearch5007'
-				dateField = 'custbody_kplima_received_date';
+				savedSearch = 'customsearch5007';
 			}
 
 			log.debug('getBinTransferInHistory - params', params);
@@ -7391,15 +7388,20 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 				})
 			);
 
+			// Add Formula(Date) column dynamically
+			fifoBinReport.columns.push(
+				search.createColumn({
+					name: 'formuladate',
+					formula: 'CASE WHEN {binonhand.binnumber} = {transaction.binnumber} THEN {transaction.custbody_kplima_received_date} ELSE null END',
+					summary: search.Summary.MAX
+				})
+			);
+
 			// Run the search and get paged results
-			var pagedData = fifoBinReport.runPaged({
-				pageSize: 100
-			});
+			var pagedData = fifoBinReport.runPaged({ pageSize: 100 });
 
 			pagedData.pageRanges.forEach(function (pageRange) {
-				var page = pagedData.fetch({
-					index: pageRange.index
-				});
+				var page = pagedData.fetch({ index: pageRange.index });
 
 				page.data.forEach(function (result) {
 					var binNumber = result.getValue({
@@ -7425,10 +7427,10 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 						summary: search.Summary.GROUP
 					});
 
+					// Use Formula(Date)
 					var receivedDate = result.getValue({
-						name: dateField,
-						join: 'transaction',
-						summary: search.Summary.MIN
+						name: 'formuladate',
+						summary: search.Summary.MAX
 					});
 
 					results.push({
@@ -7452,7 +7454,7 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 			log.debug({
 				title: 'results',
 				details: results
-			})
+			});
 
 			return results;
 		}
@@ -8119,13 +8121,13 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 		function getDefaultRuleValueForAsyncSystemRules(systemRuleName) {
 			var systemRuleLookup = {};
 			var sytemrulesArray = [{
-					key: "Enable bulk staging of large pick tasks",
-					value: 125
-				},
-				{
-					key: "Enable bulk picking of large pick tasks",
-					value: 125
-				}
+				key: "Enable bulk staging of large pick tasks",
+				value: 125
+			},
+			{
+				key: "Enable bulk picking of large pick tasks",
+				value: 125
+			}
 			]
 
 			for (var arrIndex = 0; arrIndex < sytemrulesArray.length; arrIndex++) {
@@ -8253,37 +8255,37 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 				});
 				//log.debug('fetched IFperorder in utlity for first time',IFperorder);
 				var wmsPreferences = [{
-						"name": "OVERRECEIPTS",
-						"value": false
-					},
-					{
-						"name": "ITEMCOSTASTRNFRORDCOST",
-						"value": true
-					},
-					{
-						"name": roleIntenalId,
-						"value": false
-					},
-					{
-						"name": "DEPTMANDATORY",
-						"value": false
-					},
-					{
-						"name": "CLASSMANDATORY",
-						"value": false
-					},
-					{
-						"name": "CREATEITEMFULFILLMENT",
-						"value": false
-					},
-					{
-						"name": fisrtReceipientId,
-						"value": false
-					},
-					{
-						"name": secondReceipientId,
-						"value": false
-					},
+					"name": "OVERRECEIPTS",
+					"value": false
+				},
+				{
+					"name": "ITEMCOSTASTRNFRORDCOST",
+					"value": true
+				},
+				{
+					"name": roleIntenalId,
+					"value": false
+				},
+				{
+					"name": "DEPTMANDATORY",
+					"value": false
+				},
+				{
+					"name": "CLASSMANDATORY",
+					"value": false
+				},
+				{
+					"name": "CREATEITEMFULFILLMENT",
+					"value": false
+				},
+				{
+					"name": fisrtReceipientId,
+					"value": false
+				},
+				{
+					"name": secondReceipientId,
+					"value": false
+				},
 				];
 
 				var arrIndex = 0;
@@ -9129,15 +9131,15 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 				var applicationDefalutSearch = search.create({
 					type: 'customrecord_mobile_application_defaults',
 					filters: [{
-							name: 'name',
-							operator: 'is',
-							values: 'Smart_Count'
-						},
-						{
-							name: 'isinactive',
-							operator: 'is',
-							values: 'F'
-						}
+						name: 'name',
+						operator: 'is',
+						values: 'Smart_Count'
+					},
+					{
+						name: 'isinactive',
+						operator: 'is',
+						values: 'F'
+					}
 					]
 				});
 

@@ -372,6 +372,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             var quantityArr = [];
             var lotArrr = [];
             var dateReceived = bintransferObj.dateReceived.value;
+            var preparedBy = bintransferObj.preparedBy;
             if (!utility.isValueValid(stockConversionRate)) {
                 stockConversionRate = 1;
             }
@@ -452,6 +453,22 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 binTransfer.setValue({
                     fieldId: 'custbody_kplima_received_date',
                     value: parsedDateReceived
+                });
+            }
+            if (preparedBy) {
+                preparedBy = preparedBy.toLowerCase();
+
+                var queryResult = query.runSuiteQL({
+                    query: "SELECT (select id from employee where lower(entityid) like '" + preparedBy + "') as Employee",
+                });
+
+                log.debug('Query Result', queryResult.results[0].values);
+
+                var employeeId = queryResult.results[0].values[0];
+
+                binTransfer.setValue({
+                    fieldId: 'custbody1',
+                    value: employeeId
                 });
             }
             binTransfer.selectNewLine({
@@ -831,7 +848,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                                         serialNameDtlArr[1] != currentUserId) {
                                         serialMatchFound = false;
                                     }
-                            } else {}
+                            } else { }
                         }
                         log.debug("serialMatchFound", serialMatchFound);
                         if (serialMatchFound) {
@@ -1551,6 +1568,74 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 fieldId: 'custbody23',
                 value: invTranID
             });
+
+            invTransfer.setValue({
+                fieldId: 'custbody491',
+                value: 'Work Order #' + invTranID
+            });
+
+            if (invTranID) {
+                // Search for the work order internal id using the tranid
+                var workOrderSearch = search.create({
+                    type: search.Type.WORK_ORDER,
+                    filters: [
+                        ['tranid', 'is', invTranID]
+                    ],
+                    columns: ['internalid']
+                });
+                var workOrderResult = workOrderSearch.run().getRange({ start: 0, end: 1 });
+                if (workOrderResult && workOrderResult.length > 0) {
+                    var workOrderInternalId = workOrderResult[0].getValue({ name: 'internalid' });
+                    var workOrder = record.load({
+                        type: record.Type.WORK_ORDER,
+                        id: workOrderInternalId
+                    });
+
+                    /* // Extract Customer, Assembly Item, Subsidiary
+                    var subsidiaryId = workOrder.getValue({ fieldId: 'subsidiary' });
+
+                    // Load Item record
+                    var itemRecord = record.load({
+                        type: record.Type.INVENTORY_ITEM,
+                        id: itemId
+                    });
+
+                    // Find vendor with same subsidiary in itemvendor sublist
+                    var vendorId = null;
+                    var vendorCount = itemRecord.getLineCount({ sublistId: 'itemvendor' });
+                    for (var i = 0; i < vendorCount; i++) {
+                        var vendorSubsidiary = itemRecord.getSublistValue({
+                            sublistId: 'itemvendor',
+                            fieldId: 'subsidiary',
+                            line: i
+                        });
+                        if (vendorSubsidiary == subsidiaryId) {
+                            vendorId = itemRecord.getSublistValue({
+                                sublistId: 'itemvendor',
+                                fieldId: 'vendor',
+                                line: i
+                            });
+                            break;
+                        }
+                    }
+                    // Log extracted values
+                    log.error({ title: 'Vendor', details: vendorId }); */
+
+                    // Extract Assembly Item
+                    var assemblyItemId = workOrder.getText({ fieldId: 'assemblyitem' });
+
+                    invTransfer.setText({
+                        fieldId: 'custbody520',
+                        value: assemblyItemId
+                    });
+
+                    // Log extracted values
+                    log.error({ title: 'Assembly Item', details: assemblyItemId });
+
+                } else {
+                    log.error({ title: 'Work Order Not Found', details: 'No work order found with tranid: ' + invTranID });
+                }
+            }
 
             var queryResult = query.runSuiteQL({
                 query: "SELECT (select id from department where lower(name) LIKE '" + department + "') as Department, (select id from customer where lower(companyname) like '" + customer + "') as Customer, (select id from employee where lower(concat(concat(firstname, middlename), lastname)) like '" + employee + "') as Employee",
@@ -5584,23 +5669,23 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                     });
                     myPage.data.forEach(function (result) {
                         var objCyccItr = [result.getValue({
-                                name: 'itemid',
-                                join: 'item',
-                                summary: 'group'
-                            }),
-                            result.getValue({
-                                name: 'internalid',
-                                join: 'item',
-                                summary: 'group'
-                            }),
-                            result.getValue({
-                                name: 'binnumber',
-                                summary: 'group'
-                            }),
-                            result.getText({
-                                name: 'binnumber',
-                                summary: 'group'
-                            })
+                            name: 'itemid',
+                            join: 'item',
+                            summary: 'group'
+                        }),
+                        result.getValue({
+                            name: 'internalid',
+                            join: 'item',
+                            summary: 'group'
+                        }),
+                        result.getValue({
+                            name: 'binnumber',
+                            summary: 'group'
+                        }),
+                        result.getText({
+                            name: 'binnumber',
+                            summary: 'group'
+                        })
                         ];
                         sublistDetailArr.push(objCyccItr);
 
@@ -5674,11 +5759,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                     });
                     myPage.data.forEach(function (result) {
                         var objCyccItr = [result.getValue({
-                                name: 'itemid',
-                            }),
-                            result.getValue({
-                                name: 'internalid',
-                            }),
+                            name: 'itemid',
+                        }),
+                        result.getValue({
+                            name: 'internalid',
+                        }),
                         ];
                         sublistDetailArr.push(objCyccItr);
                         log.debug('sublistDetailArr for nobins', sublistDetailArr);
@@ -5797,23 +5882,23 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 myPage.data.forEach(function (result) {
 
                     var objcyccItrSortBin = [result.getValue({
-                            name: 'itemid',
-                            join: 'item',
-                            summary: 'group'
-                        }),
-                        result.getValue({
-                            name: 'internalid',
-                            join: 'item',
-                            summary: 'group'
-                        }),
-                        result.getValue({
-                            name: 'binnumber',
-                            summary: 'group'
-                        }),
-                        result.getText({
-                            name: 'binnumber',
-                            summary: 'group'
-                        })
+                        name: 'itemid',
+                        join: 'item',
+                        summary: 'group'
+                    }),
+                    result.getValue({
+                        name: 'internalid',
+                        join: 'item',
+                        summary: 'group'
+                    }),
+                    result.getValue({
+                        name: 'binnumber',
+                        summary: 'group'
+                    }),
+                    result.getText({
+                        name: 'binnumber',
+                        summary: 'group'
+                    })
                     ];
                     sublistDetailArr.push(objcyccItrSortBin);
                 });
@@ -6021,21 +6106,21 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 myPage.data.forEach(function (result) {
 
                     var objcyccItrSortBinZeroQty = [result.getText({
-                            name: 'item',
-                            summary: 'group'
-                        }),
-                        result.getValue({
-                            name: 'item',
-                            summary: 'group'
-                        }),
-                        result.getValue({
-                            name: 'binnumber',
-                            summary: 'group'
-                        }),
-                        result.getText({
-                            name: 'binnumber',
-                            summary: 'group'
-                        })
+                        name: 'item',
+                        summary: 'group'
+                    }),
+                    result.getValue({
+                        name: 'item',
+                        summary: 'group'
+                    }),
+                    result.getValue({
+                        name: 'binnumber',
+                        summary: 'group'
+                    }),
+                    result.getText({
+                        name: 'binnumber',
+                        summary: 'group'
+                    })
                     ];
 
                     sublistDetailArr.push(objcyccItrSortBinZeroQty);
@@ -6456,7 +6541,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             tallyscanObj.tallyScanBarCodeQty = tallyScanBarCodeQty;
             if (utility.isValueValid(tallyLoopObj)) {
                 if ((((itemType == "inventoryitem" || itemType == "assemblyitem")) ||
-                        (itemType == 'lotnumberedinventoryitem' || itemType == 'lotnumberedassemblyitem'))) {
+                    (itemType == 'lotnumberedinventoryitem' || itemType == 'lotnumberedassemblyitem'))) {
 
                     for (var tallyObjIndex in tallyLoopObj) {
                         if (utility.isValueValid(tallyLoopObj[tallyObjIndex].lotName) && lotArray.indexOf(tallyLoopObj[tallyObjIndex].lotName) == -1) {

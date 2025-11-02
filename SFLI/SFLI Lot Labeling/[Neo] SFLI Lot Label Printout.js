@@ -36,11 +36,19 @@ define(['N/currentRecord'], function (currentRecord) {
         window.open(url, '_blank');
     }
 
+    function openLabelKKoyamaPDF() {
+        var rec = currentRecord.get();
+        var id = rec.id;
+        var url = '/app/site/hosting/scriptlet.nl?script=customscript_sfli_lot_label_pdf&deploy=1&recordId=' + id + '&koyama=full';
+        window.open(url, '_blank');
+    }
+
     return {
         pageInit: pageInit,
         openLabelPDF: openLabelPDF,
         openLabelOqaPDF: openLabelOqaPDF,
         openLabelKPbigPDF: openLabelKPbigPDF,
-        openLabelKPsmallPDF: openLabelKPsmallPDF
+        openLabelKPsmallPDF: openLabelKPsmallPDF,
+        openLabelKKoyamaPDF: openLabelKKoyamaPDF
     };
 });

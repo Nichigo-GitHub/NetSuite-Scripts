@@ -30,6 +30,11 @@ define(['N/ui/serverWidget'], function (ui) {
                 functionName: 'openLabelKPsmallPDF'
             });
 
+            context.form.addButton({
+                id: 'custpage_koyama_label',
+                label: '🖨️ Koyama Full Page Label',
+                functionName: 'openLabelKKoyamaPDF'
+            });
 
             context.form.clientScriptModulePath = 'SuiteScripts/[Neo] SFLI Lot Label Printout.js';
         }

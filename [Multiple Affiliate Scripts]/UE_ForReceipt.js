@@ -49,9 +49,9 @@ function userEventBeforeLoad(type, form, request) {
         }
         form.addButton("custpage_receiving_tag", "Print FG Tag", "var newWin = window.open('" + url_3 + "', '_blank', 'height=1056,width=1300,resizable=yes,scrollbars=yes,toolbar=no'); if (newWin) { newWin.focus(); }");
 
-      } else if (subId == 14) {
+      } /* else if (subId == 14) {
         form.addButton("custpage_receiving_tag", " Print Receiving Tag", "window.open('" + url_2 + "')");
-      } else if (subId == 15) {
+      } */ else if (subId == 15) {
         form.addButton("custpage_receiving_tag", " Print Receiving Tag", "window.open('" + url_1 + "')");
       } else if (subId == 4) {
         form.addButton("custpage_receiving_tag", " Print FG Tag", "window.open('" + url_1 + "')");
@@ -69,9 +69,9 @@ function userEventBeforeLoad(type, form, request) {
     } else if (rectype == "itemreceipt") {
       if (subId == 15) {
         if (location == 866) {
-          form.addButton("custpage_receiving_tag", "Print HCM Receiving Tag", "window.open('" + url_4 + "')"); //KPVN_AMATA_Branch
+          //form.addButton("custpage_receiving_tag", "Print HCM Receiving Tag", "window.open('" + url_4 + "')"); //KPVN_AMATA_Branch
         } else if (location == 873 || location == 897) {
-          form.addButton("custpage_receiving_tag", "Print HCM Receiving Tag", "window.open('" + url_5 + "')"); //KPVN_AMATA_Trade
+          //form.addButton("custpage_receiving_tag", "Print HCM Receiving Tag", "window.open('" + url_5 + "')"); //KPVN_AMATA_Trade
         } /* else if (
           location == 781 ||
           location == 785 ||

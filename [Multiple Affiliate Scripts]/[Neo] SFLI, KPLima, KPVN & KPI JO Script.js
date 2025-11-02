@@ -9,6 +9,26 @@ function suitelet(request, response) {
 
 	tablerow = '';
 	var lineCount = workorder.getLineItemCount('item');
+
+	// Log all fields in the 'item' sublist for debugging
+	var itemFields = workorder.getAllLineItemFields('item');
+	nlapiLogExecution('ERROR', 'Item Sublist Fields', JSON.stringify(itemFields));
+	for (var i = 1; i <= lineCount; i++) {
+		var fieldValues = {};
+		for (var j = 0; j < itemFields.length; j++) {
+			var fieldId = itemFields[j];
+			fieldValues[fieldId] = workorder.getLineItemValue('item', fieldId, i);
+		}
+		nlapiLogExecution('ERROR', 'Item Line ' + i + ' Field Values', JSON.stringify(fieldValues));
+
+		// Log each field and its value individually for more clarity
+		for (var field in fieldValues) {
+			if (fieldValues.hasOwnProperty(field)) {
+				nlapiLogExecution('ERROR', 'Item Line ' + i + ' - Field: ' + field, 'Value: ' + fieldValues[field]);
+			}
+		}
+	}
+	var memo = workorder.getFieldValue('memo') || "";
 	for (var i = 1; i <= lineCount; i++) {
 		var code = (subsidary == "4" ? workorder.getLineItemValue('item', 'item_display', i) : workorder.getLineItemText('item', 'item', i)),
 			desc = (subsidary == "4" ? (workorder.getLineItemValue('item', 'description', i) || " ") : (workorder.getLineItemValue('item', 'description', i) == null) ? 0 : workorder.getLineItemValue('item', 'description', i)),
@@ -17,9 +37,9 @@ function suitelet(request, response) {
 			excess = (workorder.getLineItemValue('item', 'custcol244', i) == null) ? 0 : workorder.getLineItemValue('item', 'custcol244', i),
 			outs = (workorder.getFieldValue('custbody489') == null) ? 0 : workorder.getFieldValue('custbody489');
 
-			excess = (excess == 0) ? "" : excess + ' ' + unit;
-			desc = String(desc);
-			desc = desc.replace(/\n+/g, ' ');
+		excess = (excess == 0) ? "" : excess + ' ' + unit;
+		desc = String(desc);
+		desc = desc.replace(/\n+/g, ' ');
 
 		if (subsidary == "4") {
 			var itemId = workorder.getLineItemValue('item', 'item', i);
@@ -64,6 +84,34 @@ function suitelet(request, response) {
 		} else if (subsidary == "14") {
 			tablerow += addRmRow_SFLI(code, desc, qty + ' ' + unit, outs, '', '', '', '');
 		} else {
+			var itemSource = workorder.getLineItemValue('item', 'itemsource', i);
+
+			if (itemSource == 'WORK_ORDER') {
+				var child = workorder.getLineItemValue('item', 'item', i);
+				var childCode = nlapiLookupField('assemblyitem', child, 'itemid');
+				var JOnum = workorder.getLineItemValue('item', 'woid', i);
+				// Look up the 'tranid' field of the work order with internal ID JOnum
+				var joTranId = '';
+				if (JOnum) {
+					var joLookup = nlapiLookupField('workorder', JOnum, 'tranid');
+					if (joLookup) {
+						joTranId = joLookup;
+						if (i == 1)
+							memo += " [";
+						if (childCode && (childCode.indexOf('C1') !== -1)) {
+							memo += "C1 - " + joTranId;
+						} else if (childCode.indexOf('C2') !== -1) {
+							memo += "C2 - " + joTranId;
+						} else if (childCode.indexOf('C3') !== -1) {
+							memo += "C3 - " + joTranId;
+						}
+						if (i < lineCount) {
+							memo += ", ";
+						} else if (i == lineCount)
+							memo += "]";
+					}
+				}
+			}
 			tablerow += addRmRow_KPLima(code, desc, qty + ' ' + unit, excess, '', '', '', '');
 		}
 	}
@@ -103,9 +151,12 @@ function suitelet(request, response) {
 	html = html.replace('{TimeNeed}', workorder.getFieldValue('custbody237') || "");
 	html = html.replace('{name1}', workorder.getFieldText('custbody220') || "");
 	html = html.replace('{upcCode}', workorder.getFieldValue('custbody_upccode'));
+	html = html.replace('{upcCode2}', workorder.getFieldValue('custbody_upccode'));
 	html = html.replace('{excess}', excess);
+	html = html.replace('{Memo}', memo);
 	html = html.replace('{deptLocation}', workorder.getFieldValue('custbody485') || "");
 	html = html.replace('{deptLocationUPC}', workorder.getFieldValue('custbody485') || "");
+	html = html.replace('{KpSystem#}', workorder.getFieldValue('custbody_kpsystem_field') || "");
 
 	// Add Process Rows
 	if (subsidary == 14) {

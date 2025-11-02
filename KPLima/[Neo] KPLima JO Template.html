@@ -208,7 +208,7 @@
         <td>Date Prepared :</td>
         <td align="left" width="50%">{date}</td>
         <td>
-          <p>Time Needed: {TimeNeed}</p>
+          <p>KpSys #: {KpSystem#}</p>
         </td>
       </tr>
     </table>
@@ -226,7 +226,16 @@
         </td>
         <td width="33%">
           <p><span style="font-size: 18px; font-weight: bold;">Quantity: {qty}</span></p>
-          <barcode codetype="code128" style="height: 40px; width: 120px;" showtext="true" value="{upcCode}" />
+            <table>
+            <tr>
+              <td>
+              <barcode codetype="qrcode" style="height: 50px; width: 50px;" showtext="true" value="{upcCode}" />
+              </td>
+              <td style="vertical-align: middle; padding-left: 8px;">
+              <p>{upcCode2}</p>
+              </td>
+            </tr>
+            </table>
         </td>
       </tr>
     </table>
@@ -304,7 +313,7 @@
       <table width="100%" align="center">
         <tr>
           <td>
-            <p>Remarks:______________________________________________________</p>
+            <p>Remarks:<u>{Memo}</u></p>
           </td>
           <!-- <td class="borderRight borderTop">Noted By:</td>
 <td class="borderRight borderTop">Approved By:</td>

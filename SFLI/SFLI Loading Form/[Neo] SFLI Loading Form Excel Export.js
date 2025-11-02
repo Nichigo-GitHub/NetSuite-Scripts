@@ -48,6 +48,11 @@ define(['N/record', 'N/search'], function (record, search) {
                     sublistId: sublistId,
                     fieldId: 'custrecord853',
                     line: i
+                }) || '0',
+                balance: customRecord.getSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord934',
+                    line: i
                 }) || '0'
             });
         }
@@ -58,9 +63,9 @@ define(['N/record', 'N/search'], function (record, search) {
         });
 
         // Prepare CSV content
-        var csvContent = 'Customer,Item,Description,SO Number,Quantity\n';
+        var csvContent = 'Customer,Item,Description,SO Number,Quantity,Balance\n';
         for (var j = 0; j < sublistData.length; j++) {
-            csvContent += '"' + sublistData[j].customer + '","' + sublistData[j].item + '","' + sublistData[j].desc + '","' + sublistData[j].soNum + '","' + sublistData[j].qty + '"\n';
+            csvContent += '"' + sublistData[j].customer + '","' + sublistData[j].item + '","' + sublistData[j].desc + '","' + sublistData[j].soNum + '","' + sublistData[j].qty + '","' + sublistData[j].balance + '"\n';
         }
 
         // Extract relevant data from the loading form record

@@ -183,6 +183,52 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
             }
         }
 
+        // Step 4: Loop back through record lines and update
+        for (var j = 0; j < itemCount; j++) {
+            var lineItemId = rec.getSublistValue({
+                sublistId: 'item',
+                fieldId: 'item',
+                line: j
+            });
+
+            // Clear BIN and Quantity fields before updating
+            rec.setSublistValue({
+                sublistId: 'item',
+                fieldId: 'custcol554', // BIN custom field
+                line: j,
+                value: ''
+            });
+            rec.setSublistValue({
+                sublistId: 'item',
+                fieldId: 'custcol555', // Qty custom field
+                line: j,
+                value: ''
+            });
+
+            if (itemBinMap[lineItemId]) {
+                var binData = itemBinMap[lineItemId];
+
+                rec.setSublistValue({
+                    sublistId: 'item',
+                    fieldId: 'custcol554', // BIN custom field
+                    line: j,
+                    value: binData.bin
+                });
+                rec.setSublistValue({
+                    sublistId: 'item',
+                    fieldId: 'custcol555', // Qty custom field
+                    line: j,
+                    value: binData.qty
+                });
+
+                log.debug('Updated line ' + j, {
+                    itemId: lineItemId,
+                    bin: binData.bin,
+                    qty: binData.qty
+                });
+            }
+        }
+
         // Save the record
         rec.save();
     }

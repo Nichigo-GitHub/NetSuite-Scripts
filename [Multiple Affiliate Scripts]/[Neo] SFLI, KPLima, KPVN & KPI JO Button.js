@@ -28,7 +28,7 @@ function userEventBeforeLoad(type, form) {
                 form.addButton("custpage_ppo2", "KP FPIP JO Printout", KPLIMAJO);
             } else if (location == '798' || custfrm == '735') {
                 form.addButton("custpage_ppo2", "KP Cebu JO Printout", KPLIMAJO);
-            } else if (location == '792' || custfrm == '656') {
+            } else if (location == '792' || location == '889' || custfrm == '656') {
                 form.addButton("custpage_ppo2", "KPLIMA JO Printout", KPLIMAJO);
             }
         } else if (sub == '15') { // Kanepackage Vietnam Co.,Ltd

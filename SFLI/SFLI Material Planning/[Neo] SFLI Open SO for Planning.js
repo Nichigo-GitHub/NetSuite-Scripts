@@ -2,13 +2,14 @@
  * @NApiVersion 2.x
  * @NScriptType ClientScript
  */
-define(['N/search', 'N/log'], function (search, log) {
+define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, dialog, record) {
     var previousCustomer = null;
     var isFieldChangeScriptActive = true;
-    var populate = true;
+    var lineInitVal = false;
     var revert = false;
     var searchFulfillment = true;
     var contextMode = '';
+    var forecastDRSSnapshot = {};
     const sublistId = 'recmachcustrecord783';
     const fieldIdsToCheck = [
         'custrecord788', 'custrecord789', 'custrecord790', 'custrecord791',
@@ -28,13 +29,10 @@ define(['N/search', 'N/log'], function (search, log) {
     const currentDate = new Date();
     const currentDay = currentDate.getDate();
     var currentMonthValue = currentDate.getMonth() + 1;
-    const nextMonthValue = currentMonthValue === 12 ? 1 : currentMonthValue + 1;
-    const nextYearValue = currentMonthValue === 12 ? currentDate.getFullYear() + 1 : currentDate.getFullYear();
     const monthNames = [
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
     ];
-    const currentMonthText = monthNames[currentDate.getMonth()];
 
     // Page Init Function - Loads when the form is loaded
     function pageInit(context) {
@@ -90,7 +88,7 @@ define(['N/search', 'N/log'], function (search, log) {
                 })
             } */
 
-            if (customer /*  && advanceDRS == 2 */ ) {
+            if (customer /*  && advanceDRS == 2 */) {
                 if (advanceDRS == 1) {
                     searchFulfillment = false;
                     log.debug({
@@ -129,67 +127,71 @@ define(['N/search', 'N/log'], function (search, log) {
                 fieldId: 'custrecord782'
             });
 
-            var drsName = customer + ' DRS [ ' + currentMonthText + ' ' + currentDate.getFullYear() + ' ]';
-
-            // Search for other records with the same DRS name
-            var drsSearch = search.create({
-                type: 'customrecord1874',
-                filters: [
-                    ['custrecorddrs_name', 'is', drsName]
-                ],
-                columns: ['custrecorddrs_name']
-            });
-
-            var hasMatch = false;
-            drsSearch.run().each(function (result) {
-                var matchedName = result.getValue({
-                    name: 'custrecorddrs_name'
-                });
-
-                if (matchedName == drsName) {
-                    hasMatch = true;
-                }
-
-                return false;
-            });
-
-            if (hasMatch) {
-                log.debug('Duplicate DRS Name found', drsName);
-                currentRecord.setValue({
-                    fieldId: 'custrecorddrs_name',
-                    value: customer + ' DRS [ ' + nextMonthValue + ' ' + nextYearValue + ' ]'
-                });
-
-                currentMonthValue = nextMonthValue;
-
-                currentRecord.setValue({
-                    fieldId: 'custrecord837',
-                    value: currentMonthValue
-                });
-
-                currentRecord.setValue({
-                    fieldId: 'custrecord838',
-                    value: 2
-                });
-
-                var monthField = currentRecord.getField({
+            if (!customer == '') {
+                var currentMonth = currentRecord.getValue({
                     fieldId: 'custrecord837'
                 });
+                var currentMonthTextValue = monthNames[parseInt(currentMonth, 10) - 1];
 
-                monthField.isDisabled = true;
-            } else {
-                currentRecord.setValue({
-                    fieldId: 'custrecorddrs_name',
-                    value: drsName
+                var drsName = customer + ' DRS [ ' + currentMonthTextValue + ' ' + currentDate.getFullYear() + ' ]';
+
+                log.debug({
+                    title: 'DRS Name',
+                    details: drsName
                 });
-            }
 
-            if (customer !== previousCustomer && customer != '') {
-                previousCustomer = customer;
-                clearSublist(currentRecord);
-                loadSublistData(currentRecord, customer, contextMode);
-            } else if (!customer || customer == '' || customer == null) {
-                clearSublist(currentRecord);
+                // Search for other records with the same DRS name
+                var drsSearch = search.create({
+                    type: 'customrecord1874',
+                    filters: [
+                        ['custrecorddrs_name', 'is', drsName]
+                    ],
+                    columns: ['custrecorddrs_name']
+                });
+
+                var hasMatch = false;
+                drsSearch.run().each(function (result) {
+                    var matchedName = result.getValue({
+                        name: 'custrecorddrs_name'
+                    });
+
+                    log.debug({
+                        title: 'DRS Search Result',
+                        details: 'Matched Name: ' + matchedName + ', Target Name: ' + drsName
+                    });
+
+                    if (matchedName == drsName) {
+                        hasMatch = true;
+                    }
+
+                    return false;
+                });
+
+                if (hasMatch) {
+                    dialog.alert({
+                        title: 'Duplicate DRS Name',
+                        message: 'SO DRS with the name "' + drsName + '" already exists. Please choose a different customer or month.'
+                    });
+                    currentRecord.setValue({
+                        fieldId: 'custrecord782',
+                        value: ''
+                    });
+                    log.debug('Duplicate DRS Name found', drsName);
+                    return;
+                } else {
+                    currentRecord.setValue({
+                        fieldId: 'custrecorddrs_name',
+                        value: drsName
+                    });
+                }
+
+                if (customer !== previousCustomer && customer != '') {
+                    previousCustomer = customer;
+                    clearSublist(currentRecord);
+                    loadSublistData(currentRecord, customer, contextMode);
+                } else if (!customer || customer == '' || customer == null) {
+                    clearSublist(currentRecord);
+                }
             }
         }
 
@@ -352,13 +354,29 @@ define(['N/search', 'N/log'], function (search, log) {
             }
         }
 
-        // Add this block for fieldIdsToCheck logic
         var fieldIndex = fieldIdsToCheck.indexOf(context.fieldId);
-        if (fieldIndex !== -1) {
+        if (fieldIndex !== -1 && lineInitVal) {
+            log.debug({
+                title: 'fieldChanged - fieldIdsToCheck match',
+                details: 'fieldId: ' + context.fieldId + ', fieldIndex: ' + fieldIndex
+            });
+            isFieldChangeScriptActive = false;
+            // Update Total DRS
+            var sumTotal = 0;
+            for (var k = 0; k < fieldIdsToCheck.length; k++) {
+                var fieldId = fieldIdsToCheck[k];
+                var value = currentRecord.getSublistValue({
+                    sublistId: sublistId,
+                    fieldId: fieldId,
+                    line: context.line
+                });
+                var numValue = Number(value) || 0;
+                sumTotal += numValue;
+            }
             // Determine which forecastDRS index to use
             var forecastIndex;
             if (fieldIndex >= 27 && fieldIndex <= 30) {
-                forecastIndex = 8; // index 9 in forecastDRS (0-based)
+                forecastIndex = 9;
             } else {
                 forecastIndex = Math.floor(fieldIndex / 3);
             }
@@ -367,15 +385,188 @@ define(['N/search', 'N/log'], function (search, log) {
             if (forecastIndex >= 0 && forecastIndex < forecastDRS.length) {
                 var forecastFieldId = forecastDRS[forecastIndex];
 
-                // Get the changed value
-                var changedValue = Number(currentRecord.getValue({
-                    fieldId: context.fieldId
-                })) || 0;
+                // Always use sublistId, only process if context.line is a number
+                if (typeof context.line === 'number') {
+                    currentRecord.selectLine({
+                        sublistId: sublistId,
+                        line: context.line
+                    });
 
-                // Get current forecast value
-                var forecastValue = Number(currentRecord.getValue({
-                    fieldId: forecastFieldId
-                })) || 0;
+                    var sum = 0;
+
+                    if (context.fieldId == 'custrecord788' || context.fieldId == 'custrecord789' || context.fieldId == 'custrecord790') {
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord788'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord789'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord790'
+                        })) || 0;
+                    } else if (context.fieldId == 'custrecord791' || context.fieldId == 'custrecord792' || context.fieldId == 'custrecord793') {
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord791'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord792'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord793'
+                        })) || 0;
+                    } else if (context.fieldId == 'custrecord794' || context.fieldId == 'custrecord795' || context.fieldId == 'custrecord796') {
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord794'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord795'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord796'
+                        })) || 0;
+                    } else if (context.fieldId == 'custrecord797' || context.fieldId == 'custrecord798' || context.fieldId == 'custrecord799') {
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord797'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord798'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord799'
+                        })) || 0;
+                    } else if (context.fieldId == 'custrecord800' || context.fieldId == 'custrecord801' || context.fieldId == 'custrecord802') {
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord800'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord801'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord802'
+                        })) || 0;
+                    } else if (context.fieldId == 'custrecord803' || context.fieldId == 'custrecord804' || context.fieldId == 'custrecord805') {
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord803'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord804'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord805'
+                        })) || 0;
+                    } else if (context.fieldId == 'custrecord806' || context.fieldId == 'custrecord807' || context.fieldId == 'custrecord808') {
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord806'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord807'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord808'
+                        })) || 0;
+                    } else if (context.fieldId == 'custrecord809' || context.fieldId == 'custrecord810' || context.fieldId == 'custrecord811') {
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord809'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord810'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord811'
+                        })) || 0;
+                    } else if (context.fieldId == 'custrecord812' || context.fieldId == 'custrecord813' || context.fieldId == 'custrecord814') {
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord812'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord813'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord814'
+                        })) || 0;
+                    } else if (context.fieldId == 'custrecord815' || context.fieldId == 'custrecord816' || context.fieldId == 'custrecord817' || context.fieldId == 'custrecord818') {
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord815'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord816'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord817'
+                        })) || 0;
+
+                        sum += Number(currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord818'
+                        })) || 0;
+                    }
+
+                    // Get the changed value from the sublist line
+                    var changedValue = Number(currentRecord.getCurrentSublistValue({
+                        sublistId: sublistId,
+                        fieldId: context.fieldId
+                    })) || 0;
+
+                    forecastDRSSnapshot[context.line][context.fieldId] = changedValue;
+
+                    // Get current forecast value from the sublist line
+                    var forecastValue = Number(currentRecord.getCurrentSublistValue({
+                        sublistId: sublistId,
+                        fieldId: forecastFieldId
+                    })) || 0;
+
+                    var newForecastValue = 0;
+                    var remainder = 0;
 
                     // Deduct changed value from forecast
                     if (forecastDRSSnapshot[context.line] && forecastDRSSnapshot[context.line][forecastFieldId] !== undefined) {
@@ -409,6 +600,11 @@ define(['N/search', 'N/log'], function (search, log) {
                         sublistId: sublistId,
                         fieldId: forecastFieldId,
                         value: newForecastValue
+                    });
+                    currentRecord.setCurrentSublistValue({
+                        sublistId: sublistId,
+                        fieldId: 'custrecord996',
+                        value: sumTotal + changedValue
                     });
 
                     log.debug({
@@ -884,8 +1080,16 @@ define(['N/search', 'N/log'], function (search, log) {
             // Process search results: Add or update sublist lines, and track matches
             Object.keys(results).forEach(function (itemId) {
                 var itemData = results[itemId];
-                if (!checkAndUpdateSublist(currentRecord, itemData, 'SO', customer)) {
-                    populateSublistLine(currentRecord, itemData, contextMode, 'SO', customer);
+                // Only process if item is active
+                if (isItemActive(itemId)) {
+                    if (!checkAndUpdateSublist(currentRecord, itemData, 'SO', customer)) {
+                        populateSublistLine(currentRecord, itemData, contextMode, 'SO', customer);
+                    }
+                } else {
+                    log.debug({
+                        title: 'Inactive Item Skipped',
+                        details: 'Item ID: ' + itemId + ' is inactive and will not be added/updated in sublist.'
+                    });
                 }
             });
 
@@ -914,7 +1118,9 @@ define(['N/search', 'N/log'], function (search, log) {
                 });
             }
 
-            cleanDeduplicateAndTally(currentRecord, results);
+            if (contextMode === 'edit') {
+                cleanDeduplicateAndTally(currentRecord, results);
+            }
 
             disableFields(currentRecord);
 
@@ -959,12 +1165,12 @@ define(['N/search', 'N/log'], function (search, log) {
                     operator: search.Operator.ANYOF,
                     values: ['14']
                 }),
-                search.createFilter({
+                /* search.createFilter({
                     name: 'status',
                     operator: search.Operator.ANYOF,
                     values: ['SalesOrd:D', 'SalesOrd:E', 'SalesOrd:B'],
                     join: 'createdfrom'
-                }),
+                }), */
                 search.createFilter({
                     name: 'custbody16',
                     operator: search.Operator.ANYOF,
@@ -1018,6 +1224,8 @@ define(['N/search', 'N/log'], function (search, log) {
         } while (resultCount === pageSize);
 
         var results = [];
+        isFieldChangeScriptActive = false;
+
         fulfillmentSearchObj.run().each(function (result) {
             results.push({
                 item: result.getText({
@@ -1055,11 +1263,6 @@ define(['N/search', 'N/log'], function (search, log) {
             }
         });
 
-        isFieldChangeScriptActive = true;
-        log.debug({
-            title: 'loadItemFulfillment',
-            details: 'isFieldChangeScriptActive: ' + isFieldChangeScriptActive
-        })
     }
 
     // Update checkAndUpdateSublist to add log.debugs for updates and conditions
@@ -1113,6 +1316,13 @@ define(['N/search', 'N/log'], function (search, log) {
                             fieldId: 'custrecord933',
                             value: 0
                         });
+
+                        if (currentItem == 'SH00000236') {
+                            log.debug({
+                                title: 'Match Found for SH00000236',
+                                details: results
+                            });
+                        }
 
                         if (totalDRquantity == null) {
                             currentRecord.setCurrentSublistValue({
@@ -1251,6 +1461,12 @@ define(['N/search', 'N/log'], function (search, log) {
 
                                 currentRecord.setCurrentSublistValue({
                                     sublistId: sublistId,
+                                    fieldId: 'custrecord1016',
+                                    value: currentItemId
+                                });
+
+                                currentRecord.setCurrentSublistValue({
+                                    sublistId: sublistId,
                                     fieldId: 'custrecord836',
                                     value: customer
                                 });
@@ -1271,6 +1487,23 @@ define(['N/search', 'N/log'], function (search, log) {
                                         value: getMemberItems(currentItemId)
                                     });
                                 }
+                                // Update Total DRS
+                                var sumTotal = 0;
+                                for (var k = 0; k < fieldIdsToCheck.length; k++) {
+                                    var fieldId = fieldIdsToCheck[k];
+                                    var value = currentRecord.getSublistValue({
+                                        sublistId: sublistId,
+                                        fieldId: fieldId,
+                                        line: i
+                                    });
+                                    var numValue = Number(value) || 0;
+                                    sumTotal += numValue;
+                                }
+                                currentRecord.setCurrentSublistValue({
+                                    sublistId: sublistId,
+                                    fieldId: 'custrecord996',
+                                    value: sumTotal
+                                });
 
                                 if (salesOrders.includes(currentSO)) {
                                     currentRecord.commitLine({
@@ -1323,11 +1556,9 @@ define(['N/search', 'N/log'], function (search, log) {
     // Update populateSublistLine to add log.debugs for adds and conditions
     function populateSublistLine(currentRecord, results, contextMode, recType, customer) {
         isFieldChangeScriptActive = false;
-
         currentRecord.selectNewLine({
             sublistId: sublistId
         });
-
         if (contextMode === 'edit') {
             if (recType == 'SO') {
                 for (var key in results) {
@@ -1367,12 +1598,13 @@ define(['N/search', 'N/log'], function (search, log) {
                             fieldId: 'custrecord836',
                             value: customer
                         });
+                        var month = currentRecord.getValue({
+                            fieldId: 'custrecord837'
+                        });
                         currentRecord.setCurrentSublistValue({
                             sublistId: sublistId,
                             fieldId: 'custrecord846',
-                            value: currentRecord.getValue({
-                                fieldId: 'custrecord837'
-                            })
+                            value: month
                         });
 
                         break;
@@ -1419,12 +1651,13 @@ define(['N/search', 'N/log'], function (search, log) {
                     fieldId: 'custrecord836',
                     value: customer
                 });
+                var month = currentRecord.getValue({
+                    fieldId: 'custrecord837'
+                });
                 currentRecord.setCurrentSublistValue({
                     sublistId: sublistId,
                     fieldId: 'custrecord846',
-                    value: currentRecord.getValue({
-                        fieldId: 'custrecord837'
-                    })
+                    value: month
                 });
             }
         } else if (contextMode === 'create') {
@@ -1513,12 +1746,14 @@ define(['N/search', 'N/log'], function (search, log) {
                     fieldId: 'custrecord836',
                     value: customer
                 });
-
             }
+            var month = currentRecord.getValue({
+                fieldId: 'custrecord837'
+            });
             currentRecord.setCurrentSublistValue({
                 sublistId: sublistId,
                 fieldId: 'custrecord846',
-                value: currentMonthValue
+                value: month
             });
         }
         initializeSublistFieldsToZero(currentRecord, contextMode, recType);
@@ -1533,6 +1768,14 @@ define(['N/search', 'N/log'], function (search, log) {
     // Function to initialize sublist fields to zero
     function initializeSublistFieldsToZero(currentRecord, contextMode, recType) {
         fieldIdsToCheck.forEach(function (fieldId) {
+            currentRecord.setCurrentSublistValue({
+                sublistId: sublistId,
+                fieldId: fieldId,
+                value: 0
+            });
+        });
+
+        forecastDRS.forEach(function (fieldId) {
             currentRecord.setCurrentSublistValue({
                 sublistId: sublistId,
                 fieldId: fieldId,
@@ -1594,7 +1837,7 @@ define(['N/search', 'N/log'], function (search, log) {
 
     // Disable specific fields in sublist
     function disableFields(currentRecord) {
-        var disableFieldIds = ['custrecord784', 'custrecord786', 'custrecord835', 'custrecord785', 'custrecord845', 'custrecord836', 'custrecord846', 'custrecord856', 'custrecord857', 'custrecord933'];
+        var disableFieldIds = ['custrecord784', 'custrecord786', 'custrecord835', 'custrecord785', 'custrecord845', 'custrecord836', 'custrecord846', 'custrecord856', 'custrecord857', 'custrecord933', 'custrecord996', 'custrecord995'];
 
         /* for (var x = 0; x < currentDay - 1; x++) {
             disableFieldIds.push(fieldIdsToCheck[x]);
@@ -1631,6 +1874,11 @@ define(['N/search', 'N/log'], function (search, log) {
         var linesToRemove = [];
         var seen = {};
 
+        log.debug({
+            title: 'cleanDeduplicateAndTally',
+            details: 'Starting with lineCount: ' + lineCount
+        });
+
         for (var i = 0; i < lineCount; i++) {
             var itemId = currentRecord.getSublistValue({
                 sublistId: sublistId,
@@ -1641,6 +1889,11 @@ define(['N/search', 'N/log'], function (search, log) {
                 sublistId: sublistId,
                 fieldId: 'custrecord786',
                 line: i
+            });
+
+            log.debug({
+                title: 'Line Processing',
+                details: 'Line: ' + i + ', itemId: ' + itemId + ', soText: ' + soText
             });
 
             // 1. Remove if item not in results
@@ -1654,6 +1907,10 @@ define(['N/search', 'N/log'], function (search, log) {
             if (!soList.includes(soText)) {
                 var replacementSO = soList.length > 0 ? soList[0] : null;
                 if (replacementSO) {
+                    log.debug({
+                        title: 'Replace SO',
+                        details: 'Replacing SO for line ' + i + ' with ' + replacementSO
+                    });
                     currentRecord.selectLine({
                         sublistId: sublistId,
                         line: i
@@ -1667,6 +1924,10 @@ define(['N/search', 'N/log'], function (search, log) {
                         sublistId: sublistId
                     });
                 } else {
+                    log.debug({
+                        title: 'Remove Line',
+                        details: 'No replacement SO, marking line ' + i + ' for removal'
+                    });
                     linesToRemove.push(i);
                     continue;
                 }
@@ -1680,51 +1941,75 @@ define(['N/search', 'N/log'], function (search, log) {
                 });
             }
 
-            // 3. Remove duplicate zero lines
-            var sum = 0;
-            for (var j = 0; j < fieldIdsToCheck.length; j++) {
+            // 3. Remove duplicate zero lines (flip logic: check for duplicate first, then check sum)
+            var key = itemId + '|' + soText;
+            if (seen[key]) {
+                // Already seen this key, check if this line is all zeros
+                var sum = 0;
+                for (var j = 0; j < fieldIdsToCheck.length; j++) {
+                    sum += Number(currentRecord.getSublistValue({
+                        sublistId: sublistId,
+                        fieldId: fieldIdsToCheck[j],
+                        line: i
+                    }) || 0);
+                }
                 sum += Number(currentRecord.getSublistValue({
                     sublistId: sublistId,
-                    fieldId: fieldIdsToCheck[j],
+                    fieldId: 'custrecord835',
                     line: i
                 }) || 0);
-            }
-            sum += Number(currentRecord.getSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord835',
-                line: i
-            }) || 0);
-            sum += Number(currentRecord.getSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord845',
-                line: i
-            }) || 0);
+                sum += Number(currentRecord.getSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord845',
+                    line: i
+                }) || 0);
 
-            var key = itemId + '|' + soText;
-            if (sum === 0) {
-                if (seen[key]) {
+                if (sum === 0) {
                     log.debug({
                         title: 'Remove Duplicate Zero Line',
                         details: 'Duplicate zero line found at ' + i + ', marking for removal'
                     });
                     linesToRemove.push(i);
                     continue;
-                } else {
-                    seen[key] = true;
                 }
+            } else {
+                seen[key] = true;
             }
 
             // 4. Tally balances for each line and set custrecord933 (only if not marked for removal)
+            // Only tally balances if custrecord846 (Month) matches current month
+            var sublistMonth = currentRecord.getSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord846',
+                line: i
+            });
+            if (parseInt(sublistMonth) !== currentMonthValue) {
+                log.debug({
+                    title: 'Skip Tally',
+                    details: 'Line: ' + i + ', sublistMonth: ' + sublistMonth + ' does not match currentMonthValue: ' + currentMonthValue
+                });
+                continue;
+            }
             var balance = 0;
-            for (var k = 0; k < currentDay - 1; k++) {
+            var sumTotal = 0;
+            for (var k = 0; k < fieldIdsToCheck.length; k++) {
                 var fieldId = fieldIdsToCheck[k];
                 var value = currentRecord.getSublistValue({
                     sublistId: sublistId,
                     fieldId: fieldId,
                     line: i
                 });
-                balance += Number(value) || 0;
+                var numValue = Number(value) || 0;
+                sumTotal += numValue;
+                if (k < currentDay - 1) {
+                    balance += numValue; // Add only up to currentDay - 1
+                }
             }
+            log.debug({
+                title: 'Tally Balances',
+                details: 'Line: ' + i + ', balance: ' + balance + ', sumTotal: ' + sumTotal
+            });
+            // You can use sumTotal as needed after the loop
             currentRecord.selectLine({
                 sublistId: sublistId,
                 line: i
@@ -1734,6 +2019,11 @@ define(['N/search', 'N/log'], function (search, log) {
                 fieldId: 'custrecord933',
                 value: balance
             });
+            currentRecord.setCurrentSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord996',
+                value: sumTotal
+            });
             currentRecord.commitLine({
                 sublistId: sublistId
             });
@@ -1741,6 +2031,10 @@ define(['N/search', 'N/log'], function (search, log) {
 
         // Remove lines in reverse order
         for (var k = linesToRemove.length - 1; k >= 0; k--) {
+            log.debug({
+                title: 'Remove Line',
+                details: 'Actually removing line: ' + linesToRemove[k]
+            });
             currentRecord.removeLine({
                 sublistId: sublistId,
                 line: linesToRemove[k]
@@ -1749,12 +2043,83 @@ define(['N/search', 'N/log'], function (search, log) {
 
         log.debug({
             title: 'cleanDeduplicateAndTally',
-            details: 'Completed cleanDeduplicateAndTally'
+            details: 'Completed cleanDeduplicateAndTally, removed lines: ' + JSON.stringify(linesToRemove)
         });
+        lineInitVal = true; // Set lineInitVal to true after cleaning
+        isFieldChangeScriptActive = true;
+    }
+
+    function lineInit(context) {
+        if (context.sublistId === sublistId && lineInitVal && context.currentRecord.getCurrentSublistIndex({ sublistId: sublistId }) !== undefined) {
+            var currentLine = context.currentRecord.getCurrentSublistIndex({ sublistId: sublistId });
+            if (typeof currentLine === 'number' && currentLine >= 0)
+                var lineIndex = currentLine;
+            if (typeof lineIndex === 'number' && lineIndex >= 0) {
+                log.debug({
+                    title: 'lineInit',
+                    details: 'Calling captureForecastDRSSnapshot for line ' + lineIndex
+                });
+                captureForecastDRSSnapshot(context.currentRecord, lineIndex, undefined, undefined, false);
+            } else {
+                log.debug({
+                    title: 'lineInit',
+                    details: 'Skipped captureForecastDRSSnapshot: Invalid line index (currentLine: ' + currentLine + ', getCurrentSublistIndex: ' + lineIndex + ')'
+                });
+            }
+        }
+    }
+
+    // Capture snapshot of forecastDRS fields for the selected line
+    function captureForecastDRSSnapshot(currentRecord, line, field, value, additional) {
+        if (lineInitVal === false) return;
+        var lineCount = currentRecord.getLineCount({ sublistId: sublistId });
+        if (typeof line === 'number' && line >= 0 && line < lineCount) {
+            if (!forecastDRSSnapshot[line]) {
+                forecastDRSSnapshot[line] = {};
+            }
+            if (additional) {
+                forecastDRSSnapshot[line][field] = value;
+            } else {
+                forecastDRS.forEach(function (fieldId) {
+                    var fieldValue = currentRecord.getSublistValue({
+                        sublistId: sublistId,
+                        fieldId: fieldId,
+                        line: line
+                    });
+                    forecastDRSSnapshot[line][fieldId] = fieldValue;
+                });
+                forecastDRSSnapshot[line]['custrecord995'] = currentRecord.getSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord995',
+                    line: line
+                });
+            }
+        } else {
+            log.debug({
+                title: 'captureForecastDRSSnapshot',
+                details: 'Invalid line index: ' + line + ', lineCount: ' + lineCount
+            });
+        }
+    }
+
+    // Helper function to check if an item is active using lookupFields
+    function isItemActive(itemId) {
+        try {
+            var lookup = search.lookupFields({
+                type: 'item',
+                id: itemId,
+                columns: ['isinactive']
+            });
+            return lookup.isinactive !== true && lookup.isinactive !== 'T';
+        } catch (e) {
+            log.error('Error checking item active status', e.message);
+            return false;
+        }
     }
 
     return {
         pageInit: pageInit,
-        fieldChanged: fieldChanged
+        fieldChanged: fieldChanged,
+        lineInit: lineInit
     };
 });

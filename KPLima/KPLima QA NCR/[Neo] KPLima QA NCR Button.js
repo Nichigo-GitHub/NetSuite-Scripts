@@ -11,7 +11,7 @@ define(['N/ui/serverWidget'], function (ui) {
             if (subsidiary == 18) {
                 context.form.addButton({
                     id: 'custpage_print_labels',
-                    label: '🖨️ Print KPLima NCR',
+                    label: '🖨️ Print KPPI NCR',
                     functionName: 'openLabelPDF'
                 });
 

@@ -26,9 +26,36 @@ define(['N/render', 'N/record', 'N/file', 'N/search', 'N/format', 'N/runtime'], 
         var supplier = rec.getText({
             fieldId: 'entity'
         });
+        var currency = rec.getText({
+            fieldId: 'currency'
+        });
+        var poNumber = rec.getText({
+            fieldId: 'createdfrom'
+        });
         var jobOrder = rec.getText({
             fieldId: 'custbody23'
         });
+        var location = rec.getValue({
+            fieldId: 'location'
+        });
+        var qa = '';
+        var admin = '';
+        var warehouse = '';
+        var purchasing = '';
+
+        if (location == 825) {
+            qa = 'Mr. ANGELO PLATON /<br />C. FLORES';
+            admin = 'Ms. MIRASOL TALATALA';
+            warehouse = 'Mr. EDUARD RAMOS';
+            purchasingHeader = '';
+            purchasing = '';
+        } else {
+            qa = 'Mr. GLENN DONALD MAGSINO /<br />Mr. RODERICK RAMOS';
+            admin = 'Ms. JOSSA SALAZAR';
+            warehouse = 'Ms. STELLA ORTEGA /<br />Ms. SUZETTE DIMAYUGA';
+            purchasingHeader = 'PURCHASING';
+            purchasing = 'Ms. SALVE OSI';
+        }
         // Format today's date for Issued Date
         var issuedDate = format.format({
             value: new Date(),
@@ -183,7 +210,7 @@ define(['N/render', 'N/record', 'N/file', 'N/search', 'N/format', 'N/runtime'], 
             var rejectPercent = '';
             if (lotSizeNum > 0) {
                 rejectPercent = ((rejectQty / lotSizeNum) * 100).toFixed(2) + '%';
-            } 
+            }
 
             dynamicTableRows += "<tr>" +
                 "<td class='border' align='center' valign='middle' width='70'>" + (itemDescription || '') + "</td>" +
@@ -288,8 +315,8 @@ define(['N/render', 'N/record', 'N/file', 'N/search', 'N/format', 'N/runtime'], 
             "<tr>" +
             "<td width='70'><b>Supplier:</b></td>" +
             "<td width='200' style='text-decoration: underline;'>" + supplier + "</td>" +
-            "<td width='70'>Issued Date: </td>" +
-            "<td width='200' style='text-decoration: underline;'>" + issuedDate + "</td>" +
+            "<td width='70'>PO #:</td>" +
+            "<td width='200' style='text-decoration: underline;'>" + poNumber + "</td>" +
             "<td width='70'><b>Nature:</b></td>" +
             "<td width='35' align='center' class='black-bg'>_</td>" +
             "<td width='90' >Information</td>" +
@@ -299,8 +326,8 @@ define(['N/render', 'N/record', 'N/file', 'N/search', 'N/format', 'N/runtime'], 
             "<tr>" +
             "<td width='70'><b>Attention:</b></td>" +
             "<td width='200' style='text-decoration: underline;'>" + contactId + "</td>" +
-            "<td width='70'>Prepared By: </td>" +
-            "<td width='200' style='text-decoration: underline;'>" + preparedBy + "</td>" +
+            "<td width='70'>Currency: </td>" +
+            "<td width='200' style='text-decoration: underline;'>" + currency + "</td>" +
             "<td width='70'></td>" +
             "<td width='35'></td>" +
             "<td width='10'></td>" +
@@ -310,8 +337,8 @@ define(['N/render', 'N/record', 'N/file', 'N/search', 'N/format', 'N/runtime'], 
             "<tr>" +
             "<td width='70'>Control No.: </td>" +
             "<td width='200' align='left' style='text-decoration: underline;'>" + tranid + "</td>" +
-            "<td width='70'></td>" +
-            "<td width='200' align='left'>QA Staff in Charge</td>" +
+            "<td width='70'>Issued Date: </td>" +
+            "<td width='200' style='text-decoration: underline;'>" + issuedDate + "</td>" +
             "<td width='70'><b>Disposition:</b></td>" +
             "<td width='35' align='center' class='black-bg'>_</td>" +
             "<td width='10'>Backload</td>" +
@@ -321,8 +348,8 @@ define(['N/render', 'N/record', 'N/file', 'N/search', 'N/format', 'N/runtime'], 
             "<tr>" +
             "<td width='70'></td>" +
             "<td width='200'></td>" +
-            "<td width='70'></td>" +
-            "<td width='200'></td>" +
+            "<td width='70'>Prepared By: </td>" +
+            "<td width='200' style='text-decoration: underline;'>" + preparedBy + "</td>" +
             "<td width='70'></td>" +
             "<td width='35'></td>" +
             "<td width='10'></td>" +
@@ -333,7 +360,7 @@ define(['N/render', 'N/record', 'N/file', 'N/search', 'N/format', 'N/runtime'], 
             "<td width='70'></td>" +
             "<td width='200'></td>" +
             "<td width='70'></td>" +
-            "<td width='200'></td>" +
+            "<td width='200' align='left'>QA Staff in Charge</td>" +
             "<td width='70'></td>" +
             "<td width='35' align='center' class='border'></td>" +
             "<td width='10'>For Verification</td>" +
@@ -356,28 +383,28 @@ define(['N/render', 'N/record', 'N/file', 'N/search', 'N/format', 'N/runtime'], 
             "</tr>" +
             "<tr>" +
             "<td class='border' align='center' valign='middle'>QA</td>" +
-            "<td class='border' align='center' valign='middle'>Mr. GLENN DONALD MAGSINO</td>" +
+            "<td class='border' align='center' valign='middle'>" + qa + "</td>" +
             "<td class='border' height='25'></td>" +
             "<td width='100'></td>" +
             "<td width='50' valign='bottom'><b>RECEIVED BY: </b></td>" +
             "</tr>" +
             "<tr>" +
             "<td class='border' align='center' valign='middle'>ADMIN</td>" +
-            "<td class='border' align='center' valign='middle'>Ms. JOSSA SALAZAR</td>" +
+            "<td class='border' align='center' valign='middle'>" + admin + "</td>" +
             "<td class='border' height='25'></td>" +
             "<td width='100'></td>" +
             "<td width='50' align='center' colspan='2' valign='top'><b>______________________________<br />SIGNATURE OVER PRINTED NAME</b></td>" +
             "</tr>" +
             "<tr>" +
             "<td class='border' align='center' valign='middle'>WAREHOUSE</td>" +
-            "<td class='border' align='center' valign='middle'>Ms. STELLA ORTEGA /<br />Ms. SUZETTE DIMAYUGA</td>" +
+            "<td class='border' align='center' valign='middle'>" + warehouse + "</td>" +
             "<td class='border' height='25'></td>" +
             "<td width='100'></td>" +
             "<td width='50' valign='middle'><b>SUPPLIER'S NAME: __________________________</b></td>" +
             "</tr>" +
             "<tr>" +
-            "<td class='border' align='center' valign='middle'>Purchasing</td>" +
-            "<td class='border' align='center' valign='middle'>Ms. SALVE OSI</td>" +
+            "<td class='border' align='center' valign='middle'>" + purchasingHeader + "</td>" +
+            "<td class='border' align='center' valign='middle'>" + purchasing + "</td>" +
             "<td class='border' height='25'></td>" +
             "<td width='100'></td>" +
             "<td width='50' valign='middle'><b>DATE RECEIVED: ____________________________</b></td>" +

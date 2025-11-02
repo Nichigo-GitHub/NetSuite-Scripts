@@ -7,6 +7,7 @@ define(['N/render', 'N/record', 'N/file', 'N/search'], function (render, record,
     function onRequest(context) {
         var recId = context.request.parameters.recordId;
         var kpcebuParam = context.request.parameters.kpcebu;
+        var koyaParam = context.request.parameters.koyama;
         var oqaParam = context.request.parameters.oqa;
         var kpcebuSize = '';
         if (kpcebuParam) {
@@ -28,6 +29,12 @@ define(['N/render', 'N/record', 'N/file', 'N/search'], function (render, record,
 
         var customer = rec.getText('custrecord927') || '';
         var itemDesc = rec.getText('custrecord929') || '';
+        var padding = 'padding-right: -8px; padding-left: -8px;';
+        if (itemDesc.indexOf("S-XS-83-S-12 PARTITION") !== -1 ||
+            itemDesc.indexOf("CUSHION FOAM (15 grams)") !== -1 ||
+            itemDesc == "FABRICATION BOARD") {
+            padding = 'padding-right: 10px; padding-left: 10px;';
+        }
         var itemCode = rec.getText('custrecord928') || '';
         var model = rec.getText('custrecord930') || '';
         var quantity = rec.getValue('custrecord931') || '';
@@ -40,6 +47,10 @@ define(['N/render', 'N/record', 'N/file', 'N/search'], function (render, record,
         if (customer === "KANEPACKAGE PHILIPPINE INC. (CEBU)") {
             // Remove text in parentheses and trim
             var trimmedItemCode = itemCode.replace(/\s*\(.*?\)\s*/g, '').trim();
+
+            var KanecebuCustomer = rec.getText({
+                fieldId: 'custrecord1065'
+            });
 
             // Search for inventory items
             var itemSearch = search.create({
@@ -70,12 +81,24 @@ define(['N/render', 'N/record', 'N/file', 'N/search'], function (render, record,
                 });
                 customer = custitem24Text; // Use this for the label
             }
+
+            if (KanecebuCustomer) {
+                customer = KanecebuCustomer;
+            }
+        }
+
+        if (itemCode === 'CORRUGATED BOX WITH PAD' || itemCode === '172530') {
+            var width = '143px';
+            var margin = '6px;';
+        } else {
+            var width = '111px;';
+            var margin = '-25px;';
         }
 
         if (oqaParam && oqaParam.toLowerCase() === 't') {
             var xml = '<?xml version="1.0"?><pdf><head><style>';
             xml += 'table { font-size: 6pt; letter-spacing: 1px; font-family: Arial, Helvetica, sans-serif; font-weight: bold; border-collapse: collapse; }';
-            xml += '.labelTable { border: 1px solid black; width: 111px; height: 200px; margin-right: -25px; }';
+            xml += '.labelTable { border: 1px solid black; width: ' + width + '; height: 200px; margin-right: ' + margin + '; }';
             xml += '</style></head><body>';
 
             var labelsPerRow = 5;
@@ -92,7 +115,7 @@ define(['N/render', 'N/record', 'N/file', 'N/search'], function (render, record,
                 var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
                 var formattedDate = ("0" + today.getDate()).slice(-2) + '-' + months[today.getMonth()] + '-' + today.getFullYear();
 
-                xml += '<td style="table-layout: fixed; margin-top: -3px; margin-bottom: -2px; padding-right: 26px; padding-left: 26px;"><table class="labelTable">' +
+                xml += '<td style="table-layout: fixed; margin-top: -3px; margin-bottom: -2px; ' + padding + '"><table class="labelTable">' +
                     '<tr><td colspan="3" style="font-size: 4.5pt;" align="right"><b>rev02</b></td></tr>' +
                     '<tr style="height: 50px;"><td colspan="2" align="center" valign="top">' +
                     '<img src="https://3389427.app.netsuite.com/core/media/media.nl?id=360340&amp;c=3389427&amp;h=cfGNqhly00yySx-YB1nHq39gUTV44NU5JadtY4Ro6XIPxjvU" width="95" height="95" style="position: absolute; top: -10px; left: 3px;"/>' +
@@ -215,6 +238,25 @@ define(['N/render', 'N/record', 'N/file', 'N/search'], function (render, record,
             }
 
             xml += '</body></pdf>';
+        } else if (koyaParam && koyaParam.toLowerCase() === 'full') {
+            var xml = '<?xml version="1.0"?><pdf><head><style>'
+                + 'body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; padding-top: 130px; }'
+                + 'table { font-size: 18pt; letter-spacing: 2px; font-family: Arial, Helvetica, sans-serif; } '
+                + '.labelTable { border: 1px solid black; }'
+                + '</style></head><body>';
+
+            var lotFontSize = /* String(trimmedLot).indexOf("SFLI-JO-") !== -1 ? "4.5pt" : */ "inherit";
+            xml += '<table class="labelTable">' +
+                '<tr><td colspan="3" align="center" style="border-bottom: 1px;"><b>SUPERFLEX LOGISTIC INC.</b></td></tr>' +
+                '<tr><td align="center" style="border-bottom: 1px; border-right: 1px;">CUSTOMER:</td><td colspan="2" align="center" style="border-bottom: 1px;">' + customer + '</td></tr>' +
+                '<tr><td align="center" style="border-right: 1px;" valign="bottom">ITEM</td><td colspan="2" rowspan="2" align="center" style="border-bottom: 1px;">' + itemDesc + '</td></tr>' +
+                '<tr><td align="center" style="border-bottom: 1px; border-right: 1px;" valign="top">DESCRIPTION:</td></tr>' +
+                '<tr><td align="center" style="border-bottom: 1px; border-right: 1px;">ITEM CODE:</td><td colspan="2" align="center" style="border-bottom: 1px;">' + itemCode + '</td></tr>' +
+                '<tr><td align="center" style="border-bottom: 1px; border-right: 1px;" valign="middle">MODEL:</td><td align="center" style="border-bottom: 1px; border-right: 1px;">' + model + '</td>' +
+                '<td align="center" rowspan="3" valign="middle"><b>RoHS<br />OQA<br />PASSED</b></td></tr>' +
+                '<tr><td align="center" style="border-bottom: 1px; border-right: 1px;">LOT NUMBER:</td><td align="center" valign="middle" style="border-bottom: 1px; border-right: 1px; font-size: ' + lotFontSize + ';">' + trimmedLot + '</td></tr>' +
+                '<tr><td align="center" style="border-right: 1px;">QUANTITY:</td><td align="center" style="border-right: 1px;">' + quantity + '</td></tr>' +
+                '</table></body></pdf>';
         } else {
             var xml = '<?xml version="1.0"?><pdf><head><style>';
             xml += 'table { font-size: 7pt; letter-spacing: 1px; font-family: Arial, Helvetica, sans-serif; } ';
@@ -230,7 +272,7 @@ define(['N/render', 'N/record', 'N/file', 'N/search'], function (render, record,
                 }
 
                 var lotFontSize = String(trimmedLot).indexOf("SFLI-JO-") !== -1 ? "4.5pt" : "inherit";
-                xml += '<td style="margin-top: -3px; margin-bottom: -3px; padding-right: -8px; padding-left: -8px;"><table class="labelTable">' +
+                xml += '<td style="margin-top: -3px; margin-bottom: -3px; ' + padding + '"><table class="labelTable">' +
                     '<tr><td colspan="3" align="center" style="border-bottom: 1px;"><b>SUPERFLEX LOGISTIC INC.</b></td></tr>' +
                     '<tr><td align="center" style="border-bottom: 1px; border-right: 1px;">CUSTOMER:</td><td colspan="2" align="center" style="border-bottom: 1px;">' + customer + '</td></tr>' +
                     '<tr><td align="center" style="border-right: 1px;" valign="bottom">ITEM</td><td colspan="2" rowspan="2" align="center" style="border-bottom: 1px;">' + itemDesc + '</td></tr>' +

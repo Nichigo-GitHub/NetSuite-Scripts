@@ -15,15 +15,70 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 
 			if (date) {
 				var dateParts = date.split('/');
-				if (dateParts.length === 3) {
-					var day = dateParts[1].padStart(2, '0');
-					var month = dateParts[0].padStart(2, '0');
-					var year = dateParts[2];
+				// Support dates like "29-Oct-2025" or "29-October-2025"
+				if (!dateParts || dateParts.length !== 3) {
+					var dashParts = (date || '').split('-');
+					log.error('Dash parts', dashParts);
+					if (dashParts.length === 3) {
+						var dayPart = dashParts[0].trim();
+						var monthPart = dashParts[1].trim().toLowerCase();
+						var yearPart = dashParts[2].trim();
 
-					var formattedDate = month + '/' + day + '/' + year;
+						var monthMap = {
+							jan: '01', january: '01',
+							feb: '02', february: '02',
+							mar: '03', march: '03',
+							apr: '04', april: '04',
+							may: '05',
+							jun: '06', june: '06',
+							jul: '07', july: '07',
+							aug: '08', august: '08',
+							sep: '09', sept: '09', september: '09',
+							oct: '10', october: '10',
+							nov: '11', november: '11',
+							dec: '12', december: '12'
+						};
+
+						var mapped = monthMap[monthPart] || monthMap[monthPart.substring(0, 3)];
+						month = mapped || monthPart;
+						month = month.toString().padStart(2, '0');
+
+						day = dayPart.toString().padStart(2, '0');
+						year = yearPart;
+						log.error('Mapped month', month);
+						log.error('Final day, month, year', day + ', ' + month + ', ' + year);
+
+						var formattedDate = day + '/' + month + '/' + year;
+						currentRecord.setText({
+							fieldId: 'custrecord773',
+							text: formattedDate
+						});
+						currentRecord.setValue({
+							fieldId: 'custrecord1204',
+							value: parseInt(month)
+						});
+						currentRecord.setValue({
+							fieldId: 'custrecord1205',
+							value: parseInt(year)
+						});
+					}
+				} else {
+					day = dateParts[0].padStart(2, '0');
+					month = dateParts[1].padStart(2, '0');
+					year = dateParts[2];
+
+					var formattedDate = day + '/' + month + '/' + year;
 					currentRecord.setText({
 						fieldId: 'custrecord773',
 						text: formattedDate
+					});
+					currentRecord.setValue({
+						fieldId: 'custrecord1204',
+						value: parseInt(month)
+					});
+					currentRecord.setValue({
+						fieldId: 'custrecord1205',
+						value: parseInt(year)
 					});
 				}
 			}
@@ -34,6 +89,8 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 			var customer = currentRecord.getValue({
 				fieldId: 'custrecord761'
 			});
+
+			log.error('Customer', customer);
 
 			if (customer) {
 				try {
@@ -74,23 +131,22 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 						sublistId: 'recmachcustrecord762'
 					});
 
+					log.error('Total Search Results', totalRecordsFetched);
+					log.error('allResults', allResults);
+
 					allResults.forEach(function (result) {
 						var itemid = result.getValue({
-							name: "itemid",
-							summary: "GROUP"
+							name: "itemid"
 						});
 						var salesdesc = result.getValue({
-							name: "salesdescription",
-							summary: "GROUP"
+							name: "salesdescription"
 						});
 						var unitprice = result.getValue({
 							name: "unitprice",
-							join: "pricing",
-							summary: "GROUP"
+							join: "pricing"
 						});
 						var formulanumeric = result.getValue({
-							name: "formulanumeric",
-							summary: "SUM"
+							name: "lastpurchaseprice"
 						});
 
 						// Loop through all lines in the sublist
@@ -101,6 +157,8 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 								fieldId: 'custrecord764',
 								line: i
 							});
+
+							log.error('itemid vs item', itemid + ' vs ' + item);
 
 							// Check if the itemid and salesdesc match the sublist values
 							if (itemid == item) {
@@ -122,11 +180,19 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 									value: formulanumeric
 								});
 
+								currentRecord.setCurrentSublistValue({
+									sublistId: 'recmachcustrecord762',
+									fieldId: 'custrecord763',
+									value: customer
+								});
+
+								log.error('customer set in line', customer);
+
 								currentRecord.commitLine({
 									sublistId: 'recmachcustrecord762'
 								});
 
-								log.debug({
+								log.error({
 									title: 'Line ' + (i + 1),
 									details: 'Item: ' + itemid + ', Description: ' + salesdesc + ' updated.'
 								});
@@ -145,6 +211,81 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 
 	function fieldChanged(context) {
 		var currentRecord = context.currentRecord;
+
+		if (context.fieldId === 'custrecord760') {
+			var date = currentRecord.getText({
+				fieldId: 'custrecord760'
+			});
+
+			if (date) {
+				var dateParts = date.split('/');
+				if (!dateParts || dateParts.length !== 3) {
+					var dashParts = (date || '').split('-');
+					log.error('Dash parts', dashParts);
+					if (dashParts.length === 3) {
+						var dayPart = dashParts[0].trim();
+						var monthPart = dashParts[1].trim().toLowerCase();
+						var yearPart = dashParts[2].trim();
+
+						var monthMap = {
+							jan: '01', january: '01',
+							feb: '02', february: '02',
+							mar: '03', march: '03',
+							apr: '04', april: '04',
+							may: '05',
+							jun: '06', june: '06',
+							jul: '07', july: '07',
+							aug: '08', august: '08',
+							sep: '09', sept: '09', september: '09',
+							oct: '10', october: '10',
+							nov: '11', november: '11',
+							dec: '12', december: '12'
+						};
+
+						var mapped = monthMap[monthPart] || monthMap[monthPart.substring(0, 3)];
+						month = mapped || monthPart;
+						month = month.toString().padStart(2, '0');
+
+						day = dayPart.toString().padStart(2, '0');
+						year = yearPart;
+						log.error('Mapped month', month);
+						log.error('Final day, month, year', day + ', ' + month + ', ' + year);
+
+						var formattedDate = day + '/' + month + '/' + year;
+						currentRecord.setText({
+							fieldId: 'custrecord773',
+							text: formattedDate
+						});
+						currentRecord.setValue({
+							fieldId: 'custrecord1204',
+							value: parseInt(month)
+						});
+						currentRecord.setValue({
+							fieldId: 'custrecord1205',
+							value: parseInt(year)
+						});
+					}
+				} else {
+					day = dateParts[0].padStart(2, '0');
+					month = dateParts[1].padStart(2, '0');
+					year = dateParts[2];
+
+					var formattedDate = day + '/' + month + '/' + year;
+					currentRecord.setText({
+						fieldId: 'custrecord773',
+						text: formattedDate
+					});
+					currentRecord.setValue({
+						fieldId: 'custrecord1204',
+						value: parseInt(month)
+					});
+					currentRecord.setValue({
+						fieldId: 'custrecord1205',
+						value: parseInt(year)
+					});
+				}
+			}
+		}
 
 		if (context.fieldId === 'custrecord761') {
 			var customer = currentRecord.getValue({
@@ -170,15 +311,76 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 						var batchSize = 1000;
 						var excludeSearchResults;
 
+						// Get the month and year
+						var date = currentRecord.getText({
+							fieldId: 'custrecord760'
+						});
+
+						var dateParts = date.split('/');
+
+						log.error('Original date', date);
+						log.error('Parsed dateParts', dateParts);
+
+						// Support dates like "29-Oct-2025" or "29-October-2025"
+						if (!dateParts || dateParts.length !== 3) {
+							var dashParts = (date || '').split('-');
+							log.error('Dash parts', dashParts);
+							if (dashParts.length === 3) {
+								var dayPart = dashParts[0].trim();
+								var monthPart = dashParts[1].trim().toLowerCase();
+								var yearPart = dashParts[2].trim();
+
+								var monthMap = {
+									jan: '01', january: '01',
+									feb: '02', february: '02',
+									mar: '03', march: '03',
+									apr: '04', april: '04',
+									may: '05',
+									jun: '06', june: '06',
+									jul: '07', july: '07',
+									aug: '08', august: '08',
+									sep: '09', sept: '09', september: '09',
+									oct: '10', october: '10',
+									nov: '11', november: '11',
+									dec: '12', december: '12'
+								};
+
+								var mapped = monthMap[monthPart] || monthMap[monthPart.substring(0, 3)];
+								month = mapped || monthPart;
+								month = month.toString().padStart(2, '0');
+
+								day = dayPart.toString().padStart(2, '0');
+								year = yearPart;
+								log.error('Mapped month', month);
+								log.error('Final day, month, year', day + ', ' + month + ', ' + year);
+							}
+						} else {
+							day = dateParts[0].padStart(2, '0');
+							month = dateParts[1].padStart(2, '0');
+							year = dateParts[2];
+						}
+
 						var excludeSearch = search.load({
 							id: 'customsearch4398'
 						});
+
+						log.error('day, month, year', day + ', ' + month + ', ' + year);
 
 						// Add customer filter
 						excludeSearch.filters.push(search.createFilter({
 							name: 'custrecord761',
 							operator: search.Operator.IS,
 							values: customer
+						}));
+						excludeSearch.filters.push(search.createFilter({
+							name: 'custrecord1204',
+							operator: search.Operator.IS,
+							values: month
+						}));
+						excludeSearch.filters.push(search.createFilter({
+							name: 'custrecord1205',
+							operator: search.Operator.IS,
+							values: year
 						}));
 
 						do {
@@ -190,46 +392,40 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 							start += batchSize;
 						} while (excludeSearchResults.length === batchSize);
 
-						// Get the current month and year
-						var currentDate = new Date();
-						var currentMonth = currentDate.getMonth() + 1;
-						var currentYear = currentDate.getFullYear();
+						log.debug('Exclude results count', allExcludeResults.length);
 
-						// Loop through each excludeSearch result and check month & year of custrecord760
-						for (var i = 0; i < allExcludeResults.length; i++) {
-							var result = allExcludeResults[i];
+						allExcludeResults.forEach(function (res, i) {
+							var id = res.id || res.getValue({ name: 'internalid' });
+							var cust = res.getValue({ name: 'custrecord761' });
+							var monthResult = res.getValue({ name: 'custrecord1204' }) || '';
+							var yearResult = res.getValue({ name: 'custrecord1205' }) || '';
+							log.debug({
+								title: 'Exclude Result ' + (i + 1),
+								details: 'id: ' + id + ', customer: ' + cust + ', month: ' + monthResult + ', year: ' + yearResult
+							});
+						});
 
-							// Get the value of custrecord760 (assumed to be a date field)
-							var custrecord760Date = result.getValue({
-								name: 'custrecord760'
+						// Check if any results were found
+						if (allExcludeResults && allExcludeResults.length > 0) {
+							var customerName = currentRecord.getText({
+								fieldId: 'custrecord761'
 							});
 
-							// Convert custrecord760 to a JavaScript Date object
-							if (custrecord760Date) {
-								var dateValue = new Date(custrecord760Date);
-								var custrecord760Month = dateValue.getMonth() + 1; // JavaScript months are 0-indexed
-								var custrecord760Year = dateValue.getFullYear();
+							currentRecord.setValue({
+								fieldId: 'custrecord761',
+								value: ''
+							});
 
-								// Compare both month & year
-								if (custrecord760Month === currentMonth && custrecord760Year === currentYear) {
-									// If there's a match, clear the customer field and show the alert
-									var customerName = currentRecord.getText({
-										fieldId: 'custrecord761'
-									});
+							var monthText = currentRecord.getText({
+								fieldId: 'custrecord1204'
+							});
 
-									currentRecord.setValue({
-										fieldId: 'custrecord761',
-										value: ''
-									});
+							dialog.alert({
+								title: 'GPR Forecast Exists',
+								message: 'There is already an existing GPR forecast for the customer: ' + customerName + ' in month ' + monthText + ' and year ' + year + '.'
+							});
 
-									dialog.alert({
-										title: 'GPR Forecast Exists',
-										message: 'There is already an existing GPR forecast for the customer: ' + customerName + ' in this month and year.'
-									});
-
-									return; // Exit the function early since we found a match
-								}
-							}
+							return;
 						}
 
 						// Proceed with the original search if no match was found
@@ -325,11 +521,17 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 								value: itemClass
 							});
 
+							currentRecord.setCurrentSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord763',
+								value: customer
+							});
+
 							currentRecord.commitLine({
 								sublistId: 'recmachcustrecord762'
 							});
 
-							log.debug({
+							log.error({
 								title: 'Line ' + (count + 1),
 								details: 'Item: ' + itemid + ', Description: ' + salesdesc
 							});

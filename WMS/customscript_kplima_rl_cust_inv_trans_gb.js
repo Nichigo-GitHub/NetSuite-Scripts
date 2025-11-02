@@ -64,7 +64,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 				preparedBy = '';
 			var deliveryDate = '';
 			var invTranID = '';
-
+			var JOnum = '';
 
 			try {
 				if (utility.isValueValid(requestBody)) {
@@ -102,6 +102,9 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					barcodeQuantity = requestParams.barcodeQuantity;
 					isTallyScanRequired = requestParams.isTallyScanRequired;
 					tallyScanBarCodeQty = requestParams.tallyScanBarCodeQty;
+
+					if (!invTranID)
+						invTranID = requestParams.JOnum;
 
 					log.debug({
 						title: 'requestParams',
@@ -336,7 +339,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 									}
 								}
 								if (isValidBin && ((objInvDetails.length == 0 && (blnMixItem == false || blnMixItem == "false")) ||
-										(blnMixItem == true || blnMixItem == 'true'))) {
+									(blnMixItem == true || blnMixItem == 'true'))) {
 									if (itemType == "serializedinventoryitem" || itemType == "serializedassemblyitem") {
 										binValidateArray.errorMessage = '';
 										binValidateArray.isValid = true;

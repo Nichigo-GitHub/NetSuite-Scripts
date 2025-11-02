@@ -10,7 +10,6 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
   var isValidationRunning = false;
   var removeRemarks = false;
   const currentDate = new Date();
-  const today = currentDate.getDate();
   var isInitializing = false;
   const sublistId = 'recmachcustrecord500';
   const fieldIdsToCheck = [
@@ -58,7 +57,7 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
       var modifiedDate = new Date(lastModifiedDate);
       modifiedDate.setHours(0, 0, 0, 0);
 
-      if (modifiedDate.getTime() !== currentDate.getTime()) {
+      if (modifiedDate.getTime() < currentDate.getTime()) {
         removeRemarks = true;
         currentRecord.setValue({
           fieldId: 'custrecord844',
@@ -301,7 +300,7 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
           ['mainline', 'is', 'F'], 'AND',
           ['subsidiary', 'anyof', '14'], 'AND',
           ['vendtype', 'noneof', '3'], 'AND',
-          ['status', 'noneof', 'PurchOrd:C', 'PurchOrd:G', 'PurchOrd:H' /* , 'PurchOrd:A' */ ], 'AND',
+          ['status', 'noneof', 'PurchOrd:C', 'PurchOrd:G', 'PurchOrd:H' /* , 'PurchOrd:A' */], 'AND',
           ['formulanumeric: {quantity}-{quantityshiprecv}', 'notlessthanorequalto', '0'], 'AND',
           ['closed', 'is', 'F'], 'AND',
           ['custcol50', 'contains', 'DRS'], 'AND',
@@ -418,12 +417,20 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
           fieldId: 'custrecord695',
           text: result.getText('mainname')
         });
-        if (removeRemarks) {
-          currentRecord.setCurrentSublistValue({
-            sublistId: sublistId,
-            fieldId: 'custrecord_remarks',
-            value: null
-          });
+        var month = currentRecord.getCurrentSublistValue({
+          sublistId: sublistId,
+          fieldId: 'custrecord501'
+        });
+        var currentMonth = (new Date()).getMonth() + 1;
+        log.debug('Remarks', 'Current Month: ' + currentMonth + ' | Month: ' + month + ' | ' + 'Remove Remarks: ' + removeRemarks);
+        if (month == currentMonth || month < currentMonth) {
+          if (removeRemarks) {
+            currentRecord.setCurrentSublistValue({
+              sublistId: sublistId,
+              fieldId: 'custrecord_remarks',
+              value: null
+            });
+          }
         }
 
         var sum = fieldIdsToCheck.reduce(function (acc, fieldId) {
@@ -504,16 +511,16 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
             });
 
             if (previousMonthPO == currentRecord.getCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord537'
-              }) && previousMonthItem == currentRecord.getCurrentSublistValue({
-                sublistId: sublistId,
-                fieldId: 'custrecord538'
-              })) {
+              sublistId: sublistId,
+              fieldId: 'custrecord537'
+            }) && previousMonthItem == currentRecord.getCurrentSublistValue({
+              sublistId: sublistId,
+              fieldId: 'custrecord538'
+            })) {
               if (!currentRecord.getCurrentSublistValue({
-                  sublistId: sublistId,
-                  fieldId: 'custrecord780'
-                })) {
+                sublistId: sublistId,
+                fieldId: 'custrecord780'
+              })) {
                 var currentToOldPObal = currentRecord.getCurrentSublistValue({
                   sublistId: sublistId,
                   fieldId: 'custrecord540'
@@ -533,9 +540,9 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
               });
 
               if (!currentRecord.getCurrentSublistValue({
-                  sublistId: sublistId,
-                  fieldId: 'custrecord695'
-                }))
+                sublistId: sublistId,
+                fieldId: 'custrecord695'
+              }))
                 currentRecord.setCurrentSublistValue({
                   sublistId: sublistId,
                   fieldId: 'custrecord695',
@@ -604,9 +611,9 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
               });
 
               if (!currentRecord.getCurrentSublistValue({
-                  sublistId: sublistId,
-                  fieldId: 'custrecord780'
-                })) {
+                sublistId: sublistId,
+                fieldId: 'custrecord780'
+              })) {
                 var currentToOldPObal = currentRecord.getCurrentSublistValue({
                   sublistId: sublistId,
                   fieldId: 'custrecord540'
@@ -626,9 +633,9 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
               });
 
               if (!currentRecord.getCurrentSublistValue({
-                  sublistId: sublistId,
-                  fieldId: 'custrecord695'
-                }))
+                sublistId: sublistId,
+                fieldId: 'custrecord695'
+              }))
                 currentRecord.setCurrentSublistValue({
                   sublistId: sublistId,
                   fieldId: 'custrecord695',
