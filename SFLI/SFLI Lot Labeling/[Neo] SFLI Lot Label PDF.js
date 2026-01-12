@@ -29,6 +29,10 @@ define(['N/render', 'N/record', 'N/file', 'N/search'], function (render, record,
 
         var customer = rec.getText('custrecord927') || '';
         var itemDesc = rec.getText('custrecord929') || '';
+        if (itemDesc) {
+            // Encode ampersands that are not already part of an HTML entity
+            itemDesc = itemDesc.replace(/&(?!amp;|lt;|gt;|quot;|apos;)/g, '&amp;');
+        }
         var padding = 'padding-right: -8px; padding-left: -8px;';
         if (itemDesc.indexOf("S-XS-83-S-12 PARTITION") !== -1 ||
             itemDesc.indexOf("CUSHION FOAM (15 grams)") !== -1 ||

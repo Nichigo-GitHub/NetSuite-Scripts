@@ -14,10 +14,12 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
 
         if (context.fieldId === 'custrecord575') {
             var currentRecord = context.currentRecord;
-            var rr = currentRecord.getValue('custrecord626');
+            var rr = currentRecord.getText('custrecord575');
 
             if (!rr)
                 return;
+
+            rr = rr.replace('Item Receipt #', '');
 
             const itemreceiptSearchColSize = search.createColumn({
                 name: 'custitem122',
@@ -34,7 +36,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
             const itemreceiptSearch = search.create({
                 type: 'itemreceipt',
                 filters: [
-                    ["transactionnumbertext", "is", rr],
+                    ["tranid", "is", rr],
                     'AND',
                     ['type', 'anyof', 'ItemRcpt'],
                     'AND',
@@ -60,12 +62,12 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
 
             itemreceiptSearchResults.forEach(function (result) {
                 currentRecord.selectNewLine({
-                    sublistId: 'recmachcustrecord625'
+                    sublistId: 'recmachcustrecord730'
                 });
 
                 // Customer
                 currentRecord.setCurrentSublistText({
-                    sublistId: 'recmachcustrecord625',
+                    sublistId: 'recmachcustrecord730',
                     fieldId: "custrecord624",
                     text: result.getValue({
                         name: 'custcol227',
@@ -74,7 +76,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                 });
                 // Item
                 currentRecord.setCurrentSublistText({
-                    sublistId: 'recmachcustrecord625',
+                    sublistId: 'recmachcustrecord730',
                     fieldId: "custrecord582",
                     text: result.getText({
                         name: "item"
@@ -82,16 +84,17 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                 });
                 // Size
                 currentRecord.setCurrentSublistValue({
-                    sublistId: 'recmachcustrecord625',
+                    sublistId: 'recmachcustrecord730',
                     fieldId: "custrecord583",
                     value: result.getValue({
-                        name: 'custitem122',
+                        name: 'custitem122'
+                        ,
                         join: 'item'
                     })
                 });
                 // Description
                 currentRecord.setCurrentSublistValue({
-                    sublistId: 'recmachcustrecord625',
+                    sublistId: 'recmachcustrecord730',
                     fieldId: "custrecord702",
                     value: result.getValue({
                         name: 'memo',
@@ -100,7 +103,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                 });
                 // Quantity
                 currentRecord.setCurrentSublistValue({
-                    sublistId: 'recmachcustrecord625',
+                    sublistId: 'recmachcustrecord730',
                     fieldId: "custrecord584",
                     value: result.getValue({
                         name: "quantity"
@@ -108,7 +111,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                 });
                 // Rate
                 currentRecord.setCurrentSublistValue({
-                    sublistId: 'recmachcustrecord625',
+                    sublistId: 'recmachcustrecord730',
                     fieldId: "custrecord587",
                     value: result.getValue({
                         name: "fxrate"
@@ -116,7 +119,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                 });
                 // Reject Quantity
                 currentRecord.setCurrentSublistValue({
-                    sublistId: 'recmachcustrecord625',
+                    sublistId: 'recmachcustrecord730',
                     fieldId: 'custrecord585',
                     value: 0
                 });
@@ -124,14 +127,14 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                 // Set other fields in the sublist to zero
                 for (var i = 0; i < fieldIdsToCheck.length; i++) {
                     currentRecord.setCurrentSublistValue({
-                        sublistId: 'recmachcustrecord625',
+                        sublistId: 'recmachcustrecord730',
                         fieldId: fieldIdsToCheck[i],
                         value: 0
                     });
                 }
 
                 currentRecord.commitLine({
-                    sublistId: 'recmachcustrecord625'
+                    sublistId: 'recmachcustrecord730'
                 });
             });
         } else if (context.fieldId === 'custrecord589' || context.fieldId === 'custrecord590' ||
@@ -155,17 +158,17 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
             var sum = 0;
             var trigger = context.fieldId;
             var triggerValue = currentRecord.getCurrentSublistValue({
-                sublistId: 'recmachcustrecord625',
+                sublistId: 'recmachcustrecord730',
                 fieldId: trigger
             });
             var rejQuantity = currentRecord.getCurrentSublistValue({
-                sublistId: 'recmachcustrecord625',
+                sublistId: 'recmachcustrecord730',
                 fieldId: 'custrecord585'
             });
 
             for (var i = 0; i < fieldIdsToCheck.length; i++) {
                 var kindOfReject = currentRecord.getCurrentSublistValue({
-                    sublistId: 'recmachcustrecord625',
+                    sublistId: 'recmachcustrecord730',
                     fieldId: fieldIdsToCheck[i]
                 });
 
@@ -177,7 +180,7 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                     sum = -triggerValue;
 
                     currentRecord.setCurrentSublistValue({
-                        sublistId: 'recmachcustrecord625',
+                        sublistId: 'recmachcustrecord730',
                         fieldId: trigger,
                         value: 0
                     });

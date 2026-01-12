@@ -1,0 +1,42 @@
+[
+    {
+        "index": 0,
+        "line": 1,
+        "item_id": "456933",
+        "item_name": "PK0009",
+        "qty": 153,
+        "serial_lot_obj": {
+            "value": "941398",
+            "label": "WO-KPVN-116837"
+        },
+        "serial_lot_number": "WO-KPVN-116837",
+        "serial_lot_number_id": "941398",
+        "bin_obj": {
+            "value": "7589",
+            "label": "EP-C501"
+        },
+        "bin": "EP-C501",
+        "bin_id": "7589",
+        "inv_detail_qty": 133
+    },
+    {
+        "index": 0,
+        "line": 2,
+        "item_id": "456933",
+        "item_name": "PK0009",
+        "qty": 153,
+        "serial_lot_obj": {
+            "value": "942752",
+            "label": "WO-KPVN-116916"
+        },
+        "serial_lot_number": "WO-KPVN-116916",
+        "serial_lot_number_id": "942752",
+        "bin_obj": {
+            "value": "7589",
+            "label": "EP-C501"
+        },
+        "bin": "EP-C501",
+        "bin_id": "7589",
+        "inv_detail_qty": 20
+    }
+]

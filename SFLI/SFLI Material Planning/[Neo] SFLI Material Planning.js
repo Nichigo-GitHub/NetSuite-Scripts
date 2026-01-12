@@ -39,8 +39,6 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
         var currentRecord = context.currentRecord;
         var fieldId = context.fieldId;
 
-        log.error({ title: 'fieldChanged Triggered', details: 'fieldId: ' + fieldId });
-
         // Trigger only when custrecord858 changes
         if (fieldId === 'custrecord858') {
             var custrecord858Value = currentRecord.getValue({
@@ -75,9 +73,9 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                 ],
                 columns: ['internalid']
             }).run().each(function (result) {
-                log.error({ title: 'Forecast Exists Result', details: JSON.stringify(result) });
+                /* log.error({ title: 'Forecast Exists Result', details: JSON.stringify(result) });
                 forecastExists = true;
-                return false; // stop after first match 
+                return false; */ // stop after first match 
             });
 
             if (forecastExists) {
@@ -92,7 +90,6 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
             }
 
             // Load the saved search
-            log.error({ title: 'Start SO DRS Loading', details: 'customsearch5062' });
             var SOdrsSearch = search.load({
                 id: 'customsearch5062'
             });
@@ -119,19 +116,9 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                     values: [thisYear]
                 })
             ]);
-            log.error({ title: 'Added SOdrsSearch filter', details: JSON.stringify(SOdrsSearch.filters) });
 
             // Run the search and get summary results
             var summaryResults = [];
-            var separateResults = [];
-            log.error({ title: 'Running SOdrsSearch', details: '' });
-            SOdrsSearch.run().each(function (result) {
-                separateResults.push(result);
-                log.error({ title: 'SOdrsSearch Result', details: JSON.stringify(result) });
-                return true;
-            });
-            log.error('All Separate Results:', separateResults);
-
             SOdrsSearch.run().each(function (result) {
                 var summaryRow = {};
                 SOdrsSearch.columns.forEach(function (col) {
@@ -171,12 +158,11 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                     }
                 });
                 summaryResults.push(summaryRow);
-                log.error({ title: 'Summary Row', details: JSON.stringify(summaryRow) });
                 return true;
             });
 
-            log.error('Summary Results Count:', summaryResults.length);
-            log.error('Summary Results:', summaryResults);
+            log.error('SO DRS Results Count:', summaryResults.length);
+            log.error('SO DRS Results:', summaryResults);
 
             var sublistId = 'recmachcustrecord859';
             var loopLength = summaryResults.length;
@@ -184,11 +170,9 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
             log.error({ title: 'Start Forecast DRS Loading', details: 'loopLength: ' + loopLength });
             for (var line = 0; line < loopLength; line++) {
                 var summaryRow = summaryResults[line];
-                log.error({ title: 'Processing Summary Row', details: JSON.stringify(summaryRow) });
                 if (!summaryRow) break;
 
                 var itemId = summaryRow["Component"];
-                log.error({ title: 'itemId', details: itemId });
                 if (!itemId || itemId === '' || itemId === null) {
                     log.error({
                         title: 'Skipping row: Missing Component',
@@ -202,7 +186,6 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                     id: itemId,
                     columns: ['recordtype', 'type']
                 });
-                log.error({ title: 'itemType', details: JSON.stringify(itemType) });
 
                 if (itemType.type && itemType.type[0] && itemType.type[0].value === 'Assembly') {
                     log.error({ title: 'Assembly Item Detected', details: itemId });
@@ -217,10 +200,8 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                         start: 0,
                         end: 999
                     });
-                    log.error({ title: 'memberSearchResults', details: JSON.stringify(memberSearchResults) });
                     for (var m = 0; m < memberSearchResults.length; m++) {
                         var memberItemId = memberSearchResults[m].getValue('memberitem');
-                        log.error({ title: 'memberItemId', details: memberItemId });
                         if (memberItemId && memberItemId !== '464681') {
                             log.error('Processing Summary Row ' + (line + 1) + ':', JSON.stringify(summaryRow) + ' | Member Item ID: ' + memberItemId);
                             currentRecord.selectNewLine({
@@ -257,7 +238,6 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                                     log.error('key.indexOf(" - ")', key.indexOf(" - "));
                                     var forecastIdx = forecastDRSkeys.indexOf(key);
                                     if (forecastIdx !== -1) {
-                                        log.error('Forecast DRS field found', 'Key: ' + key + ' | Index: ' + forecastIdx);
                                         var fieldId = forecastDRSfieldIds[forecastIdx];
                                         currentRecord.setCurrentSublistValue({
                                             sublistId: sublistId,
@@ -268,7 +248,6 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                                     }
                                 } else {
                                     var idx = parseInt(key, 10);
-                                    log.error('Forecast DRS field check', 'key: ' + key + ' | Index: ' + idx);
                                     if (!isNaN(idx) && idx >= 1 && idx <= 31) {
                                         var fieldId = SOdrsFields[idx - 1];
                                         currentRecord.setCurrentSublistValue({
@@ -311,7 +290,6 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                         text: custrecord893Text
                     });
                     Object.keys(summaryRow).forEach(function (key) {
-                        log.error('Forecast DRS field check', 'key: ' + key);
                         if (key.indexOf(" - ") !== -1) {
                             log.error('key.indexOf(" - ")', key.indexOf(" - "));
                             var forecastIdx = forecastDRSkeys.indexOf(key);
@@ -327,7 +305,6 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                             }
                         } else {
                             var idx = parseInt(key, 10);
-                            log.error('Forecast DRS field check', 'key: ' + key + ' | Index: ' + idx);
                             if (!isNaN(idx) && idx >= 1 && idx <= 31) {
                                 var fieldId = SOdrsFields[idx - 1];
                                 currentRecord.setCurrentSublistValue({
@@ -353,10 +330,6 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                 title: 'Components',
                 details: components
             });
-            log.error({
-                title: 'Components Count',
-                details: components.length
-            });
             log.error({ title: 'Start PO DRS Loading', details: 'lineCount: ' + lineCount });
             for (var i = 0; i < lineCount; i++) {
                 log.error({ title: 'Processing Sublist Line', details: i });
@@ -381,15 +354,9 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                         values: [thisMonthStr]
                     })
                 ]);
-                log.error({ title: 'POdrsSearch Filters', details: JSON.stringify(POdrsSearch.filters) });
 
                 var summaryResults = [];
                 POdrsSearch.run().each(function (result) {
-                    log.error({
-                        title: 'POdrsSearch Result',
-                        details: JSON.stringify(result)
-                    });
-
                     var dayIdx = 1;
 
                     POdrsSearch.columns.forEach(function (col, idx) {
@@ -406,17 +373,12 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
                         } else {
                             log.error({
                                 title: 'Processing Column',
-                                details: 'col.name: ' + col.name + ', col.summary: ' + col.summary + ', formula: ' + col.formula
+                                details:
+                                    'Column: ' + colKey +
+                                    ' | rawValue: ' + rawValue + ' (' + typeof rawValue + ')' +
+                                    ' | normalized value: ' + value + ' (' + typeof value + ')'
                             });
                         }
-
-                        log.error({
-                            title: 'POdrs Value Check',
-                            details:
-                                'Column: ' + colKey +
-                                ' | rawValue: ' + rawValue + ' (' + typeof rawValue + ')' +
-                                ' | normalized value: ' + value + ' (' + typeof value + ')'
-                        });
 
                         if (dayIdx >= 1 && dayIdx <= 31) {
                             var fieldId = POdrsFields[dayIdx - 1];
@@ -446,52 +408,100 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
             });
 
             log.error({ title: 'Start PO Dated Loading', details: 'lineCount: ' + lineCount });
-            for (var i = 0; i < lineCount; i++) {
-                log.error({ title: 'Processing Sublist Line', details: i });
-                currentRecord.selectLine({
+            log.error({ title: 'Processing Sublist Line', details: i });
+
+            var POdatedSearch = search.load({
+                id: 'customsearch4985'
+            });
+            // convert numeric month to 3-letter month name and filter custcol50 contains that string
+            var shortMonthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            var thisMonthNum = parseInt(thisMonth, 10) || parseInt(thisMonthStr, 10);
+            var thisMonthShort = shortMonthNames[(thisMonthNum - 1 + 12) % 12] || thisMonthStr;
+            POdatedSearch.filters = POdatedSearch.filters.concat([
+                search.createFilter({
+                    name: 'custcol50',
+                    operator: search.Operator.CONTAINS,
+                    values: [thisMonthShort]
+                }),
+                search.createFilter({
+                    name: 'custcol50',
+                    operator: search.Operator.CONTAINS,
+                    values: [thisYear]
+                })
+            ]);
+            log.error({ title: 'POdatedSearch Filters', details: JSON.stringify(POdatedSearch.filters) });
+
+            var summaryResults = [];
+            // Build a lookup map of RM -> [lineIndexes] to avoid the nested loop
+            var rmToLines = {};
+            for (var li = 0; li < lineCount; li++) {
+                var rmVal = currentRecord.getSublistValue({
                     sublistId: sublistId,
-                    line: i
+                    fieldId: 'custrecord893',
+                    line: li
+                }) || currentRecord.getSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord861',
+                    line: li
                 });
-                var POdatedSearch = search.load({
-                    id: 'customsearch4985'
-                });
-                POdatedSearch.filters = POdatedSearch.filters.concat([
-                    search.createFilter({
-                        name: 'item',
-                        operator: search.Operator.IS,
-                        values: components[i].id
-                    })
-                ]);
-                /* POdatedSearch.filters = POdatedSearch.filters.concat([
-                    search.createFilter({
-                        name: 'mainname',
-                        operator: search.Operator.ANYOF,
-                        values: [custrecord858Value]
-                    })
-                ]); */
-                // convert numeric month to 3-letter month name and filter custcol50 contains that string
-                var shortMonthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-                var thisMonthNum = parseInt(thisMonth, 10) || parseInt(thisMonthStr, 10);
-                var thisMonthShort = shortMonthNames[(thisMonthNum - 1 + 12) % 12] || thisMonthStr;
-                POdatedSearch.filters = POdatedSearch.filters.concat([
-                    search.createFilter({
-                        name: 'custcol50',
-                        operator: search.Operator.CONTAINS,
-                        values: [thisMonthShort]
-                    })
-                ]);
-                log.error({ title: 'POdatedSearch Filters', details: JSON.stringify(POdatedSearch.filters) });
 
-                var summaryResults = [];
-                POdatedSearch.run().each(function (result) {
-                    log.error({
-                        title: 'POdatedSearch Result',
-                        details: JSON.stringify(result)
-                    });
-
-                    return true;
-                });
+                var rmKey = String(rmVal);
+                if (!rmToLines[rmKey])
+                    rmToLines[rmKey] = [];
+                rmToLines[rmKey].push(li);
             }
+
+            log.error({ title: 'PO Dated Search Results', details: JSON.stringify(summaryResults) });
+            log.error({ title: 'RM to Lines Map', details: JSON.stringify(rmToLines) });
+            log.error({ title: 'Starting POdatedSearch.run().each loop', details: 'lineCount: ' + lineCount });
+
+            // Iterate PO dated results once and look up matching lines via the map
+            POdatedSearch.run().each(function (result) {
+                var itemVal = result.getValue({ name: 'item' });
+                if (itemVal === null || itemVal === undefined || itemVal === '') {
+                    return true;
+                }
+                var itemKey = String(itemVal);
+                var matchedLines = rmToLines[itemKey];
+                if (matchedLines && matchedLines.length) {
+                    matchedLines.forEach(function (matchedLine) {
+                        log.error({
+                            title: 'Match Found',
+                            details: 'Setting PO Dated fields for line ' + (matchedLine + 1) + ' (item ' + itemKey + ')'
+                        });
+                        currentRecord.selectLine({ 
+                            sublistId: sublistId,
+                            line: matchedLine 
+                        });
+                        var existingQty = currentRecord.getCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord1181'
+                        });
+                        var newValue = (result.getValue({
+                            name: 'quantity'
+                        }) - result.getValue({
+                            name: 'quantityshiprecv'
+                        }));
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord1181',
+                            value: (parseFloat(existingQty) || 0) + parseFloat(newValue)
+                        });
+                        log.error({
+                            title: 'Set PO Dated Field',
+                            details: 'Existing Qty: ' + existingQty + ', Added Qty: ' + (result.getValue({
+                                name: 'quantity'
+                            }) - result.getValue({
+                                name: 'quantityshiprecv'
+                            }))
+                        });
+                        currentRecord.commitLine({ 
+                            sublistId: sublistId
+                        });
+                    });
+                }
+                return true;
+            });
         }
     }
 
@@ -513,7 +523,3 @@ define(['N/search', 'N/record', 'N/log'], function (search, record, log) {
         pageInit: pageInit
     };
 });
-
-
-// load GPR Forecast, pag may laman yung 2nd month at walang duplicate sa SO DRS saka siya i-add
-// add quantity ng per components sa SFLI SO DRS para sa material planning

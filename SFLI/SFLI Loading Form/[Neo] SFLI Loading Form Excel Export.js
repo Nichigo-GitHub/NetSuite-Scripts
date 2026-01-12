@@ -15,6 +15,10 @@ define(['N/record', 'N/search'], function (record, search) {
             id: recordId
         });
 
+        var date = customRecord.getValue({
+            fieldId: 'custrecord_date_num'
+        });
+        var dateString = formatLongDate(date);
         var sublistData = [];
 
         var sublistCount = customRecord.getLineCount({
@@ -24,6 +28,7 @@ define(['N/record', 'N/search'], function (record, search) {
         // Extract sublist data into an array
         for (var i = 0; i < sublistCount; i++) {
             sublistData.push({
+                date: dateString,
                 customer: customRecord.getSublistText({
                     sublistId: sublistId,
                     fieldId: 'custrecord849',
@@ -53,7 +58,12 @@ define(['N/record', 'N/search'], function (record, search) {
                     sublistId: sublistId,
                     fieldId: 'custrecord934',
                     line: i
-                }) || '0'
+                }) || '0',
+                remarks: customRecord.getSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord855',
+                    line: i
+                }) || ''
             });
         }
 
@@ -63,9 +73,9 @@ define(['N/record', 'N/search'], function (record, search) {
         });
 
         // Prepare CSV content
-        var csvContent = 'Customer,Item,Description,SO Number,Quantity,Balance\n';
+        var csvContent = 'Date,Customer,Item,Description,SO Number,Quantity,Balance,Remarks\n';
         for (var j = 0; j < sublistData.length; j++) {
-            csvContent += '"' + sublistData[j].customer + '","' + sublistData[j].item + '","' + sublistData[j].desc + '","' + sublistData[j].soNum + '","' + sublistData[j].qty + '","' + sublistData[j].balance + '"\n';
+            csvContent += '"' + sublistData[j].date + '","' + sublistData[j].customer + '","' + sublistData[j].item + '","' + sublistData[j].desc + '","' + sublistData[j].soNum + '","' + sublistData[j].qty + '","' + sublistData[j].balance + '","' + sublistData[j].remarks + '"\n';
         }
 
         // Extract relevant data from the loading form record

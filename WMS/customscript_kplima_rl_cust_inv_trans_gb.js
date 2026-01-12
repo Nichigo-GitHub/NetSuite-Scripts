@@ -80,9 +80,20 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					preferedBinName = requestParams.preferedBinName;
 					blnMixItem = requestParams.blnMixItem;
 					blnMixLot = requestParams.blnMixLot;
-					itemType = requestParams.itemType;
+					if (!blnMixItem) {
+						blnMixItem = true;
+					}
+					if (!blnMixLot) {
+						blnMixLot = true;
+					}
 					fromBinInternalId = requestParams.fromBinInternalId;
 					itemInternalId = requestParams.itemInternalId;
+					itemType = requestParams.itemType;
+					// Log itemType right after it is set from request
+					log.debug({
+						title: 'itemType - after requestParams parsing',
+						details: itemType
+					});
 					warehouseLocationId = requestParams.warehouseLocationId;
 					lotName = requestParams.lotName;
 					lotInternalId = requestParams.lotInternalId;
@@ -319,6 +330,11 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 								}
 
 								if ((isValidBin != false) && ((blnMixLot == false || blnMixLot == "false")) && (itemType == "lotnumberedinventoryitem" || itemType == "lotnumberedassemblyitem")) {
+									// Log itemType when evaluating lot-numbered item checks
+									log.debug({
+										title: 'itemType - lotnumber check',
+										details: itemType
+									});
 
 									if (processType == 'inventoryTransfer') {
 										binLocArr = utility.fnGetInventoryBinsForLot(toWarehouseLocationId, lotName, itemInternalId, toBinInternalId);
@@ -340,6 +356,11 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 								}
 								if (isValidBin && ((objInvDetails.length == 0 && (blnMixItem == false || blnMixItem == "false")) ||
 									(blnMixItem == true || blnMixItem == 'true'))) {
+									// Log itemType before checking for serialized item types
+									log.debug({
+										title: 'itemType - serialized check (putaway/all path)',
+										details: itemType
+									});
 									if (itemType == "serializedinventoryitem" || itemType == "serializedassemblyitem") {
 										binValidateArray.errorMessage = '';
 										binValidateArray.isValid = true;
@@ -467,6 +488,8 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 							}
 						} else {
 
+							log.debug({ title: 'for validation', details: 'scannedQuantity: ' + scannedQuantity + ', fromBinName: ' + fromBinName + ', binName: ' + binName + ', itemType: ' + itemType + ', blnMixItem: ' + blnMixItem + ', blnMixLot: ' + blnMixLot + ', fromBinInternalId: ' + fromBinInternalId + ', itemInternalId: ' + itemInternalId + ', warehouseLocationId: ' + warehouseLocationId });
+
 							if (utility.isValueValid(scannedQuantity) && (utility.isValueValid(fromBinName) || utility.isValueValid(fromLocUseBinsFlag)) && utility.isValueValid(binName) &&
 								utility.isValueValid(itemType) && utility.isValueValid(blnMixItem) &&
 								utility.isValueValid(blnMixLot) && (utility.isValueValid(fromBinInternalId) || utility.isValueValid(fromLocUseBinsFlag)) &&
@@ -588,6 +611,11 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 											var openTaskQty = Number((Big(scannedQuantity).div(stockConversionRate)).toFixed(8));
 
 											if ((utility.isValueValid(tallyLoopObj)) && (itemType != "serializedinventoryitem" && itemType != "serializedassemblyitem")) {
+												// Log itemType before building tallyScanObj for inventory transfer
+												log.debug({
+													title: 'itemType - before buildObjectFromTallyLoopObj (inv transfer)',
+													details: itemType
+												});
 
 												tallyScanObj = invtUtility.buildObjectFromTallyLoopObj(isTallyScanRequired, itemType, tallyLoopObj, tallyScanBarCodeQty);
 												log.debug('tallyScanObj for inv transfer', tallyScanObj);
@@ -616,6 +644,11 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 											var openTaskQty = Number((Big(scannedQuantity).div(stockConversionRate)).toFixed(8));
 
 											if ((isTallyScanRequired) && (itemType != "serializedinventoryitem" && itemType != "serializedassemblyitem")) {
+												// Log itemType before building tallyScanObj for bin transfer
+												log.debug({
+													title: 'itemType - before buildObjectFromTallyLoopObj (bin transfer)',
+													details: itemType
+												});
 
 												tallyScanObj = invtUtility.buildObjectFromTallyLoopObj(isTallyScanRequired, itemType, tallyLoopObj, tallyScanBarCodeQty);
 												log.debug('tallyScanObj', tallyScanObj);
@@ -698,6 +731,12 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			var bintransferObj = {};
 			var impactRec = {};
 
+			// Log itemType at entry of fnPutawayallBinTransfer
+			log.debug({
+				title: 'fnPutawayallBinTransfer - entry itemType',
+				details: itemType
+			});
+
 			bintransferObj.itemType = itemType;
 			bintransferObj.whLocation = warehouseLocationId;
 			bintransferObj.itemId = itemInternalId;
@@ -718,6 +757,17 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 		function fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID) {
 			var invtransferObj = {};
 			var impactRec = {};
+
+			// Log itemType and key params at entry of fnInvTransfer
+			log.debug({
+				title: 'fnInvTransfer - entry',
+				details: {
+					itemType: itemType,
+					binTransferQty: binTransferQty,
+					fromBinInternalId: fromBinInternalId,
+					toBinInternalId: toBinInternalId
+				}
+			});
 
 			invtransferObj.department = department;
 			invtransferObj.customer = customer;
@@ -757,6 +807,18 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, processType) {
 			var bintransferObj = {};
 			var impactRec = {};
+
+			// Log itemType and key params at entry of fnBinTransfer
+			log.debug({
+				title: 'fnBinTransfer - entry',
+				details: {
+					itemType: itemType,
+					binTransferQty: binTransferQty,
+					fromBinInternalId: fromBinInternalId,
+					toBinInternalId: toBinInternalId,
+					processType: processType
+				}
+			});
 
 			bintransferObj.itemType = itemType;
 			bintransferObj.whLocation = warehouseLocationId;

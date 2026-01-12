@@ -2,7 +2,7 @@
  * @NApiVersion 2.0
  * @NScriptType ClientScript
  */
-define(['N/record', 'N/runtime', 'N/format', 'N/search'], function (record, runtime, format, search) {
+define(['N/record', 'N/ui/dialog', 'N/format', 'N/search'], function (record, dialog, format, search) {
     const sublistId = 'recmachcustrecord848';
     const fieldIdsToCheck = [
         'custrecord788', 'custrecord789', 'custrecord790', 'custrecord791',
@@ -25,7 +25,23 @@ define(['N/record', 'N/runtime', 'N/format', 'N/search'], function (record, runt
         if (contextMode === 'create') {
             var today = new Date();
             var formattedDate = format.parse({ value: today, type: format.Type.DATE });
-            currentRecord.setValue({ fieldId: 'custrecord_date_num', value: formattedDate });
+
+            // Build the formatted long date
+            var longDate = formatLongDate(today);
+
+            // Check duplicates
+            if (checkDuplicateLoadingForm(longDate)) {
+                dialog.alert({
+                    title: 'Duplicate Loading Form',
+                    message: 'A Loading Form for ' + longDate + ' already exists.'
+                });
+                return;
+            }
+
+            currentRecord.setValue({
+                fieldId: 'custrecord_date_num',
+                value: formattedDate
+            });
         } else if (contextMode === 'edit') {
             clearSublist(currentRecord);
             handleDateChange(currentRecord);
@@ -120,6 +136,22 @@ define(['N/record', 'N/runtime', 'N/format', 'N/search'], function (record, runt
         currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord934', value: result['custrecord933'] || 0 });
         currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord849', value: result['custrecord836'] });
         currentRecord.commitLine({ sublistId: sublistId });
+    }
+
+    function checkDuplicateLoadingForm(formattedDate) {
+        var textToMatch = 'Loading Form [' + formattedDate + ']';
+
+        var duplicateSearch = search.create({
+            type: 'customrecord_sfli_loading_form_dtls',
+            filters: [
+                ['custrecord_loading_form_num', search.Operator.IS, textToMatch]
+            ],
+            columns: ['internalid']
+        });
+
+        var result = duplicateSearch.run().getRange({ start: 0, end: 1 });
+
+        return result && result.length > 0;
     }
 
     function clearSublist(currentRecord) {

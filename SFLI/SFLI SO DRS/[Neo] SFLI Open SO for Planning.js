@@ -133,7 +133,17 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                 });
                 var currentMonthTextValue = monthNames[parseInt(currentMonth, 10) - 1];
 
-                var drsName = customer + ' DRS [ ' + currentMonthTextValue + ' ' + currentDate.getFullYear() + ' ]';
+                var advanceStatus = currentRecord.getValue({
+                    fieldId: 'custrecord838'
+                });
+
+                var year = currentDate.getFullYear();
+
+                if (advanceStatus == 1 && currentMonthValue == 12) {
+                    year = currentDate.getFullYear() + 1;
+                }
+
+                var drsName = customer + ' DRS [ ' + currentMonthTextValue + ' ' + year + ' ]';
 
                 log.debug({
                     title: 'DRS Name',
@@ -208,9 +218,40 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                 fieldId: 'custrecord782'
             });
 
+            var advanceStatus = currentRecord.getValue({
+                fieldId: 'custrecord838'
+            });
+
+            var year = currentDate.getFullYear();
+
+            if (advanceStatus == 1 && currentMonthValue == 12) {
+                year = currentDate.getFullYear() + 1;
+
+                var lineCount = currentRecord.getLineCount({
+                    sublistId: sublistId
+                });
+
+                for (var i = 0; i < lineCount; i++) {
+                    currentRecord.selectLine({
+                        sublistId: sublistId,
+                        line: i
+                    });
+
+                    currentRecord.setCurrentSublistValue({
+                        sublistId: sublistId,
+                        fieldId: 'custrecord856',
+                        value: currentDate.getFullYear() + 1
+                    });
+
+                    currentRecord.commitLine({
+                        sublistId: sublistId
+                    });
+                }
+            }
+
             currentRecord.setValue({
                 fieldId: 'custrecorddrs_name',
-                value: customer + ' DRS [ ' + advanceDRSmonth + ' ' + currentDate.getFullYear() + ' ]'
+                value: customer + ' DRS [ ' + advanceDRSmonth + ' ' + year + ' ]'
             });
 
             var lineCount = currentRecord.getLineCount({
@@ -237,9 +278,9 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
             var advanceDRSValue = currentRecord.getValue({
                 fieldId: 'custrecord838'
             });
-            log.debug('Advance DRS Value', advanceDRSValue);
 
             if (advanceDRSValue == 1) {
+                log.debug('Advance DRS = 1', 'Processing for Advance DRS');
                 var monthField = currentRecord.getField({
                     fieldId: 'custrecord837'
                 });
@@ -308,7 +349,6 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                     revert = true;
                 }
             } else if (advanceDRSValue == 2) {
-                log.debug('Advance DRS is 2', 'Processing for Advance DRS = 2');
                 var lineCount = currentRecord.getLineCount({
                     sublistId: sublistId
                 });
@@ -1300,12 +1340,26 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
 
             // If there is a match, update and commit the sublist
             if (currentSO && currentItem) {
-                if (recType === 'DR') {
+                /* if (recType === 'DR') {
                     var resultItemText = results.getText({
                         name: 'item',
                         summary: search.Summary.GROUP
                     });
+                    var resultQty = parseInt(results.getValue({
+                        name: 'quantity',
+                        summary: search.Summary.SUM
+                    })) || 0;
+                    var resultSO = results.getText({
+                        name: 'createdfrom',
+                        summary: search.Summary.GROUP
+                    }).split('#')[1];
+
                     if (currentItem === resultItemText) {
+                        log.debug({
+                            title: 'DR Match Condition',
+                            details: 'Matching item found on line ' + i + ': ' + currentItem
+                        });
+
                         currentRecord.selectLine({
                             sublistId: sublistId,
                             line: i
@@ -1317,21 +1371,33 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                             value: 0
                         });
 
-                        if (currentItem == 'SH00000236') {
+                        /* if (currentItem == '1050X1050X600 (YAMASHIN)') {
                             log.debug({
-                                title: 'Match Found for SH00000236',
-                                details: results
+                                title: 'Match Found for 1050X1050X600 (YAMASHIN)',
+                                details: JSON.stringify(results)
                             });
-                        }
 
+                            log.debug({
+                                title: '1050X1050X600 (YAMASHIN) totalDRquantity before update',
+                                details: 'totalDRquantity: ' + totalDRquantity
+                            });
+
+                            log.debug({
+                                title: '1050X1050X600 (YAMASHIN) Quantity from results',
+                                details: 'resultQty: ' + resultQty
+                            });
+                        } *
+
+                        // Update custrecord845 (previous DR) or keep existing if present
                         if (totalDRquantity == null) {
                             currentRecord.setCurrentSublistValue({
                                 sublistId: sublistId,
                                 fieldId: 'custrecord845',
-                                value: parseInt(results.getValue({
-                                    name: 'quantity',
-                                    summary: search.Summary.SUM
-                                }))
+                                value: resultQty
+                            });
+                            log.debug({
+                                title: 'item [' + currentItem + '] prev DR = 0, set custrecord845',
+                                details: 'custrecord845 set to ' + resultQty + ' for line ' + i
                             });
                         } else {
                             currentRecord.setCurrentSublistValue({
@@ -1339,61 +1405,101 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                                 fieldId: 'custrecord845',
                                 value: totalDRquantity
                             });
+                            log.debug({
+                                title: 'item [' + currentItem + '] prev DR exists, keep custrecord845',
+                                details: 'custrecord845 kept as ' + totalDRquantity + ' for line ' + i
+                            });
                         }
-                        currentRecord.setCurrentSublistValue({
-                            sublistId: sublistId,
-                            fieldId: 'custrecord835',
-                            value: parseInt(results.getValue({
-                                name: 'quantity',
-                                summary: search.Summary.SUM
-                            }))
+
+                        log.debug({
+                            title: 'item [' + currentItem + '] comparing SOs',
+                            details: 'currentSO: ' + currentSO + ', resultSO: ' + resultSO
                         });
 
-                        var prevTotalDR = currentRecord.getCurrentSublistValue({
+                        if (currentSO == resultSO) {
+                            // Set total DR for this line (custrecord835)
+                            currentRecord.setCurrentSublistValue({
+                                sublistId: sublistId,
+                                fieldId: 'custrecord835',
+                                value: resultQty
+                            });
+                            log.debug({
+                                title: 'item [' + currentItem + '] set current total DR',
+                                details: 'custrecord835 set to ' + resultQty + ' for line ' + i
+                            });
+                        } else {
+                            // If SO matches, accumulate the DR quantity
+                            var newTotalDR = (Number(totalDRquantity) || 0) + resultQty;
+                            currentRecord.setCurrentSublistValue({
+                                sublistId: sublistId,
+                                fieldId: 'custrecord835',
+                                value: newTotalDR
+                            });
+                            log.debug({
+                                title: 'item [' + currentItem + '] accumulated current total DR',
+                                details: 'custrecord835 updated to ' + newTotalDR + ' for line ' + i
+                            });
+                        }
+
+                        // Retrieve values to compute gap
+                        var prevTotalDR = Number(currentRecord.getCurrentSublistValue({
                             sublistId: sublistId,
                             fieldId: 'custrecord845'
-                        });
-                        var totalDR = currentRecord.getCurrentSublistValue({
+                        })) || 0;
+
+                        var totalDR = Number(currentRecord.getCurrentSublistValue({
                             sublistId: sublistId,
                             fieldId: 'custrecord835'
-                        });
+                        })) || 0;
 
                         var gap = totalDR - prevTotalDR;
 
+                        log.debug({
+                            title: 'Computed gap',
+                            details: 'prevTotalDR: ' + prevTotalDR + ', totalDR: ' + totalDR + ', gap: ' + gap
+                        });
+
+                        // Iterate through forecastable fields
                         fieldIdsToCheck.some(function (fieldId) {
-                            var fieldValue = currentRecord.getCurrentSublistValue({
+                            var fieldValue = Number(currentRecord.getCurrentSublistValue({
                                 sublistId: sublistId,
                                 fieldId: fieldId
-                            });
-
-                            /* var field = currentRecord.getCurrentSublistField({
-                                sublistId: sublistId,
-                                fieldId: fieldId
-                            }); */
-
-                            // if (field.isDisabled == false) {
+                            })) || 0;
 
                             var fieldIndex = fieldIdsToCheck.indexOf(fieldId);
+                            var forecastIndex = null;
+                            var forecastFieldId = null;
+                            var forecastFieldValue = null;
+
                             if (fieldIndex !== -1) {
-                                // Determine which forecastDRS index to use
-                                var forecastIndex;
                                 if (fieldIndex >= 27 && fieldIndex <= 30) {
-                                    forecastIndex = 8; // index 9 in forecastDRS (0-based)
+                                    forecastIndex = 8; // matches the script's mapping for the last forecast bucket
                                 } else {
                                     forecastIndex = Math.floor(fieldIndex / 3);
                                 }
 
                                 if (forecastIndex >= 0 && forecastIndex < forecastDRS.length) {
-                                    var forecastFieldId = forecastDRS[forecastIndex];
-
-                                    var forecastFieldValue = currentRecord.getCurrentSublistValue({
+                                    forecastFieldId = forecastDRS[forecastIndex];
+                                    forecastFieldValue = Number(currentRecord.getCurrentSublistValue({
                                         sublistId: sublistId,
                                         fieldId: forecastFieldId
-                                    });
+                                    })) || 0;
                                 }
                             }
+
+                            log.debug({
+                                title: 'Processing field',
+                                details: 'fieldId: ' + fieldId + ', index: ' + fieldIndex + ', fieldValue: ' + fieldValue + ', currentGap: ' + gap
+                            });
+
+                            // If we need to subtract allocation due to gap
                             if (gap > 0) {
                                 if (fieldValue < gap && fieldValue > 0) {
+                                    log.debug({
+                                        title: 'Field lesser than gap',
+                                        details: 'Reducing field ' + fieldIndex + ' from ' + fieldValue + ' to 0; decreasing gap by ' + fieldValue + ' (new gap will be ' + (gap - fieldValue) + ')'
+                                    });
+
                                     currentRecord.setCurrentSublistValue({
                                         sublistId: sublistId,
                                         fieldId: fieldId,
@@ -1402,35 +1508,69 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
 
                                     gap -= fieldValue;
 
-                                    if (forecastFieldValue) {
+                                    if (forecastFieldValue !== null && forecastFieldId !== null) {
+                                        var newForecastVal = Math.max(parseInt(forecastFieldValue - fieldValue), 0);
                                         currentRecord.setCurrentSublistValue({
                                             sublistId: sublistId,
                                             fieldId: forecastFieldId,
-                                            value: parseInt(forecastFieldValue - fieldValue)
+                                            value: newForecastVal
                                         });
+                                        /* log.debug({
+                                            title: 'Updated forecast for lesser than gap',
+                                            details: 'forecastFieldId: ' + forecastFieldId + ' changed from ' + forecastFieldValue + ' to ' + newForecastVal + ' (reduced by ' + fieldValue + ')'
+                                        }); *
+                                    } else {
+                                        /* log.debug({
+                                            title: 'No forecast field available',
+                                            details: 'Cannot update forecast for field ' + fieldId + ' (forecastFieldId: ' + forecastFieldId + ')'
+                                        }); *
                                     }
                                 } else if (fieldValue >= gap) {
+                                    log.debug({
+                                        title: 'Field greater or equal to gap',
+                                        details: 'Reducing field ' + fieldIndex + ' from ' + fieldValue + ' to ' + (fieldValue - gap) + '; gap consumed: ' + gap
+                                    });
+
                                     currentRecord.setCurrentSublistValue({
                                         sublistId: sublistId,
                                         fieldId: fieldId,
-                                        value: parseInt(fieldValue - gap),
+                                        value: parseInt(fieldValue - gap)
                                     });
-                                    if (forecastFieldValue) {
+
+                                    if (forecastFieldValue !== null && forecastFieldId !== null) {
+                                        var newForecastVal2 = Math.max(parseInt(forecastFieldValue - gap), 0);
                                         currentRecord.setCurrentSublistValue({
                                             sublistId: sublistId,
                                             fieldId: forecastFieldId,
-                                            value: parseInt(forecastFieldValue - gap)
+                                            value: newForecastVal2
                                         });
+                                        /* log.debug({
+                                            title: 'Updated forecast for greater/equal gap',
+                                            details: 'forecastFieldId: ' + forecastFieldId + ' changed from ' + forecastFieldValue + ' to ' + newForecastVal2 + ' (reduced by ' + gap + ')'
+                                        }); *
+                                    } else {
+                                        /* log.debug({
+                                            title: 'No forecast field available for greater/equal gap',
+                                            details: 'Cannot update forecast for field ' + fieldId + ' (forecastFieldId: ' + forecastFieldId + ')'
+                                        }); *
                                     }
+
                                     gap = 0;
                                 }
                             } else if (gap < 0) {
+                                // This logic exists in the original script: if gap < 0, clear the field and forecast
+                                log.debug({
+                                    title: 'Gap negative',
+                                    details: 'gap < 0, setting ' + fieldId + ' to 0 and clearing forecast ' + forecastFieldId
+                                });
+
                                 currentRecord.setCurrentSublistValue({
                                     sublistId: sublistId,
                                     fieldId: fieldId,
                                     value: 0
                                 });
-                                if (forecastFieldValue) {
+
+                                if (forecastFieldValue !== null && forecastFieldId !== null) {
                                     currentRecord.setCurrentSublistValue({
                                         sublistId: sublistId,
                                         fieldId: forecastFieldId,
@@ -1439,7 +1579,6 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                                 }
                                 gap = 0;
                             }
-                            // }
 
                             return gap === 0;
                         });
@@ -1448,9 +1587,14 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                             sublistId: sublistId
                         });
 
+                        log.debug({
+                            title: 'Committed Sublist Line',
+                            details: 'Line ' + i + ' committed. Final gap: ' + gap
+                        });
+
                         return true; // Match found
                     }
-                } else if (recType === 'SO') {
+                } else  */if (recType === 'SO') {
                     for (var key in results) {
                         if (results.hasOwnProperty(key) && key == 'Item ID') {
                             if (currentItem == results['Item Code']) {
@@ -1475,10 +1619,10 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
 
                                 var salesOrders = results["Sales Orders"];
 
-                                log.debug({
+                                /* log.debug({
                                     title: 'salesOrders',
                                     details: salesOrders
-                                });
+                                }); */
 
                                 if (!currentComponents) {
                                     currentRecord.setCurrentSublistValue({
@@ -1510,10 +1654,10 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                                         sublistId: sublistId
                                     });
 
-                                    log.debug({
+                                    /* log.debug({
                                         title: 'SO Line Updated',
                                         details: 'Line ' + i + ' updated for item: ' + currentItem
-                                    });
+                                    }); */
 
                                     return true;
                                 } else {
@@ -1536,10 +1680,10 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                                         sublistId: sublistId
                                     });
 
-                                    log.debug({
+                                    /* log.debug({
                                         title: 'SO Line Updated with Replacement',
                                         details: 'Line ' + i + ' updated for item: ' + currentItem + ' with replacement SO'
-                                    });
+                                    }); */
                                 }
 
                                 break;
@@ -1891,10 +2035,10 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                 line: i
             });
 
-            log.debug({
+            /* log.debug({
                 title: 'Line Processing',
                 details: 'Line: ' + i + ', itemId: ' + itemId + ', soText: ' + soText
-            });
+            }); */
 
             // 1. Remove if item not in results
             if (!results[itemId]) {
@@ -2005,10 +2149,10 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                     balance += numValue; // Add only up to currentDay - 1
                 }
             }
-            log.debug({
+            /* log.debug({
                 title: 'Tally Balances',
                 details: 'Line: ' + i + ', balance: ' + balance + ', sumTotal: ' + sumTotal
-            });
+            }); */
             // You can use sumTotal as needed after the loop
             currentRecord.selectLine({
                 sublistId: sublistId,
