@@ -21,13 +21,15 @@ define(['./wms_utility', './wms_translator', './big', './wms_workOrderUtility_kp
 					});
 					requestParams = requestBody.params;
 					var whLocation = requestParams.warehouseLocationId;
+					var isTransferRM = requestParams.isTransferRM;
+					if (!utility.isValueValid(isTransferRM)) {
+						isTransferRM = false;
+					}
 					var internalIdArr = [];
 					var objpickQty = {};
 					var itemDtlArr = [];
 					var openTaskOrderId = '';
 					var objStageQty = {};
-					var checkStageFlag = 'F';
-					var backOrderedInternalIdArr = [];
 					var locUseBinsFlag = requestParams.locUseBinsFlag;
 					if (utility.isValueValid(whLocation)) {
 						if (!utility.isValueValid(locUseBinsFlag)) {
@@ -35,21 +37,12 @@ define(['./wms_utility', './wms_translator', './big', './wms_workOrderUtility_kp
 						}
 						var systemRule = "Pick only fully committed work orders";
 						var systemRuleForFullyCommittedWO = utility.getSystemRuleValue(systemRule, whLocation);
-						var workOrdListResults = woUtility.getWOList(whLocation, '', locUseBinsFlag);
+						var workOrdListResults = woUtility.getWOList_V3(whLocation, '', locUseBinsFlag);
 						var objWorkOrdrResult = workOrdListResults;
 						if (workOrdListResults.length > 0) {
-							if (systemRuleForFullyCommittedWO == 'Y') {
-								backOrderedInternalIdArr = woUtility.getBackOrderedWOlist(whLocation);
-							}
 							for (var orderListIndex = 0; orderListIndex < workOrdListResults.length; orderListIndex++) {
 								var woOrderInternalId = workOrdListResults[orderListIndex]['internalid'];
-								if (systemRuleForFullyCommittedWO == 'Y' && backOrderedInternalIdArr.length > 0) {
-									if (backOrderedInternalIdArr.indexOf(woOrderInternalId) == -1) {
-										internalIdArr.push(woOrderInternalId);
-									}
-								} else {
-									internalIdArr.push(woOrderInternalId);
-								}
+								internalIdArr.push(woOrderInternalId);
 							}
 							if (internalIdArr.length > 0) {
 								var woDetailsList = woUtility.getWODetails(internalIdArr);
@@ -73,58 +66,20 @@ define(['./wms_utility', './wms_translator', './big', './wms_workOrderUtility_kp
 								}
 
 								for (var s = 0; s < workOrdListResults.length;) {
-									checkStageFlag = 'F';
-									itemDtlArr = [];
-									var woInternalId = workOrdListResults[s]['internalid'];
-									var woId = workOrdListResults[s]['tranid'];
+									for (var k = 0; k < woDetailsList.length; k++) {
 
-									var vwoitemQty = workOrdListResults[s]['Committed Quantity'];
-									var vwoitemRcvQty = workOrdListResults[s]['Built Quantity'];
-									if (vwoitemQty == null || vwoitemQty == '')
-										vwoitemQty = 0;
-									if (vwoitemRcvQty == null || vwoitemRcvQty == '')
-										vwoitemRcvQty = 0;
-									if (systemRuleForFullyCommittedWO == 'Y' && backOrderedInternalIdArr.length > 0 &&
-										(backOrderedInternalIdArr.indexOf(woInternalId) != -1)) {
-										checkStageFlag = 'F';
-									} else if (utility.isValueValid(objStageQty[woInternalId]))
-										checkStageFlag = 'T';
-									else {
-										vwoitemQty = new Big(vwoitemQty);
-										vwoitemRcvQty = new Big(vwoitemRcvQty);
+										if (workOrdListResults[s]['internalid'] == woDetailsList[k]['internalid']) {
 
-										if (utility.isValueValid(objpickQty[woInternalId]))
-											pickqty = objpickQty[woInternalId];
-										else
-											pickqty = 0;
+											var obj = woDetailsList[k];
 
-										pickqty = new Big(pickqty);
-										var vWoreminqty = ((vwoitemQty).plus(vwoitemRcvQty)).minus(pickqty);
-
-										if (vWoreminqty > 0) {
-											checkStageFlag = 'T';
-										}
-									}
-
-									if (checkStageFlag == 'T') {
-										for (var k = 0; k < woDetailsList.length; k++) {
-
-											if (workOrdListResults[s]['internalid'] == woDetailsList[k]['internalid']) {
-
-												var obj = woDetailsList[k];
-
-												for (var i in obj) {
-													objWorkOrdrResult[s][i] = obj[i];
-												}
-												objWorkOrdrResult[s]['builtItems'] = objWorkOrdrResult[s]['quantityshiprecv'] + '/' + objWorkOrdrResult[s]['quantity'];
+											for (var i in obj) {
+												objWorkOrdrResult[s][i] = obj[i];
 											}
-
+											objWorkOrdrResult[s]['builtItems'] = objWorkOrdrResult[s]['quantityshiprecv'] + '/' + objWorkOrdrResult[s]['quantity'];
 										}
-										s++;
-									} else {
-										objWorkOrdrResult.splice(s, 1);
-									}
 
+									}
+									s++;
 								}
 
 								if (objWorkOrdrResult.length > 0) {

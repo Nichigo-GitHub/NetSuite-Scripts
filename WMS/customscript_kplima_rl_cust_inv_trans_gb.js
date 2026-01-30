@@ -20,6 +20,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			var scannedQuantity = '';
 			var fromBinName = '';
 			var binName = '';
+			var binId = '';
 			var preferedBinName = '';
 			var blnMixItem = '';
 			var blnMixLot = '';
@@ -77,6 +78,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					scannedQuantity = requestParams.scannedQuantity;
 					fromBinName = requestParams.fromBinName;
 					binName = requestParams.binName;
+					binId = requestParams.bin_id;
 					preferedBinName = requestParams.preferedBinName;
 					blnMixItem = requestParams.blnMixItem;
 					blnMixLot = requestParams.blnMixLot;

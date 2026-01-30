@@ -2,7 +2,7 @@
  * @NApiVersion 2.x
  * @NScriptType ClientScript
  */
-define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, dialog, record) {
+define(['N/search', 'N/log', 'N/ui/dialog', 'N/record', 'N/runtime'], function (search, log, dialog, record, runtime) {
     var previousCustomer = null;
     var isFieldChangeScriptActive = true;
     var lineInitVal = false;
@@ -10,6 +10,7 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
     var searchFulfillment = true;
     var contextMode = '';
     var forecastDRSSnapshot = {};
+    var userObj = runtime.getCurrentUser();
     const sublistId = 'recmachcustrecord783';
     const fieldIdsToCheck = [
         'custrecord788', 'custrecord789', 'custrecord790', 'custrecord791',
@@ -37,6 +38,16 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
     // Page Init Function - Loads when the form is loaded
     function pageInit(context) {
         var currentRecord = context.currentRecord;
+
+        var userId = userObj.id;
+        var roleId = userObj.role;
+
+        if (roleId == 1204 || userId == 10006) {
+            currentRecord.setValue({
+                fieldId: 'custrecord_ipd',
+                value: true
+            });
+        }
 
         var DRSname = currentRecord.getField({
             fieldId: 'custrecorddrs_name'
@@ -137,13 +148,21 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                     fieldId: 'custrecord838'
                 });
 
+                var IPDDRS = currentRecord.getValue({
+                    fieldId: 'custrecord_ipd'
+                });
+
                 var year = currentDate.getFullYear();
 
                 if (advanceStatus == 1 && currentMonthValue == 12) {
                     year = currentDate.getFullYear() + 1;
                 }
 
-                var drsName = customer + ' DRS [ ' + currentMonthTextValue + ' ' + year + ' ]';
+                if (IPDDRS) {
+                    var drsName = customer + ' IPD DRS [ ' + currentMonthTextValue + ' ' + year + ' ]';
+                } else {
+                    var drsName = customer + ' DRS [ ' + currentMonthTextValue + ' ' + year + ' ]';
+                }
 
                 log.debug({
                     title: 'DRS Name',
@@ -214,6 +233,10 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                 fieldId: 'custrecord837'
             });
 
+            var IPDDRS = currentRecord.getValue({
+                fieldId: 'custrecord_ipd'
+            });
+
             var customer = currentRecord.getText({
                 fieldId: 'custrecord782'
             });
@@ -249,10 +272,17 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                 }
             }
 
-            currentRecord.setValue({
-                fieldId: 'custrecorddrs_name',
-                value: customer + ' DRS [ ' + advanceDRSmonth + ' ' + year + ' ]'
-            });
+            if (IPDDRS) {
+                currentRecord.setValue({
+                    fieldId: 'custrecorddrs_name',
+                    value: customer + ' IPDDRS [ ' + advanceDRSmonth + ' ' + year + ' ]'
+                });
+            } else {
+                currentRecord.setValue({
+                    fieldId: 'custrecorddrs_name',
+                    value: customer + ' DRS [ ' + advanceDRSmonth + ' ' + year + ' ]'
+                });
+            }
 
             var lineCount = currentRecord.getLineCount({
                 sublistId: sublistId
@@ -958,56 +988,92 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                 fieldId: 'custrecord782'
             });
 
+            var IPDDRS = currentRecord.getValue({
+                fieldId: 'custrecord_ipd'
+            });
+
+            var baseFilters = [
+                search.createFilter({
+                    name: 'type',
+                    operator: search.Operator.ANYOF,
+                    values: ['SalesOrd']
+                }),
+                search.createFilter({
+                    name: 'status',
+                    operator: search.Operator.ANYOF,
+                    values: ['SalesOrd:D', 'SalesOrd:E', 'SalesOrd:B'],
+                }),
+                search.createFilter({
+                    name: 'mainline',
+                    operator: search.Operator.IS,
+                    values: ['F']
+                }),
+                search.createFilter({
+                    name: 'subsidiary',
+                    operator: search.Operator.ANYOF,
+                    values: ['14']
+                }),
+                search.createFilter({
+                    name: 'vendtype',
+                    operator: search.Operator.NONEOF,
+                    values: ['3']
+                }),
+                search.createFilter({
+                    name: 'formulanumeric',
+                    operator: search.Operator.NOTEQUALTO,
+                    values: ['0'],
+                    formula: '{quantity}-{quantityshiprecv}'
+                }),
+                search.createFilter({
+                    name: 'closed',
+                    operator: search.Operator.IS,
+                    values: ['F']
+                }),
+                search.createFilter({
+                    name: 'custbody16',
+                    operator: search.Operator.ANYOF,
+                    values: ['2']
+                }),
+                search.createFilter({
+                    name: 'entity',
+                    operator: search.Operator.ANYOF,
+                    values: [customer]
+                })
+            ];
+
+            var IPDFilters = [
+                ['type', 'anyof', 'SalesOrd'],
+                'AND',
+                ['subsidiary', 'anyof', '14'],
+                'AND',
+                ['status', 'anyof', ['SalesOrd:D', 'SalesOrd:E', 'SalesOrd:B']],
+                'AND',
+                ['mainline', 'is', 'F'],
+                'AND',
+                ['vendtype', 'noneof', '3'],
+                'AND',
+                ['quantity', 'notequalto', '0'],
+                'AND',
+                ['closed', 'is', 'F'],
+                'AND',
+                ['customform', 'anyof', '647'],
+                'AND',
+                ['entity', 'anyof', customer],
+                'AND',
+                ['tranid', 'doesnotcontain', 'SO-SFLI-']
+            ]
+
+            var finalFilters = '';
+
+            if (IPDDRS) {
+                finalFilters = IPDFilters;
+            } else {
+                finalFilters = baseFilters;
+            }
+
             salesorderSearchObj = search.create({
                 type: 'salesorder',
-                filters: [
-                    search.createFilter({
-                        name: 'type',
-                        operator: search.Operator.ANYOF,
-                        values: ['SalesOrd']
-                    }),
-                    search.createFilter({
-                        name: 'status',
-                        operator: search.Operator.ANYOF,
-                        values: ['SalesOrd:D', 'SalesOrd:E', 'SalesOrd:B'],
-                    }),
-                    search.createFilter({
-                        name: 'mainline',
-                        operator: search.Operator.IS,
-                        values: ['F']
-                    }),
-                    search.createFilter({
-                        name: 'subsidiary',
-                        operator: search.Operator.ANYOF,
-                        values: ['14']
-                    }),
-                    search.createFilter({
-                        name: 'vendtype',
-                        operator: search.Operator.NONEOF,
-                        values: ['3']
-                    }),
-                    search.createFilter({
-                        name: 'formulanumeric',
-                        operator: search.Operator.NOTEQUALTO,
-                        values: ['0'],
-                        formula: '{quantity}-{quantityshiprecv}'
-                    }),
-                    search.createFilter({
-                        name: 'closed',
-                        operator: search.Operator.IS,
-                        values: ['F']
-                    }),
-                    search.createFilter({
-                        name: 'custbody16',
-                        operator: search.Operator.ANYOF,
-                        values: ['2']
-                    }),
-                    search.createFilter({
-                        name: 'entity',
-                        operator: search.Operator.ANYOF,
-                        values: [customer]
-                    })
-                ],
+                filters: finalFilters,
                 columns: [
                     search.createColumn({
                         name: 'tranid',
@@ -1043,6 +1109,11 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                         summary: search.Summary.SUM,
                         label: 'Formula (Numeric)',
                         formula: '{quantity}-{quantityshiprecv}'
+                    }),
+                    search.createColumn({
+                        name: 'custcol47',
+                        summary: search.Summary.GROUP,
+                        label: 'remaining'
                     })
                 ]
             });
@@ -1093,6 +1164,11 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                     summary: search.Summary.GROUP
                 });
 
+                var remaining = parseFloat(result.getValue({
+                    name: 'custcol47',
+                    summary: search.Summary.SUM
+                })) || 0;
+
                 // Ensure the item exists in the dictionary
                 if (!results[itemId]) {
                     results[itemId] = {
@@ -1100,6 +1176,7 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                         "Item Code": itemCode,
                         "Item Description": itemDescription,
                         "Total Quantity": 0,
+                        "Remaining": remaining,
                         "Sales Orders": []
                     };
                 }
@@ -1172,62 +1249,129 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
 
     // Load Item Fulfillment
     function loadItemFulfillment(currentRecord, customer) {
+        var baseFilters = [
+            search.createFilter({
+                name: 'type',
+                operator: search.Operator.ANYOF,
+                values: ['ItemShip']
+            }),
+            search.createFilter({
+                name: 'status',
+                operator: search.Operator.ANYOF,
+                values: ['ItemShip:C']
+            }),
+            search.createFilter({
+                name: 'shipping',
+                operator: search.Operator.IS,
+                values: ['F']
+            }),
+            search.createFilter({
+                name: 'taxline',
+                operator: search.Operator.IS,
+                values: ['F']
+            }),
+            search.createFilter({
+                name: 'accounttype',
+                operator: search.Operator.ANYOF,
+                values: ['@NONE@']
+            }),
+            search.createFilter({
+                name: 'subsidiary',
+                operator: search.Operator.ANYOF,
+                values: ['14']
+            }),
+            /* search.createFilter({
+                name: 'status',
+                operator: search.Operator.ANYOF,
+                values: ['SalesOrd:D', 'SalesOrd:E', 'SalesOrd:B'],
+                join: 'createdfrom'
+            }), */
+            search.createFilter({
+                name: 'custbody16',
+                operator: search.Operator.ANYOF,
+                values: ['2'],
+                join: 'createdfrom'
+            }),
+            search.createFilter({
+                name: 'trandate',
+                operator: search.Operator.WITHIN,
+                values: ['thismonth']
+            }),
+            search.createFilter({
+                name: 'mainname',
+                operator: search.Operator.ANYOF,
+                values: [customer]
+            })
+        ];
+
+        var IPDFilters = [
+            search.createFilter({
+                name: 'type',
+                operator: search.Operator.ANYOF,
+                values: ['ItemShip']
+            }),
+            search.createFilter({
+                name: 'status',
+                operator: search.Operator.ANYOF,
+                values: ['ItemShip:C']
+            }),
+            search.createFilter({
+                name: 'shipping',
+                operator: search.Operator.IS,
+                values: ['F']
+            }),
+            search.createFilter({
+                name: 'taxline',
+                operator: search.Operator.IS,
+                values: ['F']
+            }),
+            search.createFilter({
+                name: 'accounttype',
+                operator: search.Operator.ANYOF,
+                values: ['@NONE@']
+            }),
+            search.createFilter({
+                name: 'subsidiary',
+                operator: search.Operator.ANYOF,
+                values: ['14']
+            }),
+            /* search.createFilter({
+                name: 'status',
+                operator: search.Operator.ANYOF,
+                values: ['SalesOrd:D', 'SalesOrd:E', 'SalesOrd:B'],
+                join: 'createdfrom'
+            }), */
+            search.createFilter({
+                name: 'custbody16',
+                operator: search.Operator.NONEOF,
+                values: ['2'],
+                join: 'createdfrom'
+            }),
+            search.createFilter({
+                name: 'trandate',
+                operator: search.Operator.WITHIN,
+                values: ['thismonth']
+            }),
+            search.createFilter({
+                name: 'mainname',
+                operator: search.Operator.ANYOF,
+                values: [customer]
+            })
+        ];
+
+        var IPDDRS = currentRecord.getValue({
+            fieldId: 'custrecord_ipd'
+        });
+
+        if (IPDDRS) {
+            finalFilters = IPDFilters;
+        } else {
+            finalFilters = baseFilters;
+        }
+
         fulfillmentSearchObj = search.create({
             type: 'itemfulfillment',
-            filters: [
-                search.createFilter({
-                    name: 'type',
-                    operator: search.Operator.ANYOF,
-                    values: ['ItemShip']
-                }),
-                search.createFilter({
-                    name: 'status',
-                    operator: search.Operator.ANYOF,
-                    values: ['ItemShip:C']
-                }),
-                search.createFilter({
-                    name: 'shipping',
-                    operator: search.Operator.IS,
-                    values: ['F']
-                }),
-                search.createFilter({
-                    name: 'taxline',
-                    operator: search.Operator.IS,
-                    values: ['F']
-                }),
-                search.createFilter({
-                    name: 'accounttype',
-                    operator: search.Operator.ANYOF,
-                    values: ['@NONE@']
-                }),
-                search.createFilter({
-                    name: 'subsidiary',
-                    operator: search.Operator.ANYOF,
-                    values: ['14']
-                }),
-                /* search.createFilter({
-                    name: 'status',
-                    operator: search.Operator.ANYOF,
-                    values: ['SalesOrd:D', 'SalesOrd:E', 'SalesOrd:B'],
-                    join: 'createdfrom'
-                }), */
-                search.createFilter({
-                    name: 'custbody16',
-                    operator: search.Operator.ANYOF,
-                    values: ['2'],
-                    join: 'createdfrom'
-                }),
-                search.createFilter({
-                    name: 'trandate',
-                    operator: search.Operator.WITHIN,
-                    values: ['thismonth']
-                }),
-                search.createFilter({
-                    name: 'mainname',
-                    operator: search.Operator.ANYOF,
-                    values: [customer]
-                })
-            ],
+            filters: finalFilters,
             columns: [{
                 name: "item",
                 summary: "GROUP"
@@ -1729,6 +1873,11 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                         });
                         currentRecord.setCurrentSublistValue({
                             sublistId: sublistId,
+                            fieldId: 'custrecord1241',
+                            value: results["Remaining"]
+                        });
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
                             fieldId: 'custrecord835',
                             value: 0
                         });
@@ -1755,13 +1904,14 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                     }
                 }
             } else if (recType == 'DR') {
+                var itemId = results.getValue({
+                    name: 'item',
+                    summary: search.Summary.GROUP
+                });
                 currentRecord.setCurrentSublistValue({
                     sublistId: sublistId,
                     fieldId: 'custrecord784',
-                    value: results.getValue({
-                        name: 'item',
-                        summary: search.Summary.GROUP
-                    })
+                    value: itemId
                 });
                 currentRecord.setCurrentSublistValue({
                     sublistId: sublistId,
@@ -1779,6 +1929,11 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                         name: 'createdfrom',
                         summary: search.Summary.GROUP
                     }).split('#')[1]
+                });
+                currentRecord.setCurrentSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord857',
+                    value: getMemberItems(itemId)
                 });
                 currentRecord.setCurrentSublistValue({
                     sublistId: sublistId,
@@ -1830,6 +1985,11 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                         });
                         currentRecord.setCurrentSublistValue({
                             sublistId: sublistId,
+                            fieldId: 'custrecord1241',
+                            value: results["Remaining"]
+                        });
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
                             fieldId: 'custrecord835',
                             value: 0
                         });
@@ -1846,13 +2006,14 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                     }
                 }
             } else if (recType == 'DR') {
+                var itemId = results.getValue({
+                    name: 'item',
+                    summary: search.Summary.GROUP
+                });
                 currentRecord.setCurrentSublistValue({
                     sublistId: sublistId,
                     fieldId: 'custrecord784',
-                    value: results.getValue({
-                        name: 'item',
-                        summary: search.Summary.GROUP
-                    })
+                    value: itemId
                 });
                 currentRecord.setCurrentSublistText({
                     sublistId: sublistId,
@@ -1870,6 +2031,11 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record'], function (search, log, 
                         name: 'createdfrom',
                         summary: search.Summary.GROUP
                     }).split('#')[1]
+                });
+                currentRecord.setCurrentSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord857',
+                    value: getMemberItems(itemId)
                 });
                 var quantity = parseInt(results.getValue({
                     name: 'quantity',

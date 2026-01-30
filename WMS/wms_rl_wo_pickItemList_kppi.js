@@ -46,8 +46,8 @@ define(['./wms_utility','./wms_translator','./big','./wms_workOrderUtility_kppi'
                     inputParamObj.transactionName = transactionName;
                     inputParamObj.transactionType = transactionType;
                     inputParamObj.inventoryDetailLotOrSerialFlag = inventoryDetailLotOrSerialFlag;
-                    log.debug('Calling woUtility.getWOLineItemList with', inputParamObj);
-                    var woItemListResults=woUtility.getWOLineItemList(inputParamObj);
+                    log.debug('Calling woUtility.getWOLineItemList_V3 with', inputParamObj);
+                    var woItemListResults=woUtility.getWOLineItemList_V3(inputParamObj);
                     log.debug('woItemListResults.length', (woItemListResults && woItemListResults.length));
 
                     if(woItemListResults && woItemListResults.length>0)
@@ -357,7 +357,7 @@ define(['./wms_utility','./wms_translator','./big','./wms_workOrderUtility_kppi'
                             checkStageFlag = 'T';
                         log.debug('staged quantities evaluated', { stagedQty: stagedQty.toString(), vWoremStageQty: vWoremStageQty, checkStageFlag: checkStageFlag });
                     }
-                    if( checkStageFlag == 'F'){
+                    //if( checkStageFlag == 'F'){
                         if(vWoreminQty<0) {
                             vWoreminQty = 0;
                         }
@@ -382,7 +382,7 @@ define(['./wms_utility','./wms_translator','./big','./wms_workOrderUtility_kppi'
                         workOrderDtl['overpickedQuantity'] = overPickedQuantity;
                         woItemList.push(workOrderDtl);
                         log.debug('pushed workOrderDtl into woItemList', { index: woItemList.length-1, workOrderDtl: workOrderDtl });
-                    }
+                    //}
 
                 }
             }

@@ -12,6 +12,10 @@ define(['N/record', 'N/search', 'N/log'], function (record, search, log) {
             title: 'params',
             details: params
         });
+
+        if (joNum == 'BOH') 
+            return '';
+
         if (!joNum) {
             var tranId = params.joId || params.joId_2;
             if (!tranId) {
@@ -27,10 +31,10 @@ define(['N/record', 'N/search', 'N/log'], function (record, search, log) {
                     }
                 } catch (e) {
                     log.error({ title: 'Item Load Error', details: e });
-                    return { error: 'Failed to resolve customer from item' };
+                    return '';
                 }
                 log.error({ title: 'Missing identifier', details: 'Provide JOnum or tranid' });
-                return { error: 'Missing JOnum and tranid' };
+                return '';
             }
 
             var workOrderSearch = search.create({
@@ -42,7 +46,7 @@ define(['N/record', 'N/search', 'N/log'], function (record, search, log) {
             var results = workOrderSearch.run().getRange({ start: 0, end: 1 });
             if (!results || results.length === 0) {
                 log.error({ title: 'Work Order Not Found', details: 'tranid: ' + tranId });
-                return { error: 'Work order not found' };
+                return '';
             }
 
             joNum = results[0].getValue({ name: 'internalid' }) || results[0].id;

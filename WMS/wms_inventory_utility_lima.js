@@ -1491,9 +1491,18 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             var tallyQtyArr = invtransferObj.tallyQtyArr;
             var lotArray = invtransferObj.lotArray;
             var department = invtransferObj.department.toLowerCase();
-            var customer = invtransferObj.customer.toLowerCase();
+            var customer = invtransferObj.customer;
             var employee = invtransferObj.preparedBy.toLowerCase().split(" ").join("");
             var invTranID = invtransferObj.invTranID;
+            var today = new Date();
+            var month = String(today.getMonth() + 1);
+            var year = today.getFullYear();
+
+            if (invTranID == null || invTranID == '' || invTranID == undefined) {
+                invTranID = itemId + '-' + month + '-' + year;
+            }
+
+            log.debug('invTranID', invTranID);
 
             var invTransfer = record.create({
                 type: record.Type.INVENTORY_TRANSFER,
@@ -1569,76 +1578,78 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 value: invTranID
             });
 
-            invTransfer.setValue({
-                fieldId: 'custbody491',
-                value: 'Work Order #' + invTranID
-            });
-
-            if (invTranID) {
-                // Search for the work order internal id using the tranid
-                var workOrderSearch = search.create({
-                    type: search.Type.WORK_ORDER,
-                    filters: [
-                        ['tranid', 'is', invTranID]
-                    ],
-                    columns: ['internalid']
+            if (itemType == "assemblyitem") {
+                invTransfer.setValue({
+                    fieldId: 'custbody491',
+                    value: 'Work Order #' + invTranID
                 });
-                var workOrderResult = workOrderSearch.run().getRange({ start: 0, end: 1 });
-                if (workOrderResult && workOrderResult.length > 0) {
-                    var workOrderInternalId = workOrderResult[0].getValue({ name: 'internalid' });
-                    var workOrder = record.load({
-                        type: record.Type.WORK_ORDER,
-                        id: workOrderInternalId
+
+                if (invTranID) {
+                    // Search for the work order internal id using the tranid
+                    var workOrderSearch = search.create({
+                        type: search.Type.WORK_ORDER,
+                        filters: [
+                            ['tranid', 'is', invTranID]
+                        ],
+                        columns: ['internalid']
                     });
-
-                    /* // Extract Customer, Assembly Item, Subsidiary
-                    var subsidiaryId = workOrder.getValue({ fieldId: 'subsidiary' });
-
-                    // Load Item record
-                    var itemRecord = record.load({
-                        type: record.Type.INVENTORY_ITEM,
-                        id: itemId
-                    });
-
-                    // Find vendor with same subsidiary in itemvendor sublist
-                    var vendorId = null;
-                    var vendorCount = itemRecord.getLineCount({ sublistId: 'itemvendor' });
-                    for (var i = 0; i < vendorCount; i++) {
-                        var vendorSubsidiary = itemRecord.getSublistValue({
-                            sublistId: 'itemvendor',
-                            fieldId: 'subsidiary',
-                            line: i
+                    var workOrderResult = workOrderSearch.run().getRange({ start: 0, end: 1 });
+                    if (workOrderResult && workOrderResult.length > 0) {
+                        var workOrderInternalId = workOrderResult[0].getValue({ name: 'internalid' });
+                        var workOrder = record.load({
+                            type: record.Type.WORK_ORDER,
+                            id: workOrderInternalId
                         });
-                        if (vendorSubsidiary == subsidiaryId) {
-                            vendorId = itemRecord.getSublistValue({
+
+                        /* // Extract Customer, Assembly Item, Subsidiary
+                        var subsidiaryId = workOrder.getValue({ fieldId: 'subsidiary' });
+    
+                        // Load Item record
+                        var itemRecord = record.load({
+                            type: record.Type.INVENTORY_ITEM,
+                            id: itemId
+                        });
+    
+                        // Find vendor with same subsidiary in itemvendor sublist
+                        var vendorId = null;
+                        var vendorCount = itemRecord.getLineCount({ sublistId: 'itemvendor' });
+                        for (var i = 0; i < vendorCount; i++) {
+                            var vendorSubsidiary = itemRecord.getSublistValue({
                                 sublistId: 'itemvendor',
-                                fieldId: 'vendor',
+                                fieldId: 'subsidiary',
                                 line: i
                             });
-                            break;
+                            if (vendorSubsidiary == subsidiaryId) {
+                                vendorId = itemRecord.getSublistValue({
+                                    sublistId: 'itemvendor',
+                                    fieldId: 'vendor',
+                                    line: i
+                                });
+                                break;
+                            }
                         }
+                        // Log extracted values
+                        log.error({ title: 'Vendor', details: vendorId }); */
+
+                        // Extract Assembly Item
+                        var assemblyItemId = workOrder.getText({ fieldId: 'assemblyitem' });
+
+                        invTransfer.setText({
+                            fieldId: 'custbody520',
+                            value: assemblyItemId
+                        });
+
+                        // Log extracted values
+                        log.error({ title: 'Assembly Item', details: assemblyItemId });
+
+                    } else {
+                        log.error({ title: 'Work Order Not Found', details: 'No work order found with tranid: ' + invTranID });
                     }
-                    // Log extracted values
-                    log.error({ title: 'Vendor', details: vendorId }); */
-
-                    // Extract Assembly Item
-                    var assemblyItemId = workOrder.getText({ fieldId: 'assemblyitem' });
-
-                    invTransfer.setText({
-                        fieldId: 'custbody520',
-                        value: assemblyItemId
-                    });
-
-                    // Log extracted values
-                    log.error({ title: 'Assembly Item', details: assemblyItemId });
-
-                } else {
-                    log.error({ title: 'Work Order Not Found', details: 'No work order found with tranid: ' + invTranID });
                 }
             }
 
             var queryResult = query.runSuiteQL({
-                query: "SELECT (select id from department where lower(name) LIKE '" + department + "') as Department, (select id from customer where lower(companyname) like '" + customer + "') as Customer, (select id from employee where lower(concat(concat(firstname, middlename), lastname)) like '" + employee + "') as Employee",
+                query: "SELECT (select id from department where lower(name) LIKE '" + department + "') as Department, (select id from customer where companyname like '" + customer + "') as Customer, (select id from employee where lower(concat(concat(firstname, middlename), lastname)) like '" + employee + "') as Employee",
             });
 
             log.debug('Employee', employee);
@@ -1655,6 +1666,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             var deliveryDate = new Date(Date.parse(invtransferObj.deliveryDate));
 
             log.debug('Delivery Date', deliveryDate);
+
+            invTransfer.setValue({
+                fieldId: 'custbody_kpthdateofdelivery',
+                value: deliveryDate,
+            });
 
             invTransfer.setValue({
                 fieldId: 'department',

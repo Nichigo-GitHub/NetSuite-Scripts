@@ -73,6 +73,71 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 			return workOrdListResults;
 		}
 
+		function getWOList_V3(whLocation, transactionName, locUseBinsFlag, woIDArr) {
+			log.debug('getWOList function Start', 'whLocation: ' + whLocation + ', transactionName: ' + transactionName + ', locUseBinsFlag: ' + locUseBinsFlag + ', woIDArr: ' + woIDArr);
+			var workOrdListSearch = search.load({
+				id: 'customsearch_wms_wo_picking_kspv3'
+			});
+
+			if (utility.isValueValid(whLocation)) {
+				log.debug('valid: ', whLocation);
+				if (whLocation == 789 || whLocation == 940 || whLocation == 922 || whLocation == 834 || whLocation == 942 || whLocation == 939 || whLocation == 820 || whLocation == 821) {
+					workOrdListSearch.filters.push(
+						search.createFilter({
+							name: 'location',
+							operator: search.Operator.ANYOF,
+							values: [820, 821]
+						})
+					);
+					log.debug('Inside WH Location 820 & 821');
+				} else {
+					workOrdListSearch.filters.push(
+						search.createFilter({
+							name: 'location',
+							operator: search.Operator.ANYOF,
+							values: whLocation
+						})
+					);
+					log.debug('Inside Other WH Location: ' + whLocation);
+				}
+			}
+			else {
+				log.debug('Invalid whLocation: ', whLocation);
+			}
+			if (utility.isValueValid(transactionName)) {
+				workOrdListSearch.filters.push(
+					search.createFilter({
+						name: 'tranid',
+						operator: search.Operator.ANYOF,
+						values: transactionName
+					})
+				);
+			}
+			if (utility.isValueValid(woIDArr)) {
+				workOrdListSearch.filters.push(
+					search.createFilter({
+						name: 'internalid',
+						operator: search.Operator.ANYOF,
+						values: woIDArr
+					})
+				);
+			}
+
+			/*if(!utility.isValueValid( locUseBinsFlag) || locUseBinsFlag ){
+				workOrdListSearch.filters.push(search.createFilter({
+					name: 'usebins',
+					join : 'item',
+					operator: search.Operator.IS,
+					values: true
+				}));
+			}*/
+
+			var workOrdListResults = utility.getSearchResultInJSON(workOrdListSearch);
+			log.debug('workOrdListResults', workOrdListResults);
+
+			return workOrdListResults;
+		}
+
 		function getWODetails(wonumber) {
 			var workOrdDtlSearch = search.load({
 				id: 'customsearch_wms_wo_transaction_dtl_2'
@@ -210,20 +275,128 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 			return workOrdDtlResults;
 		}
 
+		function fnToValidateWO_V3(transactionName, itemId, transactionLineNo, transactionInternalId, inventoryDetailLotOrSerialId) {
+
+			var workOrdDtlSearch = search.load({
+				id: 'customsearch_wms_workorder_ordervalida_2'
+			});
+			if (utility.isValueValid(transactionName))
+				workOrdDtlSearch.filters.push(
+					search.createFilter({
+						name: 'tranid',
+						operator: search.Operator.ANYOF,
+						values: transactionName
+					})
+				);
+			if (utility.isValueValid(itemId))
+				workOrdDtlSearch.filters.push(
+					search.createFilter({
+						name: 'item',
+						operator: search.Operator.ANYOF,
+						values: itemId
+					})
+				);
+			if (utility.isValueValid(transactionLineNo))
+				workOrdDtlSearch.filters.push(
+					search.createFilter({
+						name: 'line',
+						operator: search.Operator.EQUALTO,
+						values: transactionLineNo
+					})
+				);
+			if (utility.isValueValid(transactionInternalId))
+				workOrdDtlSearch.filters.push(
+					search.createFilter({
+						name: 'internalid',
+						operator: search.Operator.ANYOF,
+						values: transactionInternalId
+					})
+				);
+			if (utility.isValueValid(inventoryDetailLotOrSerialId)) {
+				workOrdDtlSearch.filters.push(
+					search.createFilter({
+						name: 'inventorynumber',
+						join: 'inventorydetail',
+						operator: search.Operator.ANYOF,
+						values: inventoryDetailLotOrSerialId
+					})
+				);
+				workOrdDtlSearch.columns.push(
+					search.createColumn({
+						name: 'inventorynumber',
+						join: 'inventorydetail',
+						summary: search.Summary.GROUP
+					})
+				);
+				workOrdDtlSearch.columns.push(
+					search.createColumn({
+						name: 'quantity',
+						join: 'inventorydetail',
+						label: 'quantity',
+						summary: search.Summary.SUM
+					})
+				);
+			}
+
+			var workOrdDtlResults = utility.getSearchResultInJSON(workOrdDtlSearch);
+			log.debug('workOrdDtlResults iin validate', workOrdDtlResults);
+
+			return workOrdDtlResults;
+		}
+
 		function getWOLineItemList(inputParamObj) {
 			var itemListSearch = search.load({
 				id: 'customsearch_wms_workorder_lineitemlist'
 			});
 
-			if (inputParamObj.whLocation == 789 || inputParamObj.whLocation == 940 || inputParamObj.whLocation == 922 || inputParamObj.whLocation == 834 || inputParamObj.whLocation == 942 || inputParamObj.whLocation == 939 || inputParamObj.whLocation == 820 || inputParamObj.whLocation == 821) {
+			itemListSearch.filters.push(
+				search.createFilter({
+					name: 'location',
+					operator: search.Operator.ANYOF,
+					values: inputParamObj.whLocation
+				})
+			);
+
+			if (utility.isValueValid(inputParamObj.transactionName))
 				itemListSearch.filters.push(
 					search.createFilter({
-						name: 'location',
-						operator: search.Operator.ANYOF,
-						values: [820, 821]
+						name: 'tranid',
+						operator: search.Operator.IS,
+						values: inputParamObj.transactionName
+					})
+				);
+
+			if (inputParamObj.inventoryDetailLotOrSerialFlag) {
+
+				itemListSearch.columns.push(
+					search.createColumn({
+						name: 'inventorynumber',
+						join: 'inventorydetail',
+						summary: search.Summary.GROUP
+					})
+				);
+				itemListSearch.columns.push(
+					search.createColumn({
+						name: 'formulanumeric',
+						formula: '{inventorydetail.quantity}/({quantity}/{quantityuom})',
+						label: 'Quantity',
+						summary: search.Summary.SUM
 					})
 				);
 			}
+
+			var itemListResults = utility.getSearchResultInJSON(itemListSearch);
+			log.debug('itemListResults', itemListResults);
+
+			return itemListResults;
+		}
+
+		function getWOLineItemList_V3(inputParamObj) {
+			var itemListSearch = search.load({
+				id: 'customsearch_wms_workorder_lineitemlis_2'
+			});
+
+			log.debug('inputParamObj', inputParamObj);
 
 			if (utility.isValueValid(inputParamObj.transactionName))
 				itemListSearch.filters.push(
@@ -3502,6 +3675,41 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 
 		}
 
+		function getNonPhantomWOComponents(workOrderId) {
+			var orderList = [];
+
+			var woSearch = search.create({
+				type: search.Type.WORK_ORDER,
+				filters: [
+					['internalid', 'anyof', workOrderId],
+					'AND',
+					['mainline', 'is', 'F'],
+					'AND',
+					['item.type', 'noneof', 'Phantom'],
+					'AND',
+					['item.type', 'noneof', 'Assembly']
+				],
+				columns: [
+					'item',
+					'quantity',
+					'quantitycommitted',
+				]
+			});
+
+			woSearch.run().each(function (r) {
+				orderList.push({
+					itemId: r.getValue('item'),
+					itemName: r.getText('item'),
+					requiredQty: Number(r.getValue('quantity')),
+					committedQty: Number(r.getValue('quantitycommitted')) || 0,
+				});
+				return true;
+			});
+
+			return orderList;
+		}
+
+
 		function setLotAssemblyItemInventoryDetails(buildRecord, dataObj) {
 			var buildSubRecord = buildRecord.getSubrecord({
 				fieldId: 'inventorydetail'
@@ -5333,10 +5541,13 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 
 		return {
 			getWOList: getWOList,
+			getWOList_V3: getWOList_V3,
 			getWODetails: getWODetails,
 			fnToValidateWO: fnToValidateWO,
+			fnToValidateWO_V3: fnToValidateWO_V3,
 			getWOpickQty: getWOpickQty,
 			getWOLineItemList: getWOLineItemList,
+			getWOLineItemList_V3: getWOLineItemList_V3,
 			getOpentaskPickQtyDetails: getOpentaskPickQtyDetails,
 			//getWOPickBinDetails : getWOPickBinDetails,
 			getInventoryBalance: getInventoryBalance,
@@ -5369,6 +5580,7 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 			getItemStockUOMdetails: getItemStockUOMdetails,
 			getWODetailsforAssembly: getWODetailsforAssembly,
 			getRecommendedBinswithPickPathAPI: getRecommendedBinswithPickPathAPI,
+			getNonPhantomWOComponents: getNonPhantomWOComponents,
 			splitOpenTaskRecordsForWO: splitOpenTaskRecordsForWO,
 			cloneOpenTaskRecord: cloneOpenTaskRecord,
 			buildParameterObject: buildParameterObject,

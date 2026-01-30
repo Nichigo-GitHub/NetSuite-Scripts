@@ -95,7 +95,7 @@ define(['N/search','N/record','./wms_utility','./big','./wms_translator','./wms_
 				/*------------------------- Checking location to be valid or not if post directly from TO location ----------------------*/
 				warehouseLocationDetails.isValid = true;
 				if(utility.isValueValid(toWarehouseLocationName) && !(utility.isValueValid(toWarehouseLocationId))){
-					if (warehouseLocationId == 821 || warehouseLocationId == '821' && toWarehouseLocationName == 942 || toWarehouseLocationName == '942') {						
+					if (!warehouseLocationId == 821 || !warehouseLocationId == 834) {					
 						warehouseLocationDetails.errorMessage =translator.getTranslationString('PO_WAREHOUSEVALIDATION.INVALID_INPUT');
 						warehouseLocationDetails.isValid = false;
 					} else {

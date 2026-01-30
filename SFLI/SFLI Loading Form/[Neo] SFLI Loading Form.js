@@ -2,7 +2,7 @@
  * @NApiVersion 2.0
  * @NScriptType ClientScript
  */
-define(['N/record', 'N/ui/dialog', 'N/format', 'N/search'], function (record, dialog, format, search) {
+define(['N/record', 'N/ui/dialog', 'N/format', 'N/search', 'N/runtime'], function (record, dialog, format, search, runtime) {
     const sublistId = 'recmachcustrecord848';
     const fieldIdsToCheck = [
         'custrecord788', 'custrecord789', 'custrecord790', 'custrecord791',
@@ -14,23 +14,41 @@ define(['N/record', 'N/ui/dialog', 'N/format', 'N/search'], function (record, di
         'custrecord812', 'custrecord813', 'custrecord814', 'custrecord815',
         'custrecord816', 'custrecord817', 'custrecord818'
     ];
-
+    const today = new Date();
+    const month = today.getMonth();
+    const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
     function pageInit(context) {
         var currentRecord = context.currentRecord;
         var contextMode = context.mode;
+
+        var userObj = runtime.getCurrentUser();
+        var userId = userObj.id;
+        var roleId = userObj.role;
+
+        if (roleId == 1204 || userId == 10006) {
+            currentRecord.setValue({
+                fieldId: 'custrecord1242',
+                value: true
+            });
+        }
+
+        var IPDField = currentRecord.getValue({ fieldId: 'custrecord1242' });
 
         var formNumberField = currentRecord.getField({ fieldId: 'custrecord_loading_form_num' });
         formNumberField.isDisabled = true;
 
         if (contextMode === 'create') {
-            var today = new Date();
-            var formattedDate = format.parse({ value: today, type: format.Type.DATE });
-
-            // Build the formatted long date
-            var longDate = formatLongDate(today);
-
+            if (IPDField) {
+                var formattedDate = monthNames[month] + ' ' + today.getFullYear();
+            } else {
+                var formattedDate = format.parse({ value: today, type: format.Type.DATE });
+                var longDate = formatLongDate(today);
+            }
             // Check duplicates
-            if (checkDuplicateLoadingForm(longDate)) {
+            if (checkDuplicateLoadingForm(longDate, IPDField)) {
                 dialog.alert({
                     title: 'Duplicate Loading Form',
                     message: 'A Loading Form for ' + longDate + ' already exists.'
@@ -60,46 +78,172 @@ define(['N/record', 'N/ui/dialog', 'N/format', 'N/search'], function (record, di
         var deliveryDate = currentRecord.getValue({ fieldId: 'custrecord_date_num' });
         if (!deliveryDate) return;
 
-        var dateString = formatLongDate(deliveryDate);
-        currentRecord.setValue({
-            fieldId: 'custrecord_loading_form_num',
-            value: 'Loading Form [' + dateString + ']'
-        });
+        var IPDField = currentRecord.getValue({ fieldId: 'custrecord1242' });
+
+        if (IPDField) {
+            var dateString = monthNames[new Date(deliveryDate).getMonth()] + ' ' + new Date(deliveryDate).getFullYear();
+            currentRecord.setValue({
+                fieldId: 'custrecord_loading_form_num',
+                value: 'IPD Loading Form [' + dateString + ']'
+            });
+        } else {
+            var dateString = formatLongDate(deliveryDate);
+            currentRecord.setValue({
+                fieldId: 'custrecord_loading_form_num',
+                value: 'Loading Form [' + dateString + ']'
+            });
+        }
 
         var jsDate = new Date(deliveryDate);
         var month = jsDate.getMonth() + 1;
         var day = jsDate.getDate();
         var year = jsDate.getFullYear();
 
-        var results = runDRSearch(month, day, year);
+        var results = runDRSearch(currentRecord, month, day, year);
         results.forEach(function (result) {
             populateSublistLine(currentRecord, result, day);
         });
     }
 
-    function runDRSearch(month, day, year) {
+    function runDRSearch(currentRecord, month, day, year) {
         var results = [];
+        var IPDField = currentRecord.getValue({ fieldId: 'custrecord1242' });
+        var finalFilters = [];
+        var baseFilters = [
+            ['custrecord846', search.Operator.ANYOF, month],
+            'AND',
+            [
+                [
+                    [fieldIdsToCheck[day - 1], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    ['custrecord933', search.Operator.GREATERTHAN, 0]
+                ]
+            ],
+            'AND',
+            ['custrecord856', search.Operator.CONTAINS, String(year)],
+            'AND',
+            ['custrecord786', search.Operator.CONTAINS, 'SO-SFLI-']
+        ];
+        var IPDFilters = [
+            ['custrecord846', search.Operator.ANYOF, month],
+            'AND',
+            [
+                [
+                    [fieldIdsToCheck[0], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[1], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[2], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[3], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[4], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[5], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[6], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[7], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[8], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[9], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[10], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[11], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[12], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[13], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[14], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[15], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[16], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[17], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[18], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[19], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[20], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[21], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[22], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[23], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[24], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[25], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[26], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[27], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[28], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[29], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    [fieldIdsToCheck[30], search.Operator.GREATERTHAN, 0],
+                    'OR',
+                    ['custrecord933', search.Operator.GREATERTHAN, 0]
+                ],
+            ],
+            'AND',
+            ['custrecord856', search.Operator.CONTAINS, String(year)],
+            'AND',
+            ['custrecord786', search.Operator.CONTAINS, 'SFLI-SO-NIPS-']
+        ];
+        if (IPDField) {
+            finalFilters = IPDFilters;
+        } else {
+            finalFilters = baseFilters;
+        }
         try {
             log.debug('runDRSearch params', { month: month, day: day, year: year });
-            var filters = [
-                ['custrecord846', search.Operator.ANYOF, month],
-                'AND',
-                [
-                    [
-                        [fieldIdsToCheck[day - 1], search.Operator.GREATERTHAN, 0],
-                        'OR',
-                        ['custrecord933', search.Operator.GREATERTHAN, 0]
-                    ]
-                ],
-                'AND',
-                ['custrecord856', search.Operator.CONTAINS, String(year)]
-            ];
+
+            var filters = finalFilters;
             log.debug('runDRSearch filters', JSON.stringify(filters));
             var columns = [
                 'custrecord784',
                 'custrecord785',
                 'custrecord786',
-                fieldIdsToCheck[day - 1],
+                fieldIdsToCheck[0],
+                fieldIdsToCheck[1],
+                fieldIdsToCheck[2],
+                fieldIdsToCheck[3],
+                fieldIdsToCheck[4],
+                fieldIdsToCheck[5],
+                fieldIdsToCheck[6],
+                fieldIdsToCheck[7],
+                fieldIdsToCheck[8],
+                fieldIdsToCheck[9],
+                fieldIdsToCheck[10],
+                fieldIdsToCheck[11],
+                fieldIdsToCheck[12],
+                fieldIdsToCheck[13],
+                fieldIdsToCheck[14],
+                fieldIdsToCheck[15],
+                fieldIdsToCheck[16],
+                fieldIdsToCheck[17],
+                fieldIdsToCheck[18],
+                fieldIdsToCheck[19],
+                fieldIdsToCheck[20],
+                fieldIdsToCheck[21],
+                fieldIdsToCheck[22],
+                fieldIdsToCheck[23],
+                fieldIdsToCheck[24],
+                fieldIdsToCheck[25],
+                fieldIdsToCheck[26],
+                fieldIdsToCheck[27],
+                fieldIdsToCheck[28],
+                fieldIdsToCheck[29],
+                fieldIdsToCheck[30],
                 'custrecord836',
                 'custrecord933'
             ];
@@ -128,18 +272,35 @@ define(['N/record', 'N/ui/dialog', 'N/format', 'N/search'], function (record, di
     }
 
     function populateSublistLine(currentRecord, result, day) {
+        var IPDField = currentRecord.getValue({ fieldId: 'custrecord1242' });
+        var totalQty = 0;
+
         currentRecord.selectNewLine({ sublistId: sublistId });
         currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord850', value: result['custrecord784'] });
         currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord851', value: result['custrecord785'] });
         currentRecord.setCurrentSublistText({ sublistId: sublistId, fieldId: 'custrecord852', text: result['custrecord786'] });
-        currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord853', value: result[fieldIdsToCheck[day - 1]] || 0 });
+
+        if (IPDField) {
+            for (var i = 0; i < 31; i++) {
+                if (result[fieldIdsToCheck[i]] > 0) {
+                    totalQty += Number(result[fieldIdsToCheck[i]]) || 0;
+                }
+            }
+            currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord853', value: totalQty || 0 });
+        } else {
+            currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord853', value: result[fieldIdsToCheck[day - 1]] || 0 });
+        }
         currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord934', value: result['custrecord933'] || 0 });
         currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord849', value: result['custrecord836'] });
         currentRecord.commitLine({ sublistId: sublistId });
     }
 
-    function checkDuplicateLoadingForm(formattedDate) {
-        var textToMatch = 'Loading Form [' + formattedDate + ']';
+    function checkDuplicateLoadingForm(formattedDate, IPDField) {
+        if (IPDField) {
+            var textToMatch = 'IPD Loading Form [' + formattedDate + ']';
+        } else {
+            var textToMatch = 'Loading Form [' + formattedDate + ']';
+        }
 
         var duplicateSearch = search.create({
             type: 'customrecord_sfli_loading_form_dtls',
