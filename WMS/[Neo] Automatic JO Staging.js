@@ -18,8 +18,16 @@ define(['N/log'], function(log) {
             defaultValue = 'NFI JO Staging';
         } else if (warehouseLocation === "SFLI Warehouse : Raw Mat'ls") {
             defaultValue = 'Production RM';
+        } else if (warehouseLocation === 'KPI Raw Materials') {
+            defaultValue = 'KPI JO Staging Bin';
         } else if (warehouseLocation === 'SFLI Production') {
             defaultValue = '';
+        } else if (warehouseLocation === 'KPPI Laguna Warehouse : Production - M') {
+            defaultValue = 'WHSE - PROD RM';
+        } else if (warehouseLocation === 'KPPI Laguna Warehouse : QA - M') {
+            defaultValue = 'QA WIP';
+        } else if (warehouseLocation === 'KPPI Laguna Warehouse : Overrun - M') {
+            defaultValue = 'Overrun - M';
         }
 
         return defaultValue;
@@ -33,6 +41,16 @@ define(['N/log'], function(log) {
         });
 
         var warehouseLocation = params.warehouseLocationName;
+
+        if (!warehouseLocation || warehouseLocation === 'KPPI Laguna Warehouse : Raw Materials - M') {
+            warehouseLocation = params.warehouseLocationName_2;
+
+            log.debug({
+                title: 'Warehouse Location Name 2',
+                details: warehouseLocation
+            });
+        }
+
         // Call the function to get the default value
         var defaultValue = getDefaultValue(warehouseLocation);
 

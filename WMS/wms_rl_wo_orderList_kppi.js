@@ -3,9 +3,9 @@
  * @NScriptType Restlet
  * @NModuleScope Public
  */
-define(['./wms_utility', './wms_translator', './big', './wms_workOrderUtility_kppi', 'N/query'],
+define(['./wms_utility', './wms_translator', './big', './wms_workOrderUtility_kppi', 'N/query', 'N/search'],
 
-	function (utility, translator, Big, woUtility, query) {
+	function (utility, translator, Big, woUtility, query, search) {
 
 		function doPost(requestBody) {
 
@@ -24,6 +24,27 @@ define(['./wms_utility', './wms_translator', './big', './wms_workOrderUtility_kp
 					var isTransferRM = requestParams.isTransferRM;
 					if (!utility.isValueValid(isTransferRM)) {
 						isTransferRM = false;
+					}
+					if (!utility.isValueValid(whLocation)) {
+						whLocation = requestParams.warehouseLocationName;
+
+						if (whLocation.indexOf(':') !== -1) {
+							var nameParts = whLocation.split(':');
+							var name = nameParts[1].trim();
+							log.debug('doPost - Warehouse Location Name', { name: name });
+							var warehouseLocationSearch = search.create({
+								type: 'location',
+								filters: [
+									['name', search.Operator.CONTAINS, name]
+								],
+								columns: ['internalid']
+							});
+							var warehouseLocationResults = warehouseLocationSearch.run().getRange({ start: 0, end: 1 });
+							if (warehouseLocationResults.length > 0) {
+								whLocation = warehouseLocationResults[0].getValue('internalid');
+								log.debug('doPost - Warehouse Location ID', { whLocation: whLocation });
+							}
+						}
 					}
 					var internalIdArr = [];
 					var objpickQty = {};

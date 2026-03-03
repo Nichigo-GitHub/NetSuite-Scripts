@@ -93,6 +93,24 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
                     lotString = requestParams.lotString;
                     log.debug({ title: 'requestParams', details: requestParams });
 
+                    if (warehouseLocationId.indexOf(':') !== -1) {
+						var nameParts = warehouseLocationId.split(':');
+						var name = nameParts[1].trim();
+						log.debug('doPost - Warehouse Location Name', { name: name });
+						var warehouseLocationSearch = search.create({
+							type: 'location',
+							filters: [
+								['name', search.Operator.CONTAINS, name]
+							],
+							columns: ['internalid']
+						});
+						var warehouseLocationResults = warehouseLocationSearch.run().getRange({ start: 0, end: 1 });
+						if (warehouseLocationResults.length > 0) {
+							warehouseLocationId = warehouseLocationResults[0].getValue('internalid');
+							log.debug('doPost - Warehouse Location ID', { warehouseLocationId: warehouseLocationId });
+						}
+					}
+
                     if (putawayAll == 'putawayAll') {
                         qtyValidate.selectedStatusId = 'All';
                         qtyValidate.selectedStatusName = 'All';

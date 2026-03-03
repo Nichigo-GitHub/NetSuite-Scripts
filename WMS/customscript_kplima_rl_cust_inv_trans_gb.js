@@ -20,7 +20,6 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			var scannedQuantity = '';
 			var fromBinName = '';
 			var binName = '';
-			var binId = '';
 			var preferedBinName = '';
 			var blnMixItem = '';
 			var blnMixLot = '';
@@ -65,7 +64,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 				preparedBy = '';
 			var deliveryDate = '';
 			var invTranID = '';
-			var JOnum = '';
+			var RMissuance = '';
 
 			try {
 				if (utility.isValueValid(requestBody)) {
@@ -78,7 +77,6 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					scannedQuantity = requestParams.scannedQuantity;
 					fromBinName = requestParams.fromBinName;
 					binName = requestParams.binName;
-					binId = requestParams.bin_id;
 					preferedBinName = requestParams.preferedBinName;
 					blnMixItem = requestParams.blnMixItem;
 					blnMixLot = requestParams.blnMixLot;
@@ -115,9 +113,30 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					barcodeQuantity = requestParams.barcodeQuantity;
 					isTallyScanRequired = requestParams.isTallyScanRequired;
 					tallyScanBarCodeQty = requestParams.tallyScanBarCodeQty;
+					RMissuance = requestParams.RMissuance;
 
 					if (!invTranID)
 						invTranID = requestParams.JOnum;
+
+					if (RMissuance == 'T') {
+						if (warehouseLocationId.indexOf(':') !== -1) {
+							var nameParts = warehouseLocationId.split(':');
+							var name = nameParts[1].trim();
+							log.debug('doPost - Warehouse Location Name', { name: name });
+							var warehouseLocationSearch = search.create({
+								type: 'location',
+								filters: [
+									['name', search.Operator.CONTAINS, name]
+								],
+								columns: ['internalid']
+							});
+							var warehouseLocationResults = warehouseLocationSearch.run().getRange({ start: 0, end: 1 });
+							if (warehouseLocationResults.length > 0) {
+								warehouseLocationId = warehouseLocationResults[0].getValue('internalid');
+								log.debug('doPost - Warehouse Location ID', { warehouseLocationId: warehouseLocationId });
+							}
+						}
+					}
 
 					log.debug({
 						title: 'requestParams',
@@ -324,6 +343,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 										objInvDetails = utility.getItemMixFlagDetails(warehouseLocationId, itemInternalId, toBinInternalId, true, null);
 									}
 									if (objInvDetails.length > 0) {
+										log.debug('objInvDetails', objInvDetails);
 										log.debug('error 301', 'error');
 										binValidateArray.errorMessage = translator.getTranslationString('INVENTORY_QUANTITYVALIDATE.BIN_MIXITEMS_FALSE');
 										binValidateArray.isValid = false;
@@ -623,7 +643,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 												log.debug('tallyScanObj for inv transfer', tallyScanObj);
 											}
 											impactRec = fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId,
-												toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID);
+												toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID, RMissuance);
 											log.debug('fninvtransfer', impactRec);
 
 
@@ -756,7 +776,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			return impactRec;
 		}
 
-		function fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID) {
+		function fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID, RMissuance) {
 			var invtransferObj = {};
 			var impactRec = {};
 
@@ -792,6 +812,9 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			invtransferObj.units = stockUnitName;
 			invtransferObj.stockConversionRate = stockConversionRate;
 			invtransferObj.opentaskQty = openTaskQty;
+			if (RMissuance == 'T') {
+				invtransferObj.RMissuance = RMissuance;
+			}
 
 			if (tallyScanObj.isTallyScanRequired) {
 				invtransferObj.isTallyScanRequired = tallyScanObj.isTallyScanRequired;

@@ -4,10 +4,10 @@
  * @NApiVersion 2.x
  * @NModuleScope public
  */
-define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', './big_open', './wms_translator_sfli', 'N/url',
-	'N/wms/recommendedBins', 'N/query', 'N/internal/elasticLogger', 'N/ui/serverWidget'
-],
-	function (search, file, runtime, record, config, format, Big, translator, url, binApi, query, loggerFactory, serverWidget) {
+define(['N/search', 'N/runtime', 'N/record', 'N/config', 'N/format', './big_open', './wms_translator_kppi', 'N/url',
+		'N/wms/recommendedBins', 'N/query', 'N/internal/elasticLogger', 'N/ui/serverWidget'
+	],
+	function (search, runtime, record, config, format, Big, translator, url, binApi, query, loggerFactory, serverWidget) {
 
 
 
@@ -6232,8 +6232,8 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 					name: 'location'
 				});
 				if (itemresults[0].getValue({
-					name: 'isinactive'
-				}) == true) {
+						name: 'isinactive'
+					}) == true) {
 					itemValidateDetails['error'] = translator.getTranslationString('PO_ITEMVALIDATE.INACTIVE_ITEM');
 				} else if ((_isValueValid(itemLoc)) && (itemLoc != wareHouseLocationId)) {
 					itemValidateDetails['error'] = translator.getTranslationString('PO_ITEMVALIDATE.WAREHOUSE_NOT_MATCHED');
@@ -7101,146 +7101,6 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 
 		}
 
-		function getBinTransferLines(itemId, locationId) {
-			var result = [];
-			var logMessages = [];
-			var batchSize = 100;
-			var start = 0;
-			var searchResults;
-
-			// 🔁 Create the search ONCE
-			var binTransferSearch = search.create({
-				type: search.Type.BIN_TRANSFER,
-				filters: [
-					['location', 'anyof', locationId],
-					'AND', ['item', 'anyof', itemId]
-				],
-				columns: ['internalid', 'trandate']
-			});
-
-			do {
-				searchResults = binTransferSearch.run().getRange({
-					start: start,
-					end: start + batchSize
-				});
-
-				for (var i = 0; i < searchResults.length; i++) {
-					if (i % 2 === 0) continue;
-
-					var binTransferId = searchResults[i].getValue('internalid');
-					var trandate = searchResults[i].getValue('trandate');
-
-					var binTransferRecord = record.load({
-						type: record.Type.BIN_TRANSFER,
-						id: binTransferId,
-						isDynamic: false
-					});
-
-					var lineCount = binTransferRecord.getLineCount({
-						sublistId: 'inventory'
-					});
-
-					for (var j = 0; j < lineCount; j++) {
-						var item = binTransferRecord.getSublistValue({
-							sublistId: 'inventory',
-							fieldId: 'item',
-							line: j
-						});
-
-						if (item !== itemId) continue;
-
-						var inventoryDetail = binTransferRecord.getSublistSubrecord({
-							sublistId: 'inventory',
-							fieldId: 'inventorydetail',
-							line: j
-						});
-
-						var invLineCount = inventoryDetail.getLineCount({
-							sublistId: 'inventoryassignment'
-						});
-
-						for (var k = 0; k < invLineCount; k++) {
-							var toBinId = inventoryDetail.getSublistValue({
-								sublistId: 'inventoryassignment',
-								fieldId: 'tobinnumber',
-								line: k
-							});
-
-							var quantity = inventoryDetail.getSublistValue({
-								sublistId: 'inventoryassignment',
-								fieldId: 'quantity',
-								line: k
-							});
-
-							var logEntry = [
-								'result       : [' + [i + 1] + ' / ' + searchResults.length + ']',
-								'item         : [' + [j + 1] + ' / ' + lineCount + ']',
-								'line         : [' + [k + 1] + ' / ' + invLineCount + ']',
-								'binTransferId: ' + binTransferId,
-								'item         : ' + item,
-								'itemId       : ' + itemId,
-								'bininternalid: ' + toBinId,
-								'quantity     : ' + quantity,
-								'trandate     : ' + trandate,
-								'----------------------------'
-							].join('\n');
-
-							logMessages.push(logEntry);
-
-							result.push({
-								bintransferId: binTransferId,
-								bininternalid: toBinId,
-								quantity: quantity,
-								trandate: trandate
-							});
-						}
-					}
-				}
-
-				start += batchSize;
-			} while (searchResults.length === batchSize);
-
-			if (logMessages.length > 0) {
-				logToFile(logMessages.join('\n'));
-			}
-
-			return result;
-		}
-
-		function logToFile(logMessage) {
-			var folderId = '260612'; // Replace with your actual folder ID
-			var fileName = 'logs.txt';
-
-			var existingFile;
-			try {
-				existingFile = file.load({
-					id: folderId + '/' + fileName
-				});
-			} catch (e) {
-				// File doesn’t exist — we’ll create it later
-			}
-
-			var fullLog = '';
-
-			if (existingFile) {
-				var content = existingFile.getContents();
-				fullLog = content + '\n' + logMessage;
-			} else {
-				fullLog = logMessage;
-			}
-
-			var newFile = file.create({
-				name: fileName,
-				fileType: file.Type.PLAINTEXT,
-				contents: fullLog,
-				folder: folderId,
-				encoding: file.Encoding.UTF8
-			});
-
-			newFile.isOnline = false;
-			newFile.save();
-		}
-
 		function getRecommendedBins(itemObj, transactionType) {
 			var tranType = '';
 			var criteria = {};
@@ -7248,19 +7108,17 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 			var binResArr = [];
 			var whLocation = parseInt(itemObj['location']);
 
-			log.debug('getRecommendedBins - itemObj', itemObj);
-			log.debug('getRecommendedBins - transactionType', transactionType);
-
-			// Determine transaction type
 			if (_isValueValid(transactionType)) {
 				if (transactionType == 'workorder') tranType = binApi.TranType.WORK_ORDER;
 				else if (transactionType == 'replen') tranType = binApi.TranType.REPLENISHMENT;
 			}
 
-			// Build criteria for bin API
 			if (_isValueValid(itemObj)) {
 				criteria.itemId = parseInt(itemObj['itemInternalId']);
-				criteria.quantityToPick = _isValueValid(itemObj['qtyToPick']) ? parseInt(itemObj['qtyToPick']) : 0;
+				if (_isValueValid(itemObj['qtyToPick']))
+					criteria.quantityToPick = parseInt(itemObj['qtyToPick']);
+				else
+					criteria.quantityToPick = 0;
 				if (_isValueValid(itemObj['selectedUnitId'])) {
 					criteria.unitId = parseInt(itemObj['selectedUnitId']);
 				}
@@ -7269,9 +7127,6 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 				}
 			}
 
-			log.debug('getRecommendedBins - criteria', criteria);
-
-			// Call WMS Recommended Bins API
 			if (_isValueValid(criteria) && _isValueValid(tranType)) {
 				result = binApi.computeBinList({
 					locationId: whLocation,
@@ -7280,9 +7135,6 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 				});
 			}
 
-			log.debug('getRecommendedBins - binApi result', result);
-
-			// Parse API results
 			if (_isValueValid(result)) {
 				for (var index = 0; index < result.bins.length; index++) {
 					var bin = result.bins[index];
@@ -7295,267 +7147,30 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 						var binZoneObj = binData['zone'];
 						var isPreferredBin = binData['isPreferred'];
 						var seqNum = binData['seqNum'];
-
-						log.debug('Processing Bin', binObj);
-
 						for (var qtyIndex = 0; qtyIndex < binQtyArr.length; qtyIndex++) {
-							var targetQty = binQtyArr[qtyIndex]['quantity'];
-							log.debug('Target Qty for Transfer History', targetQty);
+							var binDtlResObj = {};
 
-							var transferDetails = getBinTransferInHistory({
-								binId: binObj['id'],
-								binName: binObj['name'],
-								itemId: binItemObj['id'],
-								targetQty: targetQty,
-								whLocation: whLocation,
-								JOnum: itemObj['JOnum'],
-								issueNum: itemObj['issueNum']
-							});
+							binDtlResObj['bininternalid'] = binObj['id'];
+							binDtlResObj['binnumber'] = binObj['name'];
+							binDtlResObj['itemName'] = binItemObj['name'];
+							binDtlResObj['itemInternalId'] = binItemObj['id'];
+							binDtlResObj['zone'] = binZoneObj['name'];
+							binDtlResObj['wmsaisle'] = '';
+							binDtlResObj['wmslevel'] = '';
+							binDtlResObj['status'] = binQtyArr[qtyIndex]['status']['name'];
+							binDtlResObj['availableqty'] = binQtyArr[qtyIndex]['quantity'];
+							binDtlResObj['isPreferredBin'] = isPreferredBin;
+							binDtlResObj['seqNum'] = seqNum;
 
-							log.debug('Transfer Details Returned', transferDetails);
-
-							for (var t = 0; t < transferDetails.length; t++) {
-								var transfer = transferDetails[t];
-
-								if (transfer.quantity > 0) {
-									var transferBinObj = {
-										bininternalid: binObj['id'],
-										binnumber: binObj['name'],
-										itemName: binItemObj['name'],
-										itemInternalId: binItemObj['id'],
-										zone: binZoneObj['name'],
-										wmsaisle: '',
-										wmslevel: '',
-										status: binQtyArr[qtyIndex]['status']['name'],
-										availableqty: transfer.quantity,
-										isPreferredBin: isPreferredBin,
-										seqNum: seqNum,
-										lastTransferDate: transfer.receivedDate,
-										JOnum : transfer.JOnum,
-										issueNum : transfer.issueNum
-									};
-
-									log.debug('Adding Transfer Bin Result', transferBinObj);
-									binResArr.push(transferBinObj);
-								}
-							}
+							binResArr.push(binDtlResObj);
 						}
 					}
 				}
 			}
 
-			// Optional: Sort transfers from oldest to newest
-			binResArr.sort(function (a, b) {
-				return new Date(a.trandate) - new Date(b.trandate);
-			});
-
-			log.debug('Final binResArr', binResArr);
+			log.debug('binResArr', binResArr);
 			return binResArr;
-		}
 
-		function getBinTransferInHistory(params) {
-			var results = [];
-			var savedSearch = '';
-
-			if (params.whLocation == 670) {
-				savedSearch = 'customsearch4991';
-			} else if (params.whLocation == 792) {
-				savedSearch = 'customsearch5007';
-			} else if (params.whLocation == 820) {
-				savedSearch = 'customsearch5329';
-			}
-
-			log.debug('getBinTransferInHistory - params', params);
-
-			if (params.whLocation == 670 || params.whLocation == 792) {	
-				// Load the summary saved search
-				var fifoBinReport = search.load({
-					id: savedSearch
-				});
-
-				// Add filters dynamically
-				fifoBinReport.filters.push(
-					search.createFilter({
-						name: 'internalid',
-						operator: search.Operator.ANYOF,
-						values: params.itemId
-					}),
-					search.createFilter({
-						name: 'binnumber',
-						join: 'binOnHand',
-						operator: search.Operator.ANYOF,
-						values: params.binId
-					}),
-					search.createFilter({
-						name: 'location',
-						join: 'binOnHand',
-						operator: search.Operator.ANYOF,
-						values: params.whLocation
-					})
-				);
-
-				// Add Formula(Date) column dynamically
-				fifoBinReport.columns.push(
-					search.createColumn({
-						name: 'formuladate',
-						formula: 'CASE WHEN {binonhand.binnumber} = {transaction.binnumber} THEN {transaction.custbody_kplima_received_date} ELSE null END',
-						summary: search.Summary.MAX
-					})
-				);
-
-				// Run the search and get paged results
-				var pagedData = fifoBinReport.runPaged({ pageSize: 100 });
-
-				pagedData.pageRanges.forEach(function (pageRange) {
-					var page = pagedData.fetch({ index: pageRange.index });
-
-					page.data.forEach(function (result) {
-						var binNumber = result.getValue({
-							name: 'binnumber',
-							join: 'binOnHand',
-							summary: search.Summary.GROUP
-						});
-
-						var onHandQty = parseFloat(result.getValue({
-							name: 'quantityonhand',
-							join: 'binOnHand',
-							summary: search.Summary.GROUP
-						})) || 0;
-
-						var location = result.getText({
-							name: 'location',
-							join: 'binOnHand',
-							summary: search.Summary.GROUP
-						});
-
-						var itemName = result.getValue({
-							name: 'itemid',
-							summary: search.Summary.GROUP
-						});
-
-						// Use Formula(Date)
-						var receivedDate = result.getValue({
-							name: 'formuladate',
-							summary: search.Summary.MAX
-						});
-
-						results.push({
-							itemName: itemName,
-							binNumber: binNumber,
-							location: location,
-							quantity: onHandQty,
-							receivedDate: receivedDate
-						});
-
-						log.debug('FIFO Bin Entry', {
-							itemName: itemName,
-							binNumber: binNumber,
-							location: location,
-							quantity: onHandQty,
-							receivedDate: receivedDate
-						});
-					});
-				});
-
-				log.debug({
-					title: 'results',
-					details: results
-				});
-			} else {
-				// Load the summary saved search
-				var fifoBinReport = search.load({
-					id: savedSearch
-				});
-
-				// Add filters dynamically
-				fifoBinReport.filters.push(
-					search.createFilter({
-						name: 'item',
-						join: 'inventorydetail',
-						operator: search.Operator.ANYOF,
-						values: params.itemId
-					}),
-					search.createFilter({
-						name: 'custbody23',
-						operator: search.Operator.CONTAINS,
-						values: params.JOnum
-					})
-				);
-
-				// Run the search and get paged results
-				var pagedData = fifoBinReport.runPaged({ pageSize: 100 });
-
-				pagedData.pageRanges.forEach(function (pageRange) {
-					var page = pagedData.fetch({ index: pageRange.index });
-
-					page.data.forEach(function (result) {
-						var binNumber = result.getValue({
-							name: 'binnumber',
-							join: 'inventoryDetail',
-							summary: search.Summary.GROUP
-						});
-
-						var onHandQty = parseFloat(result.getValue({
-							name: 'quantity',
-							join: 'inventoryDetail',
-							summary: search.Summary.MAX
-						})) || 0;
-
-						var remaining = parseFloat(result.getValue({
-							name: 'custbody532',
-							summary: search.Summary.MAX
-						})) || 0;
-
-						var JOnum = result.getValue({
-							name: 'custbody23',
-							summary: search.Summary.GROUP
-						});
-
-						var issueNum = result.getValue({
-							name: 'tranid',
-							summary: search.Summary.GROUP
-						});
-
-						var itemName = result.getValue({
-							name: 'item',
-							summary: search.Summary.GROUP
-						});
-
-						// Use Formula(Date)
-						var receivedDate = result.getValue({
-							name: 'datecreated',
-							summary: search.Summary.GROUP
-						});
-
-						results.push({
-							itemName: itemName,
-							binNumber: binNumber,
-							JOnum: JOnum,
-							quantity: onHandQty,
-							remaining: remaining,
-							issueNum: issueNum,
-							receivedDate: receivedDate
-						});
-
-						log.debug('FIFO Bin Entry', {
-							itemName: itemName,
-							binNumber: binNumber,
-							JOnum: JOnum,
-							quantity: onHandQty,
-							remaining: remaining,
-							issueNum: issueNum,
-							receivedDate: receivedDate
-						});
-					});
-				});
-
-				log.debug({
-					title: 'results',
-					details: results
-				});
-			}
-
-			return results;
 		}
 
 		function _getLocationFieldsByLookup(wareHouseLocationId, columnArray) {
@@ -8220,13 +7835,13 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 		function getDefaultRuleValueForAsyncSystemRules(systemRuleName) {
 			var systemRuleLookup = {};
 			var sytemrulesArray = [{
-				key: "Enable bulk staging of large pick tasks",
-				value: 125
-			},
-			{
-				key: "Enable bulk picking of large pick tasks",
-				value: 125
-			}
+					key: "Enable bulk staging of large pick tasks",
+					value: 125
+				},
+				{
+					key: "Enable bulk picking of large pick tasks",
+					value: 125
+				}
 			]
 
 			for (var arrIndex = 0; arrIndex < sytemrulesArray.length; arrIndex++) {
@@ -8354,37 +7969,37 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 				});
 				//log.debug('fetched IFperorder in utlity for first time',IFperorder);
 				var wmsPreferences = [{
-					"name": "OVERRECEIPTS",
-					"value": false
-				},
-				{
-					"name": "ITEMCOSTASTRNFRORDCOST",
-					"value": true
-				},
-				{
-					"name": roleIntenalId,
-					"value": false
-				},
-				{
-					"name": "DEPTMANDATORY",
-					"value": false
-				},
-				{
-					"name": "CLASSMANDATORY",
-					"value": false
-				},
-				{
-					"name": "CREATEITEMFULFILLMENT",
-					"value": false
-				},
-				{
-					"name": fisrtReceipientId,
-					"value": false
-				},
-				{
-					"name": secondReceipientId,
-					"value": false
-				},
+						"name": "OVERRECEIPTS",
+						"value": false
+					},
+					{
+						"name": "ITEMCOSTASTRNFRORDCOST",
+						"value": true
+					},
+					{
+						"name": roleIntenalId,
+						"value": false
+					},
+					{
+						"name": "DEPTMANDATORY",
+						"value": false
+					},
+					{
+						"name": "CLASSMANDATORY",
+						"value": false
+					},
+					{
+						"name": "CREATEITEMFULFILLMENT",
+						"value": false
+					},
+					{
+						"name": fisrtReceipientId,
+						"value": false
+					},
+					{
+						"name": secondReceipientId,
+						"value": false
+					},
 				];
 
 				var arrIndex = 0;
@@ -9230,15 +8845,15 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 				var applicationDefalutSearch = search.create({
 					type: 'customrecord_mobile_application_defaults',
 					filters: [{
-						name: 'name',
-						operator: 'is',
-						values: 'Smart_Count'
-					},
-					{
-						name: 'isinactive',
-						operator: 'is',
-						values: 'F'
-					}
+							name: 'name',
+							operator: 'is',
+							values: 'Smart_Count'
+						},
+						{
+							name: 'isinactive',
+							operator: 'is',
+							values: 'F'
+						}
 					]
 				});
 
@@ -9370,8 +8985,6 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 			getInventoryStatusOptionsList: getInventoryStatusOptionsList,
 			newMenusDisplayOnWarehouseMgmtFeature: newMenusDisplayOnWarehouseMgmtFeature,
 			oldMenusDisplayOnWarehouseMgmtFeature: oldMenusDisplayOnWarehouseMgmtFeature,
-			getBinTransferLines: getBinTransferLines,
-			logToFile: logToFile,
 			getRecommendedBins: getRecommendedBins,
 			getLocationFieldsByLookup: _getLocationFieldsByLookup,
 			getPutStratagies: _getPutStratagies,

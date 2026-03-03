@@ -22,6 +22,23 @@ function suitelet(request, response) {
         prdQA,
 
         html = nlapiGetContext().getSetting('SCRIPT', 'custscript69');
+
+    // Get enddate from Work Order
+    var workOrderTranId = FGtag.getFieldValue('custbody23');
+    var endDate = "";
+    if (workOrderTranId) {
+        var workOrderSearch = nlapiSearchRecord('workorder', null, [
+            new nlobjSearchFilter('tranid', null, 'is', workOrderTranId)
+        ], [
+            new nlobjSearchColumn('enddate')
+        ]);
+
+        if (workOrderSearch && workOrderSearch.length > 0) {
+            endDate = workOrderSearch[0].getValue('enddate');
+        }
+    }
+    endDate = (endDate == null) ? "" : endDate;
+
     nlapiLogExecution('ERROR', 'lineCount', lineCount);
     // logger(html);
     for (var i = 1; i <= lineCount; i++) {
@@ -74,16 +91,16 @@ function suitelet(request, response) {
 
     var color = actualMonth == 1 ? 'january-background' :
         actualMonth == 2 ? 'february-background' :
-        actualMonth == 3 ? 'march-background' :
-        actualMonth == 4 ? 'april-background' :
-        actualMonth == 5 ? 'may-background' :
-        actualMonth == 6 ? 'june-background' :
-        actualMonth == 7 ? 'july-background' :
-        actualMonth == 8 ? 'august-background' :
-        actualMonth == 9 ? 'september-background' :
-        actualMonth == 10 ? 'october-background' :
-        actualMonth == 11 ? 'november-background' :
-        actualMonth == 12 ? 'december-background' : 'default-background';
+            actualMonth == 3 ? 'march-background' :
+                actualMonth == 4 ? 'april-background' :
+                    actualMonth == 5 ? 'may-background' :
+                        actualMonth == 6 ? 'june-background' :
+                            actualMonth == 7 ? 'july-background' :
+                                actualMonth == 8 ? 'august-background' :
+                                    actualMonth == 9 ? 'september-background' :
+                                        actualMonth == 10 ? 'october-background' :
+                                            actualMonth == 11 ? 'november-background' :
+                                                actualMonth == 12 ? 'december-background' : 'default-background';
 
     nlapiLogExecution('ERROR', 'Month color', color);
 
@@ -95,6 +112,7 @@ function suitelet(request, response) {
     html = html.replace('{customer}', custm);
     html = html.replace('{Jonumber}', JoNum);
     html = html.replace('{Jonumber2}', JoNum);
+    html = html.replace('{enddate}', endDate);
 
     html = html.replace('{color}', color);
     html = html.replace('{body}', line);

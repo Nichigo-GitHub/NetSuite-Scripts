@@ -278,7 +278,7 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 		function fnToValidateWO_V3(transactionName, itemId, transactionLineNo, transactionInternalId, inventoryDetailLotOrSerialId) {
 
 			var workOrdDtlSearch = search.load({
-				id: 'customsearch_wms_workorder_ordervalida_2'
+				id: 'customsearch_wms_workorder_ordervalida_3'
 			});
 			if (utility.isValueValid(transactionName))
 				workOrdDtlSearch.filters.push(

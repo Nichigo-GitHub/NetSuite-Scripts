@@ -1494,12 +1494,12 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             var customer = invtransferObj.customer;
             var employee = invtransferObj.preparedBy.toLowerCase().split(" ").join("");
             var invTranID = invtransferObj.invTranID;
-            var today = new Date();
-            var month = String(today.getMonth() + 1);
-            var year = today.getFullYear();
+            var RMissuance = '';
+            if (invtransferObj.RMissuance)
+                RMissuance = invtransferObj.RMissuance;
 
             if (invTranID == null || invTranID == '' || invTranID == undefined) {
-                invTranID = itemId + '-' + month + '-' + year;
+                invTranID = itemId + '-RM';
             }
 
             log.debug('invTranID', invTranID);
@@ -1538,6 +1538,9 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             });
 
             var nextTranID = invTranID + '-T1'; // Start with the initial suffix
+            if (RMissuance == 'T') {
+                nextTranID = invTranID + '-RM-T1';
+            }
             var tranidExists = true; // Flag to control the loop
             var suffixNumber = 1; // Start with 1 for "-T1"
 
@@ -1564,6 +1567,8 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                     // If a result is found, increment the suffix number and update nextTranID
                     suffixNumber++;
                     nextTranID = invTranID + '-T' + suffixNumber;
+                    if (RMissuance == 'T')
+                        nextTranID = invTranID + '-RM-T' + suffixNumber;
                 }
             }
 
@@ -1600,6 +1605,157 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                             type: record.Type.WORK_ORDER,
                             id: workOrderInternalId
                         });
+
+                        /* // Extract Customer, Assembly Item, Subsidiary
+                        var subsidiaryId = workOrder.getValue({ fieldId: 'subsidiary' });
+    
+                        // Load Item record
+                        var itemRecord = record.load({
+                            type: record.Type.INVENTORY_ITEM,
+                            id: itemId
+                        });
+    
+                        // Find vendor with same subsidiary in itemvendor sublist
+                        var vendorId = null;
+                        var vendorCount = itemRecord.getLineCount({ sublistId: 'itemvendor' });
+                        for (var i = 0; i < vendorCount; i++) {
+                            var vendorSubsidiary = itemRecord.getSublistValue({
+                                sublistId: 'itemvendor',
+                                fieldId: 'subsidiary',
+                                line: i
+                            });
+                            if (vendorSubsidiary == subsidiaryId) {
+                                vendorId = itemRecord.getSublistValue({
+                                    sublistId: 'itemvendor',
+                                    fieldId: 'vendor',
+                                    line: i
+                                });
+                                break;
+                            }
+                        }
+                        // Log extracted values
+                        log.error({ title: 'Vendor', details: vendorId }); */
+
+                        // Extract Assembly Item
+                        var assemblyItemId = workOrder.getText({ fieldId: 'assemblyitem' });
+
+                        invTransfer.setText({
+                            fieldId: 'custbody520',
+                            value: assemblyItemId
+                        });
+
+                        // Log extracted values
+                        log.error({ title: 'Assembly Item', details: assemblyItemId });
+
+                    } else {
+                        log.error({ title: 'Work Order Not Found', details: 'No work order found with tranid: ' + invTranID });
+                    }
+                }
+            } else {
+                if (invTranID) {
+                    // Search for the work order internal id using the tranid
+                    var workOrderSearch = search.create({
+                        type: search.Type.WORK_ORDER,
+                        filters: [
+                            ['tranid', 'is', invTranID]
+                        ],
+                        columns: ['internalid']
+                    });
+                    var workOrderResult = workOrderSearch.run().getRange({ start: 0, end: 1 });
+                    if (workOrderResult && workOrderResult.length > 0) {
+                        var workOrderInternalId = workOrderResult[0].getValue({ name: 'internalid' });
+                        var workOrder = record.load({
+                            type: record.Type.WORK_ORDER,
+                            id: workOrderInternalId
+                        });
+
+                        var FGBKcode = workOrder.getValue({ fieldId: 'custbody383' });
+
+                        invTransfer.setValue({
+                            fieldId: 'custbody388',
+                            value: FGBKcode
+                        });
+
+                        var KPsysNum = workOrder.getText({ fieldId: 'custbody_kpsystem_field' });
+
+                        invTransfer.setValue({
+                            fieldId: 'custbody_kpsystem_field',
+                            value: KPsysNum
+                        });
+
+                        var itemSublistCount = workOrder.getLineCount({ sublistId: 'item' });
+
+                        for (var i = 0; i < itemSublistCount; i++) {
+                            log.debug('Loop iteration', 'i = ' + i + ', itemSublistCount = ' + itemSublistCount);
+
+                            var RMitemId = workOrder.getSublistValue({
+                                sublistId: 'item',
+                                fieldId: 'item',
+                                line: i
+                            });
+
+                            log.debug('RMitemId at line ' + i, RMitemId);
+
+                            if (RMitemId == itemId) {
+                                log.debug('Matching item found at line', i);
+
+                                var phantomItemId = workOrder.getSublistValue({
+                                    sublistId: 'item',
+                                    fieldId: 'item',
+                                    line: i - 1
+                                });
+
+                                var itemSource = workOrder.getSublistValue({
+                                    sublistId: 'item',
+                                    fieldId: 'itemsource',
+                                    line: i - 1
+                                });
+
+                                log.debug('itemSource at line ' + i, itemSource);
+
+                                if (itemSource === 'PHANTOM') {
+                                    log.debug('PHANTOM item found at line', i);
+
+                                    var itemRecord = record.load({
+                                        type: record.Type.LOT_NUMBERED_ASSEMBLY_ITEM,
+                                        id: phantomItemId
+                                    });
+
+                                    log.debug('Loaded item record', phantomItemId);
+
+                                    // Get member items sublist
+                                    var memberItemCount = itemRecord.getLineCount({
+                                        sublistId: 'member'
+                                    });
+
+                                    log.debug('memberItemCount', memberItemCount);
+
+                                    for (var j = 0; j < memberItemCount; j++) {
+                                        var memberItemId = itemRecord.getSublistValue({
+                                            sublistId: 'member',
+                                            fieldId: 'item',
+                                            line: j
+                                        });
+
+                                        log.debug('Checking member item at line ' + j, 'memberItemId = ' + memberItemId + ', itemId = ' + itemId);
+
+                                        if (memberItemId == itemId) {
+                                            log.debug('Member item match found', memberItemId);
+
+                                            invTransfer.setValue({
+                                                fieldId: 'custbody521',
+                                                value: phantomItemId
+                                            });
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            log.debug('End of loop iteration', 'i = ' + i);
+                        }
+
+                        log.debug('Loop completed', 'Final i = ' + i);
 
                         /* // Extract Customer, Assembly Item, Subsidiary
                         var subsidiaryId = workOrder.getValue({ fieldId: 'subsidiary' });
@@ -1685,6 +1841,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             invTransfer.setValue({
                 fieldId: 'custbody1',
                 value: employeeId,
+            });
+
+            invTransfer.setValue({
+                fieldId: 'custbody532',
+                value: quantity,
             });
 
             invTransfer.selectNewLine({

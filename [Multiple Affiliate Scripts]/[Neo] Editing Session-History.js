@@ -9,29 +9,29 @@ define(['N/search', 'N/record', 'N/runtime', 'N/log'], function (search, record,
     const CHILD_REC = 'customrecord_edit_session';
 
     function beforeLoad(context) {
-        log.debug('beforeLoad.start', { eventType: context.type });
-        log.debug('beforeLoad is edit?', 'isEdit=' + (context.type === context.UserEventType.EDIT) + ', context.type=' + context.type + ', EDIT=' + context.UserEventType.EDIT);
+        // log.debug('beforeLoad.start', { eventType: context.type });
+        // log.debug('beforeLoad is edit?', 'isEdit=' + (context.type === context.UserEventType.EDIT) + ', context.type=' + context.type + ', EDIT=' + context.UserEventType.EDIT);
         if (context.type != context.UserEventType.EDIT) {
-            log.debug('beforeLoad.skipping', { reason: 'not edit', eventType: context.type });
+            // log.debug('beforeLoad.skipping', { reason: 'not edit', eventType: context.type });
             return;
         }
 
         const user = runtime.getCurrentUser().id;
 
         if (user === -4) { // -4 is the internal ID for the System User
-            log.debug('beforeLoad.skipping', { reason: 'system user', eventType: context.type });
+            // log.debug('beforeLoad.skipping', { reason: 'system user', eventType: context.type });
             return;
         }
 
-        log.debug('beforeLoad.currentUser', { user: user });
+        // log.debug('beforeLoad.currentUser', { user: user });
 
         const parentId = findOrCreateParent(context.newRecord);
-        log.debug('beforeLoad.parentId', { parentId: parentId });
+        // log.debug('beforeLoad.parentId', { parentId: parentId });
 
         // check if a session is already active
         const parentRec = record.load({ type: PARENT_REC, id: parentId });
         const hasActive = parentRec.getValue('custrecord_eh_active_session');
-        log.debug('beforeLoad.parentActive', { parentId: parentId, hasActive: hasActive });
+        // log.debug('beforeLoad.parentActive', { parentId: parentId, hasActive: hasActive });
 
         if (!hasActive) {
             startSession(parentId, user);
@@ -39,31 +39,31 @@ define(['N/search', 'N/record', 'N/runtime', 'N/log'], function (search, record,
     }
 
     function afterSubmit(context) {
-        log.debug('afterSubmit.start', { eventType: context.type });
+        // log.debug('afterSubmit.start', { eventType: context.type });
         if (context.type === context.UserEventType.DELETE) {
             handleDelete(context);
             return;
         }
 
         if (context.type !== context.UserEventType.EDIT) {
-            log.debug('afterSubmit.skipping', { reason: 'unsupported event', eventType: context.type });
+            // log.debug('afterSubmit.skipping', { reason: 'unsupported event', eventType: context.type });
             return;
         }
 
         const user = runtime.getCurrentUser().id;
-        log.debug('afterSubmit.currentUser', { user: user });
+        // log.debug('afterSubmit.currentUser', { user: user });
 
         if (user === -4) { // -4 is the internal ID for the System User
-            log.debug('afterSubmit.skipping', { reason: 'system user', eventType: context.type });
+            // log.debug('afterSubmit.skipping', { reason: 'system user', eventType: context.type });
             return;
         }
 
         const parentId = findOrCreateParent(context.newRecord);
-        log.debug('afterSubmit.parentId', { parentId: parentId });
+        // log.debug('afterSubmit.parentId', { parentId: parentId });
 
         // close any active session
         endActiveSession(parentId, user, context);
-        log.debug('afterSubmit.completed', { parentId: parentId });
+        // log.debug('afterSubmit.completed', { parentId: parentId });
     }
 
     /**
@@ -102,14 +102,14 @@ define(['N/search', 'N/record', 'N/runtime', 'N/log'], function (search, record,
      * Creates a new child editing session.
      */
     function startSession(parentId, userId) {
-        log.debug('startSession.start', { parentId: parentId, userId: userId });
+        // log.debug('startSession.start', { parentId: parentId, userId: userId });
         const child = record.create({ type: CHILD_REC });
         child.setValue('custrecord_es_parent', parentId);
         child.setValue('custrecord_es_editor', userId);
         child.setValue('custrecord_es_start', new Date());
         child.setValue('custrecord_es_isactive', true);
         const childId = child.save();
-        log.debug('startSession.created', { childId: childId });
+        // log.debug('startSession.created', { childId: childId });
 
         // update parent
         record.submitFields({
@@ -120,14 +120,14 @@ define(['N/search', 'N/record', 'N/runtime', 'N/log'], function (search, record,
                 custrecord_eh_last_editor: userId
             }
         });
-        log.debug('startSession.parentUpdated', { parentId: parentId });
+        // log.debug('startSession.parentUpdated', { parentId: parentId });
     }
 
     /**
      * End the current active session (if any).
      */
     function endActiveSession(parentId, userId, context) {
-        log.debug('endActiveSession.start', { parentId: parentId, userId: userId });
+        // log.debug('endActiveSession.start', { parentId: parentId, userId: userId });
 
         const sessionSearch = search.create({
             type: CHILD_REC,
@@ -142,7 +142,7 @@ define(['N/search', 'N/record', 'N/runtime', 'N/log'], function (search, record,
         if (!sessionSearch.length) return;
 
         const sessionId = sessionSearch[0].id;
-        log.debug('endActiveSession.foundSession', { sessionId: sessionId });
+        // log.debug('endActiveSession.foundSession', { sessionId: sessionId });
 
         // 🔒 Close session
         record.submitFields({
@@ -153,7 +153,7 @@ define(['N/search', 'N/record', 'N/runtime', 'N/log'], function (search, record,
                 custrecord_es_isactive: false
             }
         });
-        log.debug('endActiveSession.sessionClosed', { sessionId: sessionId });
+        // log.debug('endActiveSession.sessionClosed', { sessionId: sessionId });
 
         record.submitFields({
             type: PARENT_REC,
@@ -164,7 +164,7 @@ define(['N/search', 'N/record', 'N/runtime', 'N/log'], function (search, record,
                 custrecord_eh_last_edit: new Date()
             }
         });
-        log.debug('endActiveSession.parentUpdated', { parentId: parentId });
+        // log.debug('endActiveSession.parentUpdated', { parentId: parentId });
 
         // 🔍 FIELD DIFF LOOP - only for non-delete events
         if (context.type === context.UserEventType.DELETE) return;
@@ -173,7 +173,7 @@ define(['N/search', 'N/record', 'N/runtime', 'N/log'], function (search, record,
         const newRec = context.newRecord;
 
         const fields = newRec.getFields();
-        log.debug('endActiveSession.fieldsToCheck', { fields: fields });
+        // log.debug('endActiveSession.fieldsToCheck', { fields: fields });
 
         fields.forEach(function (fieldId) {
             try {
@@ -181,7 +181,7 @@ define(['N/search', 'N/record', 'N/runtime', 'N/log'], function (search, record,
                 const newVal = newRec.getValue({ fieldId: fieldId });
 
                 if (oldVal !== newVal) {
-                    log.debug('fieldDiff.detected', { fieldId: fieldId, oldVal: stringify(oldVal), newVal: stringify(newVal) });
+                    // log.debug('fieldDiff.detected', { fieldId: fieldId, oldVal: stringify(oldVal), newVal: stringify(newVal) });
                     
                     const diff = record.create({
                         type: 'customrecord_edit_field_change'
@@ -193,15 +193,15 @@ define(['N/search', 'N/record', 'N/runtime', 'N/log'], function (search, record,
                     diff.setValue('custrecord_ef_new_value', stringify(newVal));
                     
                     const diffId = diff.save();
-                    log.debug('fieldDiff.saved', { diffId: diffId, fieldId: fieldId, sessionId: sessionId });
+                    // log.debug('fieldDiff.saved', { diffId: diffId, fieldId: fieldId, sessionId: sessionId });
                 }
             } catch (e) {
-                log.debug('fieldDiff.error', { fieldId: fieldId, error: e.message });
+                // log.debug('fieldDiff.error', { fieldId: fieldId, error: e.message });
                 // ignore unreadable/system fields
             }
         });
 
-        log.debug('endActiveSession.completed', { parentId: parentId });
+        // log.debug('endActiveSession.completed', { parentId: parentId });
     }
 
     function getDisplayIdentifier(rec) {
@@ -233,13 +233,13 @@ define(['N/search', 'N/record', 'N/runtime', 'N/log'], function (search, record,
         const user = runtime.getCurrentUser().id;
 
         if (user === -4) {
-            log.debug('handleDelete.skipping', { reason: 'system user' });
+            // log.debug('handleDelete.skipping', { reason: 'system user' });
             return;
         }
 
         const parentId = findExistingParent(context.oldRecord);
         if (!parentId) {
-            log.debug('handleDelete.noParent', { recordId: context.oldRecord.id });
+            // log.debug('handleDelete.noParent', { recordId: context.oldRecord.id });
             return;
         }
 
@@ -258,7 +258,7 @@ define(['N/search', 'N/record', 'N/runtime', 'N/log'], function (search, record,
             }
         });
 
-        log.debug('handleDelete.completed', { parentId: parentId });
+        // log.debug('handleDelete.completed', { parentId: parentId });
     }
 
     function findExistingParent(rec) {
