@@ -5,6 +5,7 @@
  * 1.00       01 Oct 2020     Lenovo
  *
  */
+
 /**
  * @param {nlobjRequest} request Request object
  * @param {nlobjResponse} response Response object
@@ -21,9 +22,11 @@ function suitelet(request, response) {
     var ReceivedDate = customRecord.getFieldValue('custrecord579') || '';
     var IssuedDate = customRecord.getFieldValue('custrecord580') || '';
     var RRNo2 = customRecord.getFieldValue('custrecord626') || '';
+    var JoNum = customRecord.getFieldValue('custrecord732') || '';
 
     var RMcode = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord582', 1) || '';
     var total = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord584', 1) || '';
+    var actual = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord1265', 1) || '';
     var rejquantity = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord585', 1) || '';
     var size = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord583', 1) || '';
     var desc = customRecord.getLineItemValue('recmachcustrecord730', 'custrecord702', 1) || '';
@@ -35,7 +38,7 @@ function suitelet(request, response) {
     var searchResults = nlapiSearchRecord('itemreceipt', null, filters);
 
     if (searchResults) {
-        for (var i = 0; i < 1; i++) {
+        for (var i = 0; i < searchResults.length; i++) {
             var recordId = searchResults[i].getId();
             var loadedRecord = nlapiLoadRecord('itemreceipt', recordId);
 
@@ -47,8 +50,8 @@ function suitelet(request, response) {
                 const regex1 = /\b((?:(?!\b(?:\d+|\w+F)\b)\b\w+\s*)+)/;
                 const regex2 = /\s([0-9*]+mm)/;
 
-                const part1Match = sublistValue.match(regex1);
-                const part2Match = sublistValue.match(regex2);
+                const part1Match = desc.match(regex1);
+                const part2Match = desc.match(regex2);
 
                 // Extract the desired parts using match() and the defined regex
                 partName = part1Match ? part1Match[1].trim() : '';
@@ -259,13 +262,13 @@ function suitelet(request, response) {
         "<td class='border' width='132'><b>Size</b></td>" +
         "<td class='border' width='270' align='center'>" + size + "</td>" +
         "<td class='border' width='132'><b>Act. Quantity</b></td>" +
-        "<td class='border' width='270' align='center'>" + total + " pcs.</td>" +
+        "<td class='border' width='270' align='center'>" + actual + " pcs.</td>" +
         "</tr>" +
         "<tr>" +
         "<td class='border' width='132' rowspan='2'><b>Description</b></td>" +
         "<td class='border' width='270' rowspan='2' align='center'>" + desc + "</td>" +
         "<td class='border' width='132'><b>Good Quantity</b></td>" +
-        "<td class='border' width='270' align='center'>" + [total - rejquantity] + " pcs.</td>" +
+        "<td class='border' width='270' align='center'>" + [actual - rejquantity] + " pcs.</td>" +
         "</tr>" +
         "<tr>" +
         "<td class='border' width='132'><b>QTY Reject</b></td>" +
@@ -275,13 +278,13 @@ function suitelet(request, response) {
         "<td class='border' width='132'><b>DA / INV. No</b></td>" +
         "<td class='border' width='270' align='center'>" + InvoiceNo + "</td>" +
         "<td class='border' width='132'><b>% Rejection</b></td>" +
-        "<td class='border' width='270' align='center'>" + parseFloat(([rejquantity / total] * 100).toFixed(1)) + "%</td>" +
+        "<td class='border' width='270' align='center'>" + parseFloat(([rejquantity / actual] * 100).toFixed(1)) + "%</td>" +
         "</tr>" +
         "<tr>" +
         "<td class='border' width='132'><b>RR No.</b></td>" +
         "<td class='border' width='270' align='center'>" + RRNo + "</td>" +
         "<td class='border' width='132'><b>JO No.</b></td>" +
-        "<td class='border' width='269'></td>" +
+        "<td class='border' width='269' align='center'>" + JoNum + "</td>" +
         "</tr>" +
         "</table>" +
         "<table>" +

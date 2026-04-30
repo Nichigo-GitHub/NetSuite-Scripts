@@ -64,13 +64,13 @@ define(['./wms_utility', './wms_translator', './big', './wms_workOrderUtility_kp
                         } else {
                             log.debug('locUseBinsFlag provided', locUseBinsFlag);
                         }
-                        var lockError = utility.checkTransactionLock(transactionType, transactionInternalId, transactionLineNo);
+                        /* var lockError = utility.checkTransactionLock(transactionType, transactionInternalId, transactionLineNo);
                         log.debug({ title: 'lockError returned', details: lockError });
                         if (utility.isValueValid(lockError)) {
                             orderDetails.isValid = false;
                             orderDetails.errorMessage = lockError;
                             log.debug('transaction locked, exiting', orderDetails.errorMessage);
-                        } else {
+                        } else { */
                             log.debug('calling woUtility.fnToValidateWO', { transactionName: transactionName, itemInternalId: itemInternalId, transactionLineNo: transactionLineNo, inventoryDetailLotOrSerialId: inventoryDetailLotOrSerialId });
                             var workOrdDtlResults = woUtility.fnToValidateWO_V3(transactionName, itemInternalId, transactionLineNo, '', inventoryDetailLotOrSerialId);
                             log.debug('fnToValidateWO returned', { length: (workOrdDtlResults && workOrdDtlResults.length), sample: workOrdDtlResults && workOrdDtlResults[0] });
@@ -264,7 +264,7 @@ define(['./wms_utility', './wms_translator', './big', './wms_workOrderUtility_kp
                                 orderDetails.isValid = false;
                                 log.debug('workOrdDtlResults empty branch, marking invalid');
                             }
-                        }
+                        // }
                     }
                     else {
                         orderDetails.errorMessage = translator.getTranslationString('WORKORDER_PICKING.INVALID_ORDER');

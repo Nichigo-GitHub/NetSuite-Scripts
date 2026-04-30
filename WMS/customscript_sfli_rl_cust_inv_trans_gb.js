@@ -116,6 +116,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			var rejectType50 = '';
 			var rejectType51 = '';
 			var rejectType52 = '';
+			var lotSize = '';
 
 
 			try {
@@ -206,6 +207,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					rejectType50 = requestParams.rejectType50;
 					rejectType51 = requestParams.rejectType51;
 					rejectType52 = requestParams.rejectType52;
+					lotSize = requestParams.lotSize;
 
 					log.debug({
 						title: 'requestParams',
@@ -695,7 +697,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 												log.debug('tallyScanObj for inv transfer', tallyScanObj);
 											}
 											impactRec = fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId,
-												toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID, rejectType1, rejectType2, rejectType3, rejectType4, rejectType5, rejectType6, rejectType7, rejectType8, rejectType9, rejectType10, rejectType11, rejectType12, rejectType13, rejectType14, rejectType15, rejectType16, rejectType17, rejectType18, rejectType19, rejectType20, rejectType21, rejectType22, rejectType23, rejectType24, rejectType25, rejectType26, rejectType27, rejectType28, rejectType29, rejectType30, rejectType31, rejectType32, rejectType33, rejectType34, rejectType35, rejectType36, rejectType37, rejectType38, rejectType39, rejectType40, rejectType41, rejectType42, rejectType43, rejectType44, rejectType45, rejectType46, rejectType47, rejectType48, rejectType49, rejectType50, rejectType51, rejectType52);
+												toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID, rejectType1, rejectType2, rejectType3, rejectType4, rejectType5, rejectType6, rejectType7, rejectType8, rejectType9, rejectType10, rejectType11, rejectType12, rejectType13, rejectType14, rejectType15, rejectType16, rejectType17, rejectType18, rejectType19, rejectType20, rejectType21, rejectType22, rejectType23, rejectType24, rejectType25, rejectType26, rejectType27, rejectType28, rejectType29, rejectType30, rejectType31, rejectType32, rejectType33, rejectType34, rejectType35, rejectType36, rejectType37, rejectType38, rejectType39, rejectType40, rejectType41, rejectType42, rejectType43, rejectType44, rejectType45, rejectType46, rejectType47, rejectType48, rejectType49, rejectType50, rejectType51, rejectType52, lotSize);
 											log.debug('fninvtransfer', impactRec);
 
 
@@ -761,10 +763,16 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 						impactedRecords.customrecord_wmsse_ext_labelprinting = extlabelRecArr;
 
 						binValidateArray.impactedRecords = impactedRecords;
+						binValidateArray.transferNumber = impactedRecords;
+						binValidateArray.invTranID = impactRec.invTranID;
 						binValidateArray.isValid = true;
 						log.debug({
 							title: 'impactedRecords :',
 							details: impactedRecords
+						});
+						log.debug({
+							title: 'binValidateArray.invTranID :',
+							details: binValidateArray.invTranID
 						});
 					} else {
 						log.debug('else error 619', 'error');
@@ -816,7 +824,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			return impactRec;
 		}
 
-		function fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID, rejectType1, rejectType2, rejectType3, rejectType4, rejectType5, rejectType6, rejectType7, rejectType8, rejectType9, rejectType10, rejectType11, rejectType12, rejectType13, rejectType14, rejectType15, rejectType16, rejectType17, rejectType18, rejectType19, rejectType20, rejectType21, rejectType22, rejectType23, rejectType24, rejectType25, rejectType26, rejectType27, rejectType28, rejectType29, rejectType30, rejectType31, rejectType32, rejectType33, rejectType34, rejectType35, rejectType36, rejectType37, rejectType38, rejectType39, rejectType40, rejectType41, rejectType42, rejectType43, rejectType44, rejectType45, rejectType46, rejectType47, rejectType48, rejectType49, rejectType50, rejectType51, rejectType52) {
+		function fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID, rejectType1, rejectType2, rejectType3, rejectType4, rejectType5, rejectType6, rejectType7, rejectType8, rejectType9, rejectType10, rejectType11, rejectType12, rejectType13, rejectType14, rejectType15, rejectType16, rejectType17, rejectType18, rejectType19, rejectType20, rejectType21, rejectType22, rejectType23, rejectType24, rejectType25, rejectType26, rejectType27, rejectType28, rejectType29, rejectType30, rejectType31, rejectType32, rejectType33, rejectType34, rejectType35, rejectType36, rejectType37, rejectType38, rejectType39, rejectType40, rejectType41, rejectType42, rejectType43, rejectType44, rejectType45, rejectType46, rejectType47, rejectType48, rejectType49, rejectType50, rejectType51, rejectType52, lotSize) {
 			var invtransferObj = {};
 			var impactRec = {};
 
@@ -836,15 +844,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			if (utility.isValueValid(toBinInternalId)) {
 				invtransferObj.toBinId = toBinInternalId;
 			}
-			log.debug({
-				title: 'toWarehouseLocationId value and type',
-				details: 'Value: ' + toWarehouseLocationId + ', Type: ' + typeof toWarehouseLocationId
-			});
-			if (parseInt(toWarehouseLocationId) == 665) {
-				log.debug({
-					title: 'Condition met',
-					details: 'parseInt(toWarehouseLocationId) == 665 is TRUE'
-				});
+			if (toWarehouseLocationId == 665) {
 				invtransferObj.rejectType1 = rejectType1;
 				invtransferObj.rejectType2 = rejectType2;
 				invtransferObj.rejectType3 = rejectType3;
@@ -897,6 +897,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 				invtransferObj.rejectType50 = rejectType50;
 				invtransferObj.rejectType51 = rejectType51;
 				invtransferObj.rejectType52 = rejectType52;
+				invtransferObj.lotSize = lotSize;
 			}
 			invtransferObj.batchno = lotName;
 			invtransferObj.actualBeginTime = actualBeginTime;

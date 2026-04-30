@@ -41,12 +41,12 @@ define(['N/record', 'N/ui/dialog', 'N/format', 'N/search', 'N/runtime'], functio
         formNumberField.isDisabled = true;
 
         if (contextMode === 'create') {
-            if (IPDField) {
+            /* if (IPDField) {
                 var formattedDate = monthNames[month] + ' ' + today.getFullYear();
-            } else {
+            } else { */
                 var formattedDate = format.parse({ value: today, type: format.Type.DATE });
                 var longDate = formatLongDate(today);
-            }
+            //}
             // Check duplicates
             if (checkDuplicateLoadingForm(longDate, IPDField)) {
                 dialog.alert({
@@ -81,7 +81,7 @@ define(['N/record', 'N/ui/dialog', 'N/format', 'N/search', 'N/runtime'], functio
         var IPDField = currentRecord.getValue({ fieldId: 'custrecord1242' });
 
         if (IPDField) {
-            var dateString = monthNames[new Date(deliveryDate).getMonth()] + ' ' + new Date(deliveryDate).getFullYear();
+            var dateString = formatLongDate(deliveryDate);// monthNames[new Date(deliveryDate).getMonth()] + ' ' + new Date(deliveryDate).getFullYear();
             currentRecord.setValue({
                 fieldId: 'custrecord_loading_form_num',
                 value: 'IPD Loading Form [' + dateString + ']'

@@ -344,10 +344,6 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
         }
 
         function inventoryBinTransfer(bintransferObj) {
-            log.debug({
-                title: 'bintransferObj in inventoryBinTransfer',
-                details: bintransferObj
-            });
             var itemType = bintransferObj.itemType;
             var whLocation = bintransferObj.whLocation;
             var itemId = bintransferObj.itemId;
@@ -372,7 +368,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             var quantityArr = [];
             var lotArrr = [];
             var dateReceived = bintransferObj.dateReceived.value;
+            var RRdateReceived = '';
+            var RRnumber = bintransferObj.RRnumber;
             var preparedBy = bintransferObj.preparedBy;
+            var inspectedBy = bintransferObj.inspectedBy;
             if (!utility.isValueValid(stockConversionRate)) {
                 stockConversionRate = 1;
             }
@@ -445,7 +444,97 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 fieldId: 'trandate',
                 value: parsedCurrentDate
             });
-            if (dateReceived) {
+            if (RRnumber) {
+                var openTaskSearch = search.load({
+                    id: 'customsearch_wms_opentask_item_pickqty_2'
+                });
+
+                var filters = openTaskSearch.filters;
+
+                filters.push(search.createFilter({
+                    name: 'custrecord_wmsse_drnumber',
+                    operator: search.Operator.CONTAINS,
+                    values: RRnumber
+                }));
+
+                filters.push(search.createFilter({
+                    name: 'custrecord_wmsse_sku',
+                    operator: search.Operator.ANYOF,
+                    values: itemId
+                }));
+
+                openTaskSearch.filters = filters;
+
+                var results = openTaskSearch.run().getRange({
+                    start: 0,
+                    end: 999
+                });
+
+                if (results && results.length > 0) {
+                    var columns = openTaskSearch.columns;
+
+                    for (var r = 0; r < results.length; r++) {
+                        var debugRow = {};
+                        for (var i = 0; i < columns.length; i++) {
+                            var col = columns[i];
+                            var key = [
+                                col.name || 'no_name',
+                                col.join || 'no_join',
+                                col.summary || 'no_summary',
+                                col.label || ('col_' + i)
+                            ].join(' | ');
+
+                            var value = results[r].getValue(col);
+                            var text = results[r].getText(col);
+
+                            debugRow[key] = {
+                                value: value,
+                                text: text
+                            };
+                        }
+
+                        log.debug({
+                            title: 'FULL RESULT ROW ' + r,
+                            details: JSON.stringify(debugRow)
+                        });
+                    }
+                }
+
+                if (results && results.length > 0) {
+                    var RRdateReceived = results[0].getValue({
+                        name: 'custrecord_wmsse_act_begin_date'
+                    });
+
+                    log.debug({
+                        title: 'RRdateReceived',
+                        details: RRdateReceived
+                    });
+
+                    if (RRdateReceived) {
+
+                        var parsedDateReceived = format.parse({
+                            value: RRdateReceived,
+                            type: format.Type.DATE
+                        });
+
+                        log.debug({
+                            title: 'parsedDateReceived',
+                            details: parsedDateReceived
+                        });
+
+                        binTransfer.setValue({
+                            fieldId: 'custbody_kplima_received_date',
+                            value: parsedDateReceived
+                        });
+
+                        binTransfer.setValue({
+                            fieldId: 'custbody54',
+                            value: RRnumber
+                        });
+                    }
+                }
+            }
+            if (dateReceived && !RRdateReceived) {
                 var parsedDateReceived = format.parse({
                     value: dateReceived,
                     type: format.Type.DATE
@@ -471,6 +560,12 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                     value: employeeId
                 });
             }
+
+            binTransfer.setValue({
+                fieldId: 'custbody365',
+                value: inspectedBy
+            });
+
             binTransfer.selectNewLine({
                 sublistId: 'inventory',
             });
@@ -1492,7 +1587,9 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             var lotArray = invtransferObj.lotArray;
             var department = invtransferObj.department.toLowerCase();
             var customer = invtransferObj.customer;
-            var employee = invtransferObj.preparedBy.toLowerCase().split(" ").join("");
+            // var employee = invtransferObj.preparedBy.toLowerCase().split(" ").join("");
+            var employee = invtransferObj.preparedBy.toLowerCase();
+            var inspectedBy = invtransferObj.inspectedBy;
             var invTranID = invtransferObj.invTranID;
             var RMissuance = '';
             if (invtransferObj.RMissuance)
@@ -1805,7 +1902,8 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             }
 
             var queryResult = query.runSuiteQL({
-                query: "SELECT (select id from department where lower(name) LIKE '" + department + "') as Department, (select id from customer where companyname like '" + customer + "') as Customer, (select id from employee where lower(concat(concat(firstname, middlename), lastname)) like '" + employee + "') as Employee",
+                // query: "SELECT (select id from department where lower(name) LIKE '" + department + "') as Department, (select id from customer where companyname like '" + customer + "') as Customer, (select id from employee where lower(concat(concat(firstname, middlename), lastname)) like '" + employee + "') as Employee",
+                query: "SELECT (select id from department where lower(name) LIKE '" + department + "') as Department, (select id from customer where companyname like '" + customer + "') as Customer, (select id from employee where lower(entityid) like '" + employee + "') as Employee",
             });
 
             log.debug('Employee', employee);
@@ -1841,6 +1939,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             invTransfer.setValue({
                 fieldId: 'custbody1',
                 value: employeeId,
+            });
+
+            invTransfer.setValue({
+                fieldId: 'custbody365',
+                value: inspectedBy,
             });
 
             invTransfer.setValue({

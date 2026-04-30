@@ -62,6 +62,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			var toBinInternalId = '';
 			var toBinInternalLoctype = '';
 			var dateReceived = '';
+			var RRnumber = '';
 			var preparedBy = '';
 
 			try {
@@ -98,6 +99,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					isTallyScanRequired = requestParams.isTallyScanRequired;
 					tallyScanBarCodeQty = requestParams.tallyScanBarCodeQty;
 					dateReceived = requestParams.dateReceived;
+					RRnumber = requestParams.RRnumber;
 					preparedBy = requestParams.preparedBy;
 
 					log.debug({
@@ -629,7 +631,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 												tallyScanObj = invtUtility.buildObjectFromTallyLoopObj(isTallyScanRequired, itemType, tallyLoopObj, tallyScanBarCodeQty);
 												log.debug('tallyScanObj', tallyScanObj);
 											}
-											impactRec = fnBinTransfer(itemType, warehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, fromStatusInternalId, statusInternalId, tallyScanObj, processType, dateReceived, preparedBy);
+											impactRec = fnBinTransfer(itemType, warehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, fromStatusInternalId, statusInternalId, tallyScanObj, processType, dateReceived, RRnumber, preparedBy);
 
 											if (utility.isValueValid(impactRec.inventoryCountId)) {
 												binTransferArr.push(impactRec.inventoryCountId);
@@ -762,7 +764,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			return impactRec;
 		}
 
-		function fnBinTransfer(itemType, warehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, fromStatusInternalId, statusInternalId, tallyScanObj, processType, dateReceived, preparedBy) {
+		function fnBinTransfer(itemType, warehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, fromStatusInternalId, statusInternalId, tallyScanObj, processType, dateReceived, RRnumber, preparedBy) {
 			var bintransferObj = {};
 			var impactRec = {};
 
@@ -780,6 +782,8 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			bintransferObj.processType = processType;
 			if (dateReceived)
 				bintransferObj.dateReceived = dateReceived;
+			if (RRnumber)
+				bintransferObj.RRnumber = RRnumber;
 			if (preparedBy)
 				bintransferObj.preparedBy = preparedBy;
 

@@ -94,10 +94,28 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 
 			if (customer) {
 				try {
-					// Load saved search for checking the customer
-					var searchObj = search.load({
-						id: 'customsearch4381'
-					});
+					var searchObj = '';
+					var threeMonths = currentRecord.getValue({ fieldId: 'custrecord1261' });
+					var sixMonths = currentRecord.getValue({ fieldId: 'custrecord1262' });
+					var twelveMonths = currentRecord.getValue({ fieldId: 'custrecord1263' });
+
+					if (threeMonths) {
+						searchObj = search.load({
+							id: 'customsearch5337'
+						});
+					} else if (sixMonths) {
+						searchObj = search.load({
+							id: 'customsearch5336'
+						});
+					} else if (twelveMonths) {
+						searchObj = search.load({
+							id: 'customsearch5339'
+						});
+					} else {
+						searchObj = search.load({
+							id: 'customsearch4381'
+						});
+					}
 
 					searchObj.filters.push(search.createFilter({
 						name: 'custitem24',
@@ -126,78 +144,269 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 
 					} while (searchResults.length === batchSize);
 
-					// Loop through the search results and compare with sublist lines
+					log.error('Total Search Results', totalRecordsFetched);
+					log.error('allResults', allResults);
+
+					var resultMap = {};
+
+					allResults.forEach(function (result) {
+						/* for (var r = 0; r < allResults.length; r++) { */
+						var itemid = result.getValue({
+							name: "itemid",
+							summary: search.Summary.GROUP
+						});
+
+						resultMap[itemid] = {
+							internalid: result.getValue({ name: "internalid", summary: search.Summary.GROUP }),
+							salesdesc: result.getValue({ name: "salesdescription", summary: search.Summary.GROUP }),
+							currency: result.getText({ name: "currency", join: "pricing", summary: search.Summary.GROUP }),
+							unitprice: result.getValue({ name: "unitprice", join: "pricing", summary: search.Summary.GROUP }),
+							lastpurchaseprice: result.getValue({ name: "lastpurchaseprice", summary: search.Summary.MAX }),
+							class: result.getText({ name: "class", summary: search.Summary.GROUP })
+						};
+
+						log.error('Processed result for itemid ' + itemid, resultMap[itemid]);
+					});
+
 					var lineCount = currentRecord.getLineCount({
 						sublistId: 'recmachcustrecord762'
 					});
 
-					log.error('Total Search Results', totalRecordsFetched);
-					log.error('allResults', allResults);
+					log.error('resultMap', resultMap);
 
-					allResults.forEach(function (result) {
-						var itemid = result.getValue({
-							name: "itemid"
-						});
-						var salesdesc = result.getValue({
-							name: "salesdescription"
-						});
-						var unitprice = result.getValue({
-							name: "unitprice",
-							join: "pricing"
-						});
-						var formulanumeric = result.getValue({
-							name: "lastpurchaseprice"
+					for (var i = 0; i < lineCount; i++) {
+						var item = currentRecord.getSublistText({
+							sublistId: 'recmachcustrecord762',
+							fieldId: 'custrecord764',
+							line: i
 						});
 
-						// Loop through all lines in the sublist
-						for (var i = 0; i < lineCount; i++) {
-							// Get the item and description values in the current sublist line
-							var item = currentRecord.getSublistText({
+						item = item ? item.trim() : item;
+
+						var data = resultMap[item];
+
+						if (data) {
+							/* currentRecord.selectLine({
 								sublistId: 'recmachcustrecord762',
-								fieldId: 'custrecord764',
 								line: i
 							});
 
-							log.error('itemid vs item', itemid + ' vs ' + item);
+							log.error('Updating line ' + (i + 1) + ' with data for item ' + item, data);
 
-							// Check if the itemid and salesdesc match the sublist values
-							if (itemid == item) {
-								// If match found, update the unitprice and formulanumeric fields
-								currentRecord.selectLine({
+							currentRecord.setCurrentSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord1182',
+								value: data.internalid
+							});
+
+							currentRecord.setCurrentSublistText({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord764',
+								text: item
+							});
+
+							currentRecord.setCurrentSublistText({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord765',
+								text: data.salesdesc
+							});
+
+							currentRecord.setCurrentSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord767',
+								value: data.unitprice
+							});
+
+							currentRecord.setCurrentSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord768',
+								value: data.lastpurchaseprice
+							});
+
+							currentRecord.setCurrentSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord763',
+								value: customer
+							});
+
+							currentRecord.commitLine({
+								sublistId: 'recmachcustrecord762'
+							}); */
+
+							delete resultMap[item];
+						} else {
+							var forDelete = true;
+							
+							if (currentRecord.getSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord769',
+								line: i
+							})) {
+								forDelete = false;
+							}
+
+							if (currentRecord.getSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord770',
+								line: i
+							})) {
+								forDelete = false;
+							}
+
+							if (currentRecord.getSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord771',
+								line: i
+							})) {
+								forDelete = false;
+							}
+
+							if (currentRecord.getSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord772',
+								line: i
+							})) {
+								forDelete = false;
+							}
+
+							if (currentRecord.getSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord997',
+								line: i
+							})) {
+								forDelete = false;
+							}
+
+							if (currentRecord.getSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord998',
+								line: i
+							})) {
+								forDelete = false;
+							}
+
+							if (currentRecord.getSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord999',
+								line: i
+							})) {
+								forDelete = false;
+							}
+
+							if (currentRecord.getSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord1000',
+								line: i
+							})) {
+								forDelete = false;
+							}
+
+							if (currentRecord.getSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord1001',
+								line: i
+							})) {
+								forDelete = false;
+							}
+
+							if (currentRecord.getSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord1002',
+								line: i
+							})) {
+								forDelete = false;
+							}
+
+							if (currentRecord.getSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord1003',
+								line: i
+							})) {
+								forDelete = false;
+							}
+
+							if (currentRecord.getSublistValue({
+								sublistId: 'recmachcustrecord762',
+								fieldId: 'custrecord1004',
+								line: i
+							})) {
+								forDelete = false;
+							}
+
+							if (forDelete) {
+								currentRecord.removeLine({
 									sublistId: 'recmachcustrecord762',
 									line: i
 								});
-
-								currentRecord.setCurrentSublistValue({
-									sublistId: 'recmachcustrecord762',
-									fieldId: 'custrecord767',
-									value: unitprice
-								});
-
-								currentRecord.setCurrentSublistValue({
-									sublistId: 'recmachcustrecord762',
-									fieldId: 'custrecord768',
-									value: formulanumeric
-								});
-
-								currentRecord.setCurrentSublistValue({
-									sublistId: 'recmachcustrecord762',
-									fieldId: 'custrecord763',
-									value: customer
-								});
-
-								log.error('customer set in line', customer);
-
-								currentRecord.commitLine({
-									sublistId: 'recmachcustrecord762'
-								});
-
-								log.error({
-									title: 'Line ' + (i + 1),
-									details: 'Item: ' + itemid + ', Description: ' + salesdesc + ' updated.'
-								});
+								log.error('Removed line ' + (i + 1) + ' for item ' + item + ' as it has no data and no future forecast');
+								i--; // Adjust index after removal
+								lineCount--; // Adjust total line count after removal
 							}
 						}
+					}
+
+					log.error('Finished processing existing lines. Remaining items in resultMap will be added as new lines.', resultMap);
+
+					Object.keys(resultMap).forEach(function (itemid) {
+						var data = resultMap[itemid];
+						
+						currentRecord.selectNewLine({
+							sublistId: 'recmachcustrecord762'
+						});
+						
+						currentRecord.setCurrentSublistValue({
+							sublistId: 'recmachcustrecord762',
+							fieldId: 'custrecord1182',
+							value: data.internalid
+						});
+						
+						currentRecord.setCurrentSublistText({
+							sublistId: 'recmachcustrecord762',
+							fieldId: 'custrecord764',
+							text: itemid
+						});
+						
+						currentRecord.setCurrentSublistText({
+							sublistId: 'recmachcustrecord762',
+							fieldId: 'custrecord765',
+							text: data.salesdesc
+						});
+						
+						currentRecord.setCurrentSublistValue({
+							sublistId: 'recmachcustrecord762',
+							fieldId: 'custrecord767',
+							value: data.unitprice
+						});
+						
+						currentRecord.setCurrentSublistValue({
+							sublistId: 'recmachcustrecord762',
+							fieldId: 'custrecord768',
+							value: data.lastpurchaseprice
+						});
+
+						currentRecord.setCurrentSublistValue({
+							sublistId: 'recmachcustrecord762',
+							fieldId: 'custrecord819',
+							value: data.class
+						});
+
+						currentRecord.setCurrentSublistValue({
+							sublistId: 'recmachcustrecord762',
+							fieldId: 'custrecord766',
+							value: data.currency
+						});
+						
+						currentRecord.setCurrentSublistValue({
+							sublistId: 'recmachcustrecord762',
+							fieldId: 'custrecord763',
+							value: customer
+						});
+						
+						currentRecord.commitLine({
+							sublistId: 'recmachcustrecord762'
+						});
+						
+						log.error('Added remaining item to sublist', itemid);
 					});
 				} catch (e) {
 					log.error({

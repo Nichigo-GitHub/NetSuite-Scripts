@@ -1,0 +1,224 @@
+<html>
+    <head>
+        <style type="text/css">
+            body{
+                font-size: 10px;
+            }
+            .rightBorder{
+                border-right: 1px solid;
+            }
+            .leftBorder{
+                border-left: 1px solid;
+            }
+            .topBorder{
+                border-top: 1px solid;
+            }
+            .bottomBorder{
+                border-bottom: 1px solid;
+            }
+            .center{
+                text-align: center;
+            }
+            .font1{
+                font-size:18px;
+            }
+            .margin{
+                margin-left:80px;
+                margin-right:20px;
+                margin-top:20px;
+                font-size: 18px;
+            }
+            #textHeader, #title{
+                font-weight: bold;
+                font-size: 16px;
+            }
+            #mainDetails{
+                position: relative;
+                float: left;
+                width: 300px;
+                text-align:left;
+                font-size: 10px;
+            }
+            #list{
+                position:relative;
+                font-size: 18px;
+            }
+            #list td{
+                padding-left: 5px;
+                padding-right: 5px;
+                padding-top: 2px;
+                padding-bottom: 2px;
+            }
+            #listTable{
+                border: 1px solid black;
+            }
+            #color{
+                color: white;
+                background-color: black;
+            }
+            #top{
+                position: relative;
+                height: 150px;
+                font-size: 12px;
+            }
+            #right{
+                font-size: 10px;
+                width: 210px;
+            }
+            #right td{
+                border: 1px solid black;
+            }
+            .bold{
+                font-weight: bold;
+                font-size:15px;
+            }
+            #received{
+                width: 210px;
+            }
+            #bottom{
+                position: relative;
+                float: right;
+                font-size: 8px;
+            }
+            #prepared{
+                border-bottom: 1px solid black;
+                width: 400px;
+            }
+            #approved{
+                border-bottom: 1px solid black;
+                width: 400px;
+            }
+        </style>
+    </head>
+    <body>
+        <p id="textHeader" class="center">{header}</p>
+        <p id="title" class="center">TRANSFER ORDER</p>
+        <div id="top" align=center>
+            <div id="mainDetails">
+                <p class="bold">Customer:</p>
+                <p class="bold">{customer}</p>
+                <br />
+                <p class="bold">Ship To:</p>
+                <p class="bold">{shipTo}</p>
+            </div>
+            <br>
+            <table id="right font1" align=right cellspacing=0 cellpadding=5
+                border=1>
+                <tr>
+                    <td>Order #</td>
+                    <td>{orderNo}</td>
+                </tr>
+                <tr>
+                    <td> Rev No. </td>
+                    <td>{RevNo}</td>
+                </tr>
+                <tr>
+                    <td>Date</td>
+                    <td>{date}</td>
+                </tr>
+            </table>
+        </div>
+        <br>
+        <br>
+        <div id="listTable">
+            <table id="list" align=center cellspacing=0 border=1 width=1000px>
+                <tr id="color">
+                    <td width=100>Item</td>
+                    <td width=150>Description</td>
+                    <td width=50>Qty</td>
+                    <td width=10>Unit of Measure</td>
+                    <td width=70>PO #</td>
+                    <td width=70>Date Delivery</td>
+                    <td width=120>Remarks</td>
+                    <td width=90>JO Number</td>
+                    <td width=90>FG Component</td>
+                </tr>
+                {body}
+            </table>
+        </div>
+    </body>
+
+    <!-- BOTTOM TABLE WITH NEW LOA ROWS -->
+    <table class="margin" width=1000px>
+        <tr>
+            <td class="rightBorder leftBorder topBorder bottomBorder"
+                width=50px>{PR}</td>
+            <td width=750px align="left">PR: <b>{PCN}</b></td>
+            <td width=250px align="left"><b>Prepared By:</b></td>
+        </tr>
+        <tr>
+            <td class="rightBorder leftBorder topBorder bottomBorder"
+                width=50px>{SMR}</td>
+            <td width=750px align="left">SMR: <b>{SCN}</b></td>
+            <td class="bottomBorder" width=250px
+                align="center">{preparedBy}</td>
+        </tr>
+        <tr>
+            <td class="rightBorder leftBorder topBorder bottomBorder"
+                width=50px>{Tool}</td>
+            <td width=750px align="left">Tooling Arrival/Details:<b>
+                    {TAD}</b></td>
+            <td width=250px align="center">{Department}</td>
+        </tr>
+        <tr>
+            <td width=50px></td>
+            <td width=750px align="left">Cyrel: <br />Silkscreen:<br />Die
+                Blade: <br /> Ink: <br /></td>
+            <td width=250px align="left"><b></b></td>
+        </tr>
+        <tr>
+            <td class="rightBorder leftBorder topBorder bottomBorder"
+                width=50px>{BK}</td>
+            <td width=750px align="left">BK Encoded</td>
+            <td width=250px align="left"><b>Approved By:</b></td>
+        </tr>
+        <tr>
+            <td class="rightBorder leftBorder topBorder bottomBorder"
+                width=50px>{SI}</td>
+            <td width=750px align="left">Special Instruction/Additional
+                Remarks</td>
+            <td class="bottomBorder" width=250px
+                align="center">{approvedBy}</td>
+        </tr>
+        <tr>
+            <td class="rightBorder leftBorder topBorder bottomBorder"
+                width=50px>{PQ}</td>
+            <td width=750px align="left">PQ QUOTATION NUMBER</td>
+            <td width=250px align="center">Manager</td>
+        </tr>
+
+        <!-- NEW ROWS ADDED HERE -->
+        <tr>
+            <td class="rightBorder leftBorder topBorder bottomBorder"
+                width=50px>{LoA}</td>
+            <td width=750px align="left"><b>LOA</b></td>
+            <td width=250px align="left"></td>
+        </tr>
+        <tr>
+            <td class="rightBorder leftBorder topBorder bottomBorder"
+                width=50px>{LoACon1}</td>
+            <td width=750px align="left"><b>LOA CONTROL NO. 1</b></td>
+            <td width=250px align="left"></td>
+        </tr>
+        <tr>
+            <td class="rightBorder leftBorder topBorder bottomBorder"
+                width=50px>{LoACon2}</td>
+            <td width=750px align="left"><b>LOA CONTROL NO. 2</b></td>
+            <td width=250px align="left"></td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td width=750px height=100px valign="top"
+                align="left"><b>{SID}</b></td>
+            <td width=250px valign="top"
+                align=left>Planning:_____________________________<br />Design:_____________________________</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td width=750px height=100px valign="top" align="left"></td>
+            <td width=250px valign="top" align=left><b>SA-001-F01
+                    REV.02</b></td>
+        </tr>
+    </table>
+</html>

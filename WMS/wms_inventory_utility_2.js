@@ -815,7 +815,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 									if ((serialNameDtlArr[0] != "binTransfer" && serialNameDtlArr[0] != "BinTransfer") || serialNameDtlArr[1] != currentUserId) {
 										serialMatchFound = false;
 									}
-							} else {}
+								} else { }
 						}
 						log.debug("serialMatchFound", serialMatchFound);
 						if (serialMatchFound) {
@@ -1454,7 +1454,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			var lotArray = invtransferObj.lotArray;
 			var department = invtransferObj.department.toLowerCase();
 			var customer = invtransferObj.customer.toLowerCase();
-			var employee = invtransferObj.preparedBy.toLowerCase().split(" ").join("");
+			var employee = invtransferObj.preparedBy.toLowerCase();
 			var invTranID = invtransferObj.invTranID;
 			var rejectType1 = invtransferObj.rejectType1;
 			var rejectType2 = invtransferObj.rejectType2;
@@ -1508,6 +1508,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			var rejectType50 = invtransferObj.rejectType50;
 			var rejectType51 = invtransferObj.rejectType51;
 			var rejectType52 = invtransferObj.rejectType52;
+				var lotSize = invtransferObj.lotSize;
+
+				
+	
+
 
 			var invTransfer = record.create({
 				type: record.Type.INVENTORY_TRANSFER,
@@ -1584,7 +1589,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 			});
 
 			var queryResult = query.runSuiteQL({
-				query: "SELECT (select id from department where lower(name) LIKE '" + department + "') as Department, (select id from customer where lower(companyname) like '" + customer + "') as Customer, (select id from employee where lower(concat(concat(firstname, middlename), lastname)) like '" + employee + "') as Employee",
+				query: "SELECT (select id from department where lower(name) LIKE '" + department + "') as Department, (select id from customer where lower(companyname) like '" + customer + "') as Customer, (select id from employee where lower(entityid) like '" + employee + "') as Employee",
 			});
 
 			log.debug('Employee', employee);
@@ -1646,19 +1651,10 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 				value: deliveryDate
 			});
 
-			log.debug({
-				title: 'towhLocation value and type',
-				details: 'Value: ' + towhLocation + ', Type: ' + typeof towhLocation
-			});
-			if (parseInt(towhLocation) == 665) {
-				log.debug({
-					title: 'Condition met',
-					details: 'parseInt(towhLocation) == 665 is TRUE'
-				});
-				log.debug({
-					title: 'setting custcol614 value',
-					details: 'Value: ' + parseInt(rejectType1) + ', Type: ' + typeof rejectType1
-				});
+
+
+				if (towhLocation == 665) {
+
 				invTransfer.setCurrentSublistValue({
 					sublistId: 'inventory',
 					fieldId: 'custcol614',
@@ -1919,7 +1915,57 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
 					fieldId: 'custcol638',
 					value: parseInt(rejectType52)
 				});
-			}
+					invTransfer.setCurrentSublistValue({
+						sublistId: 'inventory',
+						fieldId: 'custcol601',
+						value: parseInt(lotSize)|| 0
+					});
+
+					const fieldId = [
+						'custcol614', 'custcol75', 'custcol76', 'custcol615', 'custcol103', 'custcol616',
+						'custcol617', 'custcol107', 'custcol140', 'custcol108', 'custcol109', 'custcol618',
+						'custcol78', 'custcol111', 'custcol81', 'custcol619', 'custcol112', 'custcol83',
+						'custcol620', 'custcol639', 'custcol622', 'custcol623', 'custcol624', 'custcol640',
+						'custcol626', 'custcol627', 'custcol628', 'custcol86', 'custcol88', 'custcol91',
+						'custcol629', 'custcol120', 'custcol92', 'custcol630', 'custcol93', 'custcol631',
+						'custcol121', 'custcol632', 'custcol633', 'custcol122', 'custcol94', 'custcol96',
+						'custcol124', 'custcol132', 'custcol99', 'custcol134', 'custcol135', 'custcol634',
+						'custcol635', 'custcol636', 'custcol637', 'custcol638'
+					];
+					var sum = 0;
+
+					for (var i = 0; i < 52; i++) {
+						var field = invTransfer.getCurrentSublistValue({
+							sublistId: "inventory",
+							fieldId: fieldId[i]
+
+						});
+						if (field)
+							sum += parseInt(field);
+
+					}
+					log.debug(sum);
+					var percentage = (parseInt(lotSize) / sum);
+					var rejper = parseInt(percentage);
+					log.debug("percentage:", percentage + "%");
+					log.debug("rejper:", rejper);
+					log.debug("lotSize:", lotSize);
+
+
+
+					invTransfer.setCurrentSublistValue({
+						sublistId: 'inventory',
+						fieldId: 'custcol603',
+						value: rejper
+					});
+					invTransfer.setCurrentSublistValue({
+						sublistId: 'inventory',
+						fieldId: 'custcol602',
+						value: sum
+					});
+				}
+
+
 			if (itemType == "inventoryitem" || itemType == "assemblyitem") {
 				//getting use bins for item
 				var columnArray = [];
