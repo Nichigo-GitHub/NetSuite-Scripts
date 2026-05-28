@@ -24,49 +24,40 @@ define(['N/search'], function (search) {
                             join: 'inventoryNumberBinOnHand',
                             summary: search.Summary.GROUP
                         }),
-
                         type: result.getValue({
                             name: 'formulatext',
                             summary: search.Summary.GROUP
                         }),
-
                         item: result.getValue({
                             name: 'itemid',
                             summary: search.Summary.GROUP
                         }),
-
                         desc: result.getValue({
                             name: 'salesdescription',
                             summary: search.Summary.GROUP
                         }),
-
                         joNum: result.getValue({
                             name: 'inventorynumber',
                             join: 'inventoryNumberBinOnHand',
                             summary: search.Summary.GROUP
                         }),
-
                         qty: result.getValue({
                             name: 'quantityonhand',
                             join: 'inventoryNumberBinOnHand',
                             summary: search.Summary.MAX
                         }),
-
                         customer: result.getText({
                             name: 'custitem24',
                             summary: search.Summary.GROUP
                         }),
-
                         upc: result.getValue({
                             name: 'upccode',
                             summary: search.Summary.GROUP
                         }),
-
                         dateReceived: result.getValue({
                             name: 'formuladate',
                             summary: search.Summary.MIN
-                        }),
-                        
+                        }),                        
                         age: result.getValue({
                             name: 'formulanumeric',
                             summary: search.Summary.MIN

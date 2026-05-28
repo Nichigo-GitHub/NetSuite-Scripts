@@ -41,12 +41,12 @@ define(['N/record', 'N/ui/dialog', 'N/format', 'N/search', 'N/runtime'], functio
         formNumberField.isDisabled = true;
 
         if (contextMode === 'create') {
-            /* if (IPDField) {
+            if (IPDField) {
                 var formattedDate = monthNames[month] + ' ' + today.getFullYear();
-            } else { */
+            } else {
                 var formattedDate = format.parse({ value: today, type: format.Type.DATE });
                 var longDate = formatLongDate(today);
-            //}
+            }
             // Check duplicates
             if (checkDuplicateLoadingForm(longDate, IPDField)) {
                 dialog.alert({
@@ -81,7 +81,7 @@ define(['N/record', 'N/ui/dialog', 'N/format', 'N/search', 'N/runtime'], functio
         var IPDField = currentRecord.getValue({ fieldId: 'custrecord1242' });
 
         if (IPDField) {
-            var dateString = formatLongDate(deliveryDate);// monthNames[new Date(deliveryDate).getMonth()] + ' ' + new Date(deliveryDate).getFullYear();
+            var dateString = monthNames[new Date(deliveryDate).getMonth()] + ' ' + new Date(deliveryDate).getFullYear();
             currentRecord.setValue({
                 fieldId: 'custrecord_loading_form_num',
                 value: 'IPD Loading Form [' + dateString + ']'
@@ -101,7 +101,7 @@ define(['N/record', 'N/ui/dialog', 'N/format', 'N/search', 'N/runtime'], functio
 
         var results = runDRSearch(currentRecord, month, day, year);
         results.forEach(function (result) {
-            populateSublistLine(currentRecord, result, day);
+            populateSublistLine(currentRecord, result, day, month, year);
         });
     }
 
@@ -120,9 +120,9 @@ define(['N/record', 'N/ui/dialog', 'N/format', 'N/search', 'N/runtime'], functio
                 ]
             ],
             'AND',
-            ['custrecord856', search.Operator.CONTAINS, String(year)],
+            ['custrecord856', search.Operator.CONTAINS, String(year)]/* ,
             'AND',
-            ['custrecord786', search.Operator.CONTAINS, 'SO-SFLI-']
+            ['custrecord786', search.Operator.CONTAINS, 'SO-SFLI-'] */
         ];
         var IPDFilters = [
             ['custrecord846', search.Operator.ANYOF, month],
@@ -271,28 +271,38 @@ define(['N/record', 'N/ui/dialog', 'N/format', 'N/search', 'N/runtime'], functio
         return results;
     }
 
-    function populateSublistLine(currentRecord, result, day) {
+    function populateSublistLine(currentRecord, result, day, month, year) {
         var IPDField = currentRecord.getValue({ fieldId: 'custrecord1242' });
-        var totalQty = 0;
-
-        currentRecord.selectNewLine({ sublistId: sublistId });
-        currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord850', value: result['custrecord784'] });
-        currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord851', value: result['custrecord785'] });
-        currentRecord.setCurrentSublistText({ sublistId: sublistId, fieldId: 'custrecord852', text: result['custrecord786'] });
 
         if (IPDField) {
             for (var i = 0; i < 31; i++) {
                 if (result[fieldIdsToCheck[i]] > 0) {
-                    totalQty += Number(result[fieldIdsToCheck[i]]) || 0;
+                    currentRecord.selectNewLine({ sublistId: sublistId });
+                    currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord850', value: result['custrecord784'] });
+                    currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord851', value: result['custrecord785'] });
+                    currentRecord.setCurrentSublistText({ sublistId: sublistId, fieldId: 'custrecord852', text: result['custrecord786'] });
+                    currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord934', value: result['custrecord933'] || 0 });
+                    currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord849', value: result['custrecord836'] });
+
+                    currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord853', value: Number(result[fieldIdsToCheck[i]]) || 0 });
+
+                    var lineDate = new Date(year, month - 1, i + 1);
+                    currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord854', value: lineDate });
+                    currentRecord.commitLine({ sublistId: sublistId });
                 }
             }
-            currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord853', value: totalQty || 0 });
         } else {
+            currentRecord.selectNewLine({ sublistId: sublistId });
+            currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord850', value: result['custrecord784'] });
+            currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord851', value: result['custrecord785'] });
+            currentRecord.setCurrentSublistText({ sublistId: sublistId, fieldId: 'custrecord852', text: result['custrecord786'] });
+            currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord934', value: result['custrecord933'] || 0 });
+            currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord849', value: result['custrecord836'] });
+
             currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord853', value: result[fieldIdsToCheck[day - 1]] || 0 });
+
+            currentRecord.commitLine({ sublistId: sublistId });
         }
-        currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord934', value: result['custrecord933'] || 0 });
-        currentRecord.setCurrentSublistValue({ sublistId: sublistId, fieldId: 'custrecord849', value: result['custrecord836'] });
-        currentRecord.commitLine({ sublistId: sublistId });
     }
 
     function checkDuplicateLoadingForm(formattedDate, IPDField) {

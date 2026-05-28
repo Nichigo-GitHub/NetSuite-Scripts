@@ -5,7 +5,7 @@
  */
 
 define(['N/log'], function(log) {
-    function getDefaultValue(warehouseLocation) {
+    function getDefaultValue(warehouseLocation, fromLocId) {
         var defaultValue = '';
         // Set default value based on warehouse location
         if (warehouseLocation === 'KPPI Lima Warehouse : Raw Materials - L') {
@@ -22,8 +22,10 @@ define(['N/log'], function(log) {
             defaultValue = 'KPI JO Staging Bin';
         } else if (warehouseLocation === 'SFLI Production') {
             defaultValue = '';
-        } else if (warehouseLocation === 'KPPI Laguna Warehouse : Production - M') {
+        } else if (warehouseLocation === 'KPPI Laguna Warehouse : Production - M' && fromLocId === 'KPPI Laguna Warehouse : Raw Materials - M') {
             defaultValue = 'WHSE - PROD RM';
+        } else if (warehouseLocation === 'KPPI Laguna Warehouse : Production - M' && fromLocId === null) {
+            defaultValue = 'PROD WIP';
         } else if (warehouseLocation === 'KPPI Laguna Warehouse : QA - M') {
             defaultValue = 'QA WIP';
         } else if (warehouseLocation === 'KPPI Laguna Warehouse : Overrun - M') {
@@ -36,11 +38,15 @@ define(['N/log'], function(log) {
     function doGet(params) {
         // Log the value of params.warehouseLocationName
         log.error({
-            title: 'Warehouse Location Name',
-            details: params.warehouseLocationName
+            title: 'params',
+            details: params
         });
 
         var warehouseLocation = params.warehouseLocationName;
+        var fromLocId = null;
+        if (params.fromLocId) {
+            fromLocId = params.fromLocId;
+        }
 
         if (!warehouseLocation || warehouseLocation === 'KPPI Laguna Warehouse : Raw Materials - M') {
             warehouseLocation = params.warehouseLocationName_2;
@@ -52,7 +58,7 @@ define(['N/log'], function(log) {
         }
 
         // Call the function to get the default value
-        var defaultValue = getDefaultValue(warehouseLocation);
+        var defaultValue = getDefaultValue(warehouseLocation, fromLocId);
 
         // Log the value of Default Value
         log.error({

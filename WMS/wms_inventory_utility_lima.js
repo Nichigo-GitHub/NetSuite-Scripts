@@ -2,7 +2,7 @@
  * @NApiVersion 2.x
  * @NModuleScope public
  */
-define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './wms_utility', './wms_translator', 'N/task', 'N/config'],
+define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big_open', './wms_utility_kppi', './wms_translator_kppi', 'N/task', 'N/config'],
     function (search, runtime, record, query, format, Big, utility, translator, task, config) {
 
         function _getBinDetailsForItem(pickBinDetailsObj, processType) {
@@ -85,8 +85,8 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             }
             var objBinInvtDetails = [];
             var searchName = 'customsearch_wms_item_inventorydetails';
-            if (itemType == "inventoryitem" || itemType == "assemblyitem") {
-                searchName = 'customsearch_wms_item_inventorydetails';
+            if (itemType == "inventoryitem" || itemType == "assemblyitem" || itemType == "lotnumberedinventoryitem" || itemType == "lotnumberedassemblyitem") {
+                searchName = 'customsearch_wms_item_inventorydetails_2';
             } else {
                 searchName = 'customsearch_wms_item_inventory_lotser';
             }
@@ -253,8 +253,8 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 });
                 var objPrefBinDetails = [];
                 var searchName = 'customsearch_wms_item_inventorydetails';
-                if (itemType == "inventoryitem" || itemType == "assemblyitem") {
-                    searchName = 'customsearch_wms_item_inventorydetails';
+                if (itemType == "inventoryitem" || itemType == "assemblyitem" || itemType == "lotnumberedinventoryitem" || itemType == "lotnumberedassemblyitem") {
+                    searchName = 'customsearch_wms_item_inventorydetails_2';
                 } else {
                     searchName = 'customsearch_wms_item_inventory_lotser';
                 }
@@ -2125,6 +2125,17 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                         fieldId: 'quantity',
                         value: quantity
                     });
+                    /* var lotSearch = search.create({
+                        type: 'lotnumberlist',
+                        filters: [
+                            ['inventorynumber', 'contains', batchno]
+                        ],
+                        columns: ['internalid']
+                    });
+                    var lotSearchResults = utility.getSearchResultInJSON(lotSearch);
+                    if (lotSearchResults != null && lotSearchResults.length > 0) {
+                        batchno = lotSearchResults[0].internalid;
+                    }   */
                     compSubRecord.setCurrentSublistValue({
                         sublistId: 'inventoryassignment',
                         fieldId: 'receiptinventorynumber',
@@ -2278,6 +2289,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             invTransfer.commitLine({
                 sublistId: 'inventory'
             });
+            logLargeObject('invTransfer before save', invTransfer);
             var inventoryCountId = invTransfer.save();
             log.debug({
                 title: 'inventoryCountId',
@@ -2309,6 +2321,18 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             impactedRec.opentaskId = opentaskId;
             impactedRec.inventoryCountId = inventoryCountId;
             return impactedRec;
+        }
+
+        function logLargeObject(title, obj) {
+            var jsonString = JSON.stringify(obj);
+            var chunkSize = 3999;
+
+            for (var i = 0; i < jsonString.length; i += chunkSize) {
+                log.error({
+                    title: title + ' PART ' + ((i / chunkSize) + 1),
+                    details: jsonString.substring(i, i + chunkSize)
+                });
+            }
         }
 
         function getPickBinDetailsLotWithExpiryDates(getItemInternalId, vBinIdArr, getPreferBin, strLocation,

@@ -18,7 +18,9 @@ define(['N/record', 'N/search'], function (record, search) {
         var date = customRecord.getValue({
             fieldId: 'custrecord_date_num'
         });
-        var dateString = formatLongDate(date);
+        var IPD = customRecord.getValue({
+            fieldId: 'custrecord1242'
+        });
         var sublistData = [];
 
         var sublistCount = customRecord.getLineCount({
@@ -27,6 +29,15 @@ define(['N/record', 'N/search'], function (record, search) {
 
         // Extract sublist data into an array
         for (var i = 0; i < sublistCount; i++) {
+            if (IPD) {
+                var dateString = formatLongDate(customRecord.getSublistValue({
+                    sublistId: sublistId,
+                    fieldId: 'custrecord854',
+                    line: i
+                }));
+            } else {
+                var dateString = formatLongDate(date);
+            }
             sublistData.push({
                 date: dateString,
                 customer: customRecord.getSublistText({

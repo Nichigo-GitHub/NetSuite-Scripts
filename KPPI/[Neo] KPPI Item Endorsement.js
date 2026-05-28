@@ -2,7 +2,7 @@
  * @NApiVersion 2.x
  * @NScriptType ClientScript
  */
-define(['N/currentRecord', 'N/search', 'N/record', 'N/log'], function (currentRecord, search, record, log) {
+define(['N/currentRecord', 'N/search', 'N/record', 'N/log', 'N/runtime'], function (currentRecord, search, record, log, runtime) {
   function fieldChanged(context) {
     var currentRecord = context.currentRecord;
 

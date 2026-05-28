@@ -3,7 +3,7 @@
  * @NScriptType Restlet
  * @NModuleScope Public
  */
-define(['N/search', './wms_utility_sfli', './wms_translator_kppi', './big_open', 'N/config', './wms_workOrderUtility_kppi'],
+define(['N/search', './wms_utility_kppi', './wms_translator_kppi', './big_open', 'N/config', './wms_workOrderUtility_kppi'],
 
 	function (search, utility, translator, Big, config, woUtility) {
 

@@ -3,7 +3,7 @@
  * @NScriptType Restlet
  * @NModuleScope Public
  */
-define(['N/search', './wms_utility', './wms_translator', 'N/config', './wms_inventory_utility'],
+define(['N/search', './wms_utility_kppi', './wms_translator_kppi', 'N/config', './wms_inventory_utility_lima'],
 	/**
 	 * @param {search} search
 	 */
