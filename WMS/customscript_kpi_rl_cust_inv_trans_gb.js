@@ -5,7 +5,7 @@
  */
 define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', './wms_inventory_utility_indo'],
 	/**
-	 * @param {search} search``
+	 * @param {search} search
 	 */
 	function (search, record, utility, Big, translator, invtUtility) {
 
@@ -101,22 +101,32 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					isTallyScanRequired = requestParams.isTallyScanRequired;
 					tallyScanBarCodeQty = requestParams.tallyScanBarCodeQty;
 
-					log.debug({
-						title: 'requestParams',
-						details: requestParams
-					});
+					/* log.debug({
+						title: 'invTranID: ' + invTranID,
+						details: 'JOnum: ' + requestParams.JOnum
+					}); */
+					if (invTranID != requestParams.JOnum) {
+						if (!invTranID && requestParams.JOnum || itemType === "lotnumberedassemblyitem" && requestParams.JOnum) {
+							invTranID = requestParams.JOnum;
+						}
+					}
+					
+
+					log.debug({ title: 'requestParams', details: requestParams });
 					var objInvDetails = [];
 					if (!utility.isValueValid(binName)) {
 						log.debug('error 108', 'error');
 						binValidateArray.errorMessage = translator.getTranslationString('BINTRANSFER_ITEMORBINVALIDATE.EMPTY_INPUT');
 						binValidateArray.isValid = false;
 						isValidBin = false;
-					} else if (fromBinName == binName && processType != 'inventoryTransfer') {
+					}
+					else if (fromBinName == binName && processType != 'inventoryTransfer') {
 						log.debug('error 114', 'error');
 						binValidateArray.errorMessage = translator.getTranslationString('INVENTORY_TOBINVALIDATE.SAME_FROMANDTOBINS');
 						binValidateArray.isValid = false;
 						isValidBin = false;
-					} else {
+					}
+					else {
 						tallyScanBarCodeQty = utility.isValueValid(tallyScanBarCodeQty) ? tallyScanBarCodeQty : 0;
 						tallyLoopObj = utility.isValueValid(tallyLoopObj) ? tallyLoopObj : {};
 						if (!utility.isValueValid(stockConversionRate)) {

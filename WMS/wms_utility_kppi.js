@@ -5,8 +5,8 @@
  * @NModuleScope public
  */
 define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', './big_open', './wms_translator_sfli', 'N/url',
-		'N/wms/recommendedBins', 'N/query', 'N/internal/elasticLogger', 'N/ui/serverWidget'
-	],
+	'N/wms/recommendedBins', 'N/query', 'N/internal/elasticLogger', 'N/ui/serverWidget'
+],
 	function (search, file, runtime, record, config, format, Big, translator, url, binApi, query, loggerFactory, serverWidget) {
 
 
@@ -371,10 +371,24 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 					itemfrmBarcode = {};
 				}
 				itemResults = validateItemForNameAndUpccode(itemNo, location, searchItem);
+				log.debug('itemResults', itemResults);
+				log.debug('itemResult length', itemResults.length);
 				if (itemResults.length > 0) {
-					//adding itemInternalId, itemName for backward compatibility.
-					itemResultObj['itemInternalId'] = itemResults[0]['id'];
-					itemResultObj['itemName'] = itemResults[0]['itemid'];
+					if (location == 820 || location == 821) {
+						for (var i = 0; i < itemResults.length; i++) {
+							if (itemResults[i]['recordType'] == "lotnumberedassemblyitem") {
+								//adding itemInternalId, itemName for backward compatibility.
+								itemResultObj['itemInternalId'] = itemResults[i]['id'];
+								itemResultObj['itemName'] = itemResults[i]['itemid'];
+							}
+						}
+					} else {
+						if (!itemResultObj['itemInternalId'] || !itemResultObj['itemName']) {
+							//adding itemInternalId, itemName for backward compatibility.
+							itemResultObj['itemInternalId'] = itemResults[0]['id'];
+							itemResultObj['itemName'] = itemResults[0]['itemid'];
+						}
+					}
 				}
 			}
 
@@ -6232,8 +6246,8 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 					name: 'location'
 				});
 				if (itemresults[0].getValue({
-						name: 'isinactive'
-					}) == true) {
+					name: 'isinactive'
+				}) == true) {
 					itemValidateDetails['error'] = translator.getTranslationString('PO_ITEMVALIDATE.INACTIVE_ITEM');
 				} else if ((_isValueValid(itemLoc)) && (itemLoc != wareHouseLocationId)) {
 					itemValidateDetails['error'] = translator.getTranslationString('PO_ITEMVALIDATE.WAREHOUSE_NOT_MATCHED');
@@ -7331,16 +7345,16 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 										isPreferredBin: isPreferredBin,
 										seqNum: seqNum,
 										lastTransferDate: transfer.receivedDate,
-										JOnum : transfer.JOnum,
-										issueNum : transfer.issueNum
+										JOnum: transfer.JOnum,
+										issueNum: transfer.issueNum
 									};
 
 									log.debug('Adding Transfer Bin Result', transferBinObj);
 									binResArr.push(transferBinObj);
+								}
+							}
 						}
 					}
-				}
-			}
 				}
 			}
 
@@ -7363,11 +7377,13 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 				savedSearch = 'customsearch5007';
 			} else if (params.whLocation == 820) {
 				savedSearch = 'customsearch5329';
+			} else if (params.whLocation == 889) {
+				savedSearch = 'customsearch5538';
 			}
 
 			log.debug('getBinTransferInHistory - params', params);
 
-			if (params.whLocation == 670 || params.whLocation == 792) {	
+			if (params.whLocation == 670 || params.whLocation == 792) {
 				// Load the summary saved search
 				var fifoBinReport = search.load({
 					id: savedSearch
@@ -8220,13 +8236,13 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 		function getDefaultRuleValueForAsyncSystemRules(systemRuleName) {
 			var systemRuleLookup = {};
 			var sytemrulesArray = [{
-					key: "Enable bulk staging of large pick tasks",
-					value: 125
-				},
-				{
-					key: "Enable bulk picking of large pick tasks",
-					value: 125
-				}
+				key: "Enable bulk staging of large pick tasks",
+				value: 125
+			},
+			{
+				key: "Enable bulk picking of large pick tasks",
+				value: 125
+			}
 			]
 
 			for (var arrIndex = 0; arrIndex < sytemrulesArray.length; arrIndex++) {
@@ -8354,37 +8370,37 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 				});
 				//log.debug('fetched IFperorder in utlity for first time',IFperorder);
 				var wmsPreferences = [{
-						"name": "OVERRECEIPTS",
-						"value": false
-					},
-					{
-						"name": "ITEMCOSTASTRNFRORDCOST",
-						"value": true
-					},
-					{
-						"name": roleIntenalId,
-						"value": false
-					},
-					{
-						"name": "DEPTMANDATORY",
-						"value": false
-					},
-					{
-						"name": "CLASSMANDATORY",
-						"value": false
-					},
-					{
-						"name": "CREATEITEMFULFILLMENT",
-						"value": false
-					},
-					{
-						"name": fisrtReceipientId,
-						"value": false
-					},
-					{
-						"name": secondReceipientId,
-						"value": false
-					},
+					"name": "OVERRECEIPTS",
+					"value": false
+				},
+				{
+					"name": "ITEMCOSTASTRNFRORDCOST",
+					"value": true
+				},
+				{
+					"name": roleIntenalId,
+					"value": false
+				},
+				{
+					"name": "DEPTMANDATORY",
+					"value": false
+				},
+				{
+					"name": "CLASSMANDATORY",
+					"value": false
+				},
+				{
+					"name": "CREATEITEMFULFILLMENT",
+					"value": false
+				},
+				{
+					"name": fisrtReceipientId,
+					"value": false
+				},
+				{
+					"name": secondReceipientId,
+					"value": false
+				},
 				];
 
 				var arrIndex = 0;
@@ -9230,15 +9246,15 @@ define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', '
 				var applicationDefalutSearch = search.create({
 					type: 'customrecord_mobile_application_defaults',
 					filters: [{
-							name: 'name',
-							operator: 'is',
-							values: 'Smart_Count'
-						},
-						{
-							name: 'isinactive',
-							operator: 'is',
-							values: 'F'
-						}
+						name: 'name',
+						operator: 'is',
+						values: 'Smart_Count'
+					},
+					{
+						name: 'isinactive',
+						operator: 'is',
+						values: 'F'
+					}
 					]
 				});
 

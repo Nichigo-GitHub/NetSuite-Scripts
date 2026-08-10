@@ -90,6 +90,15 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 						})
 					);
 					log.debug('Inside WH Location 820 & 821');
+				} else if (whLocation == 792 || whLocation == 889 || whLocation == 891) {
+					workOrdListSearch.filters.push(
+						search.createFilter({
+							name: 'location',
+							operator: search.Operator.ANYOF,
+							values: [889, 891]
+						})
+					);
+					log.debug('Inside WH Location 889 & 891');
 				} else {
 					workOrdListSearch.filters.push(
 						search.createFilter({
@@ -3217,7 +3226,7 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 			var statusId = dataObj['statusInternalId'];
 			var inventoryStatusFeature = dataObj['inventoryStatusFeature'];
 			var locUseBinsFlag = dataObj['locUseBinsFlag'];
-
+			var overrun = dataObj['overrun']
 			var idl = "";
 			var serialIds = [];
 			var opentaskSplitArray = [];
@@ -3988,12 +3997,70 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 						value: parseFloat(parseFloat(openTaskLotQty).toFixed(8))
 					});
 
-					if (utility.isValueValid(openTaskBin))
+					/* if (utility.isValueValid(openTaskBin))
 						compSubRecord.setCurrentSublistValue({
 							sublistId: 'inventoryassignment',
 							fieldId: 'binnumber',
 							value: openTaskBin
+						}); */
+					if (utility.isValueValid(openTaskBin)) {
+						log.debug({
+							title: 'Setting Component Bin',
+							details: {
+								componentIndex: compIndex,
+								componentItem: compItem,
+								componentLine: compItemLine,
+
+								buildQty: itemBuildQty,
+								assignmentQty: openTaskLotQty,
+
+								openTaskBin: openTaskBin,
+								openTaskStatus: openTaskStatusId,
+
+								warehouseLocation: whLocation,
+
+								openTaskSku: openTaskLotSku,
+								openTaskLine: openTaskLotLine,
+
+								openTaskId: openTaskItemDetailsResults[openTaskItr].id
+							}
 						});
+
+						try {
+							compSubRecord.setCurrentSublistValue({
+								sublistId: 'inventoryassignment',
+								fieldId: 'binnumber',
+								value: openTaskBin
+							});
+
+							log.debug({
+								title: 'Bin Set Successfully',
+								details: openTaskBin
+							});
+						} catch (e) {
+							log.error({
+								title: 'FAILED TO SET BIN',
+								details: {
+									error: e.message,
+									stack: e.stack,
+
+									componentItem: compItem,
+									componentLine: compItemLine,
+
+									buildQty: itemBuildQty,
+									assignmentQty: openTaskLotQty,
+
+									bin: openTaskBin,
+									location: whLocation,
+									status: openTaskStatusId,
+
+									openTask: openTaskItemDetailsResults[openTaskItr]
+								}
+							});
+
+							throw e;
+						}
+					}
 					if (inventoryStatusFeature)
 						compSubRecord.setCurrentSublistValue({
 							sublistId: 'inventoryassignment',
@@ -5266,6 +5333,7 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 				var resultsObj = {};
 				var actualQuantity = 0;
 				var openTaskDeleteRecordId = '';
+				var deleteBinTransferId = '';
 				var currentDate = utility.DateStamp();
 				var parsedCurrentDate = format.parse({
 					value: currentDate,
@@ -5274,6 +5342,8 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 				var closedTaskRecord = record.create({
 					type: 'customrecord_wmsse_trn_closedtask'
 				});
+
+				log.debug('openTaskdetails', openTaskdetails);
 
 				closedTaskRecord.setValue({
 					fieldId: 'name',
@@ -5493,6 +5563,13 @@ define(['./wms_utility', 'N/search', 'N/runtime', 'N/record', 'N/config', 'N/for
 					openTaskDeleteRecordId = record.delete({
 						type: 'customrecord_wmsse_trn_opentask',
 						id: openTaskdetails.id
+					});
+
+					var bintransferReferenceNumber = openTaskdetails.custrecord_wmsse_nstrn_ref_no;
+
+					deleteBinTransferId = record.delete({
+						type: 'bintransfer',
+						id: bintransferReferenceNumber
 					});
 				}
 				resultsObj.closedTaskRecord = closedTaskRecord;

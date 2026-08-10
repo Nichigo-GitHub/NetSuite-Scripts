@@ -2,7 +2,7 @@
  * @NApiVersion 2.x
  * @NModuleScope public
  */
-define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './wms_utility', './wms_translator', 'N/task', 'N/config'],
+define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big_open', './wms_utility_kpvn', './wms_translator_kppi', 'N/task', 'N/config'],
     function (search, runtime, record, query, format, Big, utility, translator, task, config) {
 
         function _getBinDetailsForItem(pickBinDetailsObj, processType) {
@@ -343,10 +343,6 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
         }
 
         function inventoryBinTransfer(bintransferObj) {
-            log.debug({
-                title: 'bintransferObj in inventoryBinTransfer',
-                details: bintransferObj
-            });
             var itemType = bintransferObj.itemType;
             var whLocation = bintransferObj.whLocation;
             var itemId = bintransferObj.itemId;
@@ -370,6 +366,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             var statusArr = [];
             var quantityArr = [];
             var lotArrr = [];
+            var dateReceived = bintransferObj.dateReceived.value;
             if (!utility.isValueValid(stockConversionRate)) {
                 stockConversionRate = 1;
             }
@@ -442,6 +439,16 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 fieldId: 'trandate',
                 value: parsedCurrentDate
             });
+            if (dateReceived) {
+                var parsedDateReceived = format.parse({
+                    value: dateReceived,
+                    type: format.Type.DATE
+                });
+                binTransfer.setValue({
+                    fieldId: 'custbody_kplima_received_date',
+                    value: parsedDateReceived
+                });
+            }
             binTransfer.selectNewLine({
                 sublistId: 'inventory',
             });
@@ -819,7 +826,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                                         serialNameDtlArr[1] != currentUserId) {
                                         serialMatchFound = false;
                                     }
-                            } else {}
+                            } else { }
                         }
                         log.debug("serialMatchFound", serialMatchFound);
                         if (serialMatchFound) {
@@ -1531,7 +1538,6 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 fieldId: 'transferlocation',
                 value: towhLocation
             });
-
             var currDate = utility.DateStamp();
             var parsedCurrentDate = format.parse({
                 value: currDate,
@@ -2761,6 +2767,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                             fieldId: 'quantity',
                             value: scannedQuantity
                         });
+
 
                         log.debug('inventoryStatus inventoryStatus', inventoryStatus);
                         if (inventoryStatus != null && inventoryStatus != '') {

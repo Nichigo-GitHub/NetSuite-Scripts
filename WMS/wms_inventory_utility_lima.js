@@ -370,7 +370,12 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big_open'
             var dateReceived = bintransferObj.dateReceived.value;
             var RRdateReceived = '';
             var RRnumber = bintransferObj.RRnumber;
-            var preparedBy = bintransferObj.preparedBy;
+            if (whLocation == "789" || whLocation == 789 || whLocation == "834" || whLocation == 834) {
+                var preparedBy = bintransferObj.preparedBy['value'].toLowerCase();
+            } else {
+                var preparedBy = bintransferObj.preparedBy;            
+            }
+            var memo = bintransferObj.memo;
             var inspectedBy = bintransferObj.inspectedBy;
             if (!utility.isValueValid(stockConversionRate)) {
                 stockConversionRate = 1;
@@ -546,7 +551,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big_open'
             }
             if (preparedBy) {
                 preparedBy = preparedBy.toLowerCase();
-
+              
                 var queryResult = query.runSuiteQL({
                     query: "SELECT (select id from employee where lower(entityid) like '" + preparedBy + "') as Employee",
                 });
@@ -558,6 +563,13 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big_open'
                 binTransfer.setValue({
                     fieldId: 'custbody1',
                     value: employeeId
+                });
+            }
+
+            if (memo) {
+                binTransfer.setValue({
+                    fieldId: 'memo',
+                    value: memo
                 });
             }
 
@@ -1588,7 +1600,12 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big_open'
             var department = invtransferObj.department.toLowerCase();
             var customer = invtransferObj.customer;
             // var employee = invtransferObj.preparedBy.toLowerCase().split(" ").join("");
-            var employee = invtransferObj.preparedBy.toLowerCase();
+            if (whLocation == "789" || whLocation == 789 || whLocation == "834" || whLocation == 834) {
+                var employee = invtransferObj.preparedBy['value'].toLowerCase();
+            } else {
+                var employee = invtransferObj.preparedBy.toLowerCase();            
+            }
+            var memo = invtransferObj.memo;
             var inspectedBy = invtransferObj.inspectedBy;
             var invTranID = invtransferObj.invTranID;
             var RMissuance = '';
@@ -1950,6 +1967,13 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big_open'
                 fieldId: 'custbody532',
                 value: quantity,
             });
+
+            if (memo) {
+                invTransfer.setValue({
+                    fieldId: 'memo',
+                    value: memo
+                });
+            }
 
             invTransfer.selectNewLine({
                 sublistId: 'inventory',

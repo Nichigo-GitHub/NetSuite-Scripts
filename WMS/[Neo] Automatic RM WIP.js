@@ -9,17 +9,23 @@ define(['N/log'], function(log) {
         var defaultValue = '';
         // Set default value based on warehouse location
         if (warehouseLocation === 'KPPI Lima Warehouse : Raw Materials - L') {
-            defaultValue = 'KPLIMA RM PICKING';
+            defaultValue = 'RM Picked - L';
         } else if (warehouseLocation === 'KPPI Cebu Warehouse : Raw Materials - C') {
-            defaultValue = 'KP Cebu RM WIP';
+            defaultValue = 'KP Cebu JO Staging';
         } else if (warehouseLocation === 'KPPI FPIP Warehouse : Raw Materials - F') {
-            defaultValue = 'KP FPIP RM WIP';
+            defaultValue = 'KP FPIP JO Staging';
         } else if (warehouseLocation === 'North FG For Delivery : KPPI RM North Warehouse') {
-            defaultValue = 'NFI RM WIP';
+            defaultValue = 'NFI JO Staging';
         } else if (warehouseLocation === "SFLI Warehouse : Raw Mat'ls") {
-            defaultValue = 'SFLI RM STAGING BIN';
+            defaultValue = 'Production RM';
+        } else if (warehouseLocation === 'KPI Raw Materials') {
+            defaultValue = 'KPI JO Staging Bin';
         } else if (warehouseLocation === 'SFLI Production') {
-            defaultValue = 'SFLI Mother Picking';
+            defaultValue = '';
+        } else if (warehouseLocation === 'KPPI Laguna Warehouse : Production - M') {
+            defaultValue = 'RM Picked';
+        } else if (warehouseLocation === 'KPPI Laguna Warehouse : QA - M') {
+            defaultValue = 'QA WIP';
         }
 
         return defaultValue;
@@ -33,6 +39,16 @@ define(['N/log'], function(log) {
         });
 
         var warehouseLocation = params.warehouseLocationName;
+
+        if (!warehouseLocation || warehouseLocation.trim() == 'KPPI Laguna Warehouse : Raw Materials - M') {
+            warehouseLocation = params.warehouseLocationName_2;
+
+            log.debug({
+                title: 'Warehouse Location Name 2',
+                details: warehouseLocation
+            });
+        }
+
         // Call the function to get the default value
         var defaultValue = getDefaultValue(warehouseLocation);
 

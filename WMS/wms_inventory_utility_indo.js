@@ -2,7 +2,7 @@
  * @NApiVersion 2.x
  * @NModuleScope public
  */
-define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './wms_utility', './wms_translator', 'N/task', 'N/config'],
+define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big_open', './wms_utility_kppi', './wms_translator_kppi', 'N/task', 'N/config'],
     function (search, runtime, record, query, format, Big, utility, translator, task, config) {
 
         function _getBinDetailsForItem(pickBinDetailsObj, processType) {
@@ -344,10 +344,6 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
         }
 
         function inventoryBinTransfer(bintransferObj) {
-            log.debug({
-                title: 'bintransferObj in inventoryBinTransfer',
-                details: bintransferObj
-            });
             var itemType = bintransferObj.itemType;
             var whLocation = bintransferObj.whLocation;
             var itemId = bintransferObj.itemId;
@@ -371,6 +367,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
             var statusArr = [];
             var quantityArr = [];
             var lotArrr = [];
+            var dateReceived = bintransferObj.dateReceived.value;
             if (!utility.isValueValid(stockConversionRate)) {
                 stockConversionRate = 1;
             }
@@ -443,9 +440,18 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 fieldId: 'trandate',
                 value: parsedCurrentDate
             });
+            if (dateReceived) {
+                var parsedDateReceived = format.parse({
+                    value: dateReceived,
+                    type: format.Type.DATE
+                });
+                binTransfer.setValue({
+                    fieldId: 'custbody_kplima_received_date',
+                    value: parsedDateReceived
+                });
+            }
             binTransfer.selectNewLine({
                 sublistId: 'inventory',
-
             });
             binTransfer.setCurrentSublistValue({
                 sublistId: 'inventory',
@@ -821,7 +827,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                                         serialNameDtlArr[1] != currentUserId) {
                                         serialMatchFound = false;
                                     }
-                            } else {}
+                            } else { }
                         }
                         log.debug("serialMatchFound", serialMatchFound);
                         if (serialMatchFound) {
@@ -1500,9 +1506,46 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 value: parsedCurrentDate
             });
 
+            var nextTranID = invTranID + '-T1'; // Start with the initial suffix
+            if (itemType != 'lotnumberedassemblyitem') {
+                nextTranID = invTranID + '-RM-T1';
+            }
+            var tranidExists = true; // Flag to control the loop
+            var suffixNumber = 1; // Start with 1 for "-T1"
+
+            while (tranidExists) {
+                // Create a search to check if an inventory transfer with this tranid exists
+                var inventoryTransferSearch = search.create({
+                    type: search.Type.INVENTORY_TRANSFER,
+                    filters: [
+                        ['tranid', 'is', nextTranID]
+                    ],
+                    columns: ['tranid']
+                });
+
+                // Run the search and get the results
+                var searchResult = inventoryTransferSearch.run().getRange({
+                    start: 0,
+                    end: 1
+                });
+
+                // If no results found, exit the loop
+                if (searchResult.length === 0) {
+                    tranidExists = false;
+                } else {
+                    // If a result is found, increment the suffix number and update nextTranID
+                    suffixNumber++;
+                    nextTranID = invTranID + '-T' + suffixNumber;
+                    if (itemType != "lotnumberedassemblyitem") {
+                        nextTranID = invTranID + '-RM-T' + suffixNumber;
+                    }
+                }
+            }
+
+            // Once the loop exits, we have the next available tranid
             invTransfer.setValue({
                 fieldId: 'tranid',
-                value: invTranID
+                value: nextTranID
             });
 
             invTransfer.setValue({
@@ -1524,10 +1567,12 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big', './
                 fieldId: 'department',
                 value: departmentId,
             });
+
             invTransfer.setValue({
                 fieldId: 'memo',
                 value: memo,
             });
+
             invTransfer.selectNewLine({
                 sublistId: 'inventory',
             });

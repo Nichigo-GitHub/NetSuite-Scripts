@@ -6,9 +6,9 @@
  * @NScriptType Restlet
  * @NModuleScope Public
  */
-define(['N/runtime', 'N/search', './wms_utility', './wms_translator', 'N/runtime'],
+define(['N/runtime', 'N/search', './wms_utility', './wms_translator'],
 
-	function (runtime, search, utility, translator, runtime) {
+	function (runtime, search, utility, translator) {
 
 		/**
 		 * Gets warehouse locations configured for logged in user.
@@ -21,52 +21,33 @@ define(['N/runtime', 'N/search', './wms_utility', './wms_translator', 'N/runtime
 
 			var requestParams = '';
 			var debugString = '';
-			var currentUser = runtime.getCurrentUser();
-			var currentRole = Number(currentUser.role);
 			var warehouseListDetails = {};
 			try {
 				if (utility.isValueValid(requestBody)) {
-					requestParamsObj = requestBody.params;
+					var requestParamsObj = requestBody.params;
 					var inventoryFromWarehouseLocId = requestParamsObj.inventoryFromWarehouseLocId;
 					var processType = requestParamsObj.processType;
-
-					if (inventoryFromWarehouseLocId.indexOf(':') !== -1) {
-						var nameParts = inventoryFromWarehouseLocId.split(':');
-						var name = nameParts[1].trim();
-						log.debug('doPost - Warehouse Location Name', { name: name });
-						var warehouseLocationSearch = search.create({
-							type: 'location',
-							filters: [
-								['name', search.Operator.CONTAINS, name]
-							],
-							columns: ['internalid']
-						});
-						var warehouseLocationResults = warehouseLocationSearch.run().getRange({ start: 0, end: 1 });
-						if (warehouseLocationResults.length > 0) {
-							inventoryFromWarehouseLocId = warehouseLocationResults[0].getValue('internalid');
-							log.debug('doPost - Warehouse Location ID', { inventoryFromWarehouseLocId: inventoryFromWarehouseLocId });
-						}
-					}
 
 					warehouseListDetails['getLanguage'] = utility.getCurrentUserLanguage();
 					warehouseListDetails['userAccountId'] = runtime.accountId;
 					var vRolebasedLocation = [];
 					vRolebasedLocation = utility.getRoleBasedLocation(processType);
 					warehouseListDetails['vRolebasedLocation'] = vRolebasedLocation;
-					if (vRolebasedLocation.length == 0)
+					if (vRolebasedLocation.length === 0)
 						//oneoworld account case when no location is configured, show all location
 						vRolebasedLocation = utility.getAllLocations();
-					if (processType == 'inventoryTransfer' && utility.isValueValid(inventoryFromWarehouseLocId)) {
+					// Remove source warehouse from destination list during inventory transfer
+					if (processType === 'inventoryTransfer' && utility.isValueValid(inventoryFromWarehouseLocId)) {
 						var index = vRolebasedLocation.indexOf(inventoryFromWarehouseLocId);
 						if (index > -1)
 							vRolebasedLocation.splice(index, 1);
 					}
-					var roleBasedLocationArray = this.getLocationName(vRolebasedLocation, currentRole);
-					debugString = debugString + "roleBasedLocationArray" + roleBasedLocationArray;
+					var roleBasedLocationArray = this.getLocationName(vRolebasedLocation, inventoryFromWarehouseLocId);
+					debugString += " roleBasedLocationArray : " + JSON.stringify(roleBasedLocationArray);
 					warehouseListDetails['roleBasedLocationArray'] = roleBasedLocationArray;
 					warehouseListDetails['isValid'] = true;
 
-					if (roleBasedLocationArray.length == 0) {
+					if (roleBasedLocationArray.length === 0) {
 						warehouseListDetails['errorMessage'] = translator.getTranslationString('PO_WAREHOUSELIST.NOT_CONFIGURED');
 						warehouseListDetails['isValid'] = false;
 					} else {
@@ -96,17 +77,20 @@ define(['N/runtime', 'N/search', './wms_utility', './wms_translator', 'N/runtime
 			return warehouseListDetails;
 		}
 
-		function getLocationName(vRoleLocation, currentRole) {
+		/**
+		 * Get location names and apply transfer restrictions.
+		 */
+		function getLocationName(vRoleLocation, inventoryFromWarehouseLocId) {
 			var locationArray = [];
 
-			var filters = new Array();
+			var filters = [];
 			if (vRoleLocation.length > 0)
 				filters.push(search.createFilter({
 					name: 'internalid',
 					operator: search.Operator.ANYOF,
 					values: vRoleLocation
 				}));
-			var columns = new Array();
+			var columns = [];
 			columns.push(search.createColumn({
 				name: 'name'
 			}));
@@ -121,31 +105,37 @@ define(['N/runtime', 'N/search', './wms_utility', './wms_translator', 'N/runtime
 
 			var locationNames = utility.getSearchResultInJSON(locationNameSearch);
 
-			for (i in locationNames) {
-				var locationObj = {};
-				if (currentRole === 1410) {
-					if (locationNames[i]['id'] == 820 || locationNames[i]['id'] == 821 || locationNames[i]['id'] == 950) {
-						locationObj['id'] = locationNames[i]['id'];
-						locationObj['name'] = locationNames[i]['name'];
-						locationObj['locUseBinsFlag'] = locationNames[i]['usesbins'];
-						locationArray.push(locationObj);
-					}
-				} else if (currentRole === 1387) {
-					if (locationNames[i]['id'] == 889 || locationNames[i]['id'] == 891 || locationNames[i]['id'] == 921) {
-						locationObj['id'] = locationNames[i]['id'];
-						locationObj['name'] = locationNames[i]['name'];
-						locationObj['locUseBinsFlag'] = locationNames[i]['usesbins'];
-						locationArray.push(locationObj);
-					}
+			for (var i in locationNames) {
+				var fromLoc = Number(inventoryFromWarehouseLocId);
+				var toLoc = Number(locationNames[i]['id']);
+
+				// Restricted transfer combinations
+				var isRestrictedTransfer =
+					(fromLoc === 866 && toLoc === 869) ||
+					(fromLoc === 867 && toLoc === 869) ||
+					(fromLoc === 897 && toLoc === 885);
+
+				// Skip restricted destinations
+				if (isRestrictedTransfer) {
+					continue;
 				}
+
+				var locationObj = {};
+
+				locationObj['id'] = locationNames[i]['id'];
+				locationObj['name'] = locationNames[i]['name'];
+				locationObj['locUseBinsFlag'] = locationNames[i]['usesbins'];
+				locationArray.push(locationObj);
 			}
+
 			return locationArray;
 		}
 
 
 		return {
-			'post': doPost,
+			post: doPost,
 			getLocationName: getLocationName
 		};
 
 	});
+	

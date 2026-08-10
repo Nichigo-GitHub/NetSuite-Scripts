@@ -130,7 +130,21 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 					var batchSize = 1000;
 					var totalRecordsFetched = 0;
 
+					log.debug('Autofill search setup', {
+						customer: customer,
+						threeMonths: threeMonths,
+						sixMonths: sixMonths,
+						twelveMonths: twelveMonths,
+						batchSize: batchSize
+					});
+
 					do {
+						log.debug('Fetching search batch', {
+							start: start,
+							end: end,
+							totalRecordsFetched: totalRecordsFetched
+						});
+
 						var searchResults = searchObj.run().getRange({
 							start: start,
 							end: end
@@ -139,13 +153,19 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 						allResults = allResults.concat(searchResults);
 						totalRecordsFetched += searchResults.length;
 
+						log.debug('Fetched search batch', {
+							batchCount: searchResults.length,
+							totalRecordsFetched: totalRecordsFetched
+						});
+
 						start += batchSize;
 						end += batchSize;
 
 					} while (searchResults.length === batchSize);
 
-					log.error('Total Search Results', totalRecordsFetched);
-					log.error('allResults', allResults);
+					log.audit('Autofill search complete', {
+						totalRecordsFetched: totalRecordsFetched
+					});
 
 					var resultMap = {};
 
@@ -165,14 +185,20 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 							class: result.getText({ name: "class", summary: search.Summary.GROUP })
 						};
 
-						log.error('Processed result for itemid ' + itemid, resultMap[itemid]);
+						log.debug('Processed result for item', {
+							itemid: itemid,
+							data: resultMap[itemid]
+						});
 					});
 
 					var lineCount = currentRecord.getLineCount({
 						sublistId: 'recmachcustrecord762'
 					});
 
-					log.error('resultMap', resultMap);
+					log.debug('Prepared result map', {
+						resultCount: Object.keys(resultMap).length,
+						lineCount: lineCount
+					});
 
 					for (var i = 0; i < lineCount; i++) {
 						var item = currentRecord.getSublistText({
@@ -185,13 +211,23 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 
 						var data = resultMap[item];
 
+						log.debug('Processing sublist line', {
+							line: i,
+							item: item,
+							matchFound: !!data
+						});
+
 						if (data) {
+							log.debug('Updating existing sublist line', {
+								line: i + 1,
+								item: item,
+								data: data
+							});
+
 							/* currentRecord.selectLine({
 								sublistId: 'recmachcustrecord762',
 								line: i
 							});
-
-							log.error('Updating line ' + (i + 1) + ' with data for item ' + item, data);
 
 							currentRecord.setCurrentSublistValue({
 								sublistId: 'recmachcustrecord762',
@@ -232,6 +268,12 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 							currentRecord.commitLine({
 								sublistId: 'recmachcustrecord762'
 							}); */
+
+							log.debug('Committed updated sublist line', {
+								line: i + 1,
+								item: item,
+								internalid: data.internalid
+							});
 
 							delete resultMap[item];
 						} else {
@@ -333,19 +375,30 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 								forDelete = false;
 							}
 
+							log.debug('Line has no matching search data', {
+								line: i + 1,
+								item: item,
+								forDelete: forDelete
+							});
+
 							if (forDelete) {
 								currentRecord.removeLine({
 									sublistId: 'recmachcustrecord762',
 									line: i
 								});
-								log.error('Removed line ' + (i + 1) + ' for item ' + item + ' as it has no data and no future forecast');
+								log.debug('Removed line with no future forecast', {
+									line: i + 1,
+									item: item
+								});
 								i--; // Adjust index after removal
 								lineCount--; // Adjust total line count after removal
 							}
 						}
 					}
 
-					log.error('Finished processing existing lines. Remaining items in resultMap will be added as new lines.', resultMap);
+					log.audit('Finished processing existing lines', {
+						remainingItemsToAdd: Object.keys(resultMap).length
+					});
 
 					Object.keys(resultMap).forEach(function (itemid) {
 						var data = resultMap[itemid];
@@ -406,7 +459,10 @@ define(['N/search', 'N/currentRecord', 'N/log', 'N/ui/dialog'], function (search
 							sublistId: 'recmachcustrecord762'
 						});
 						
-						log.error('Added remaining item to sublist', itemid);
+						log.debug('Added remaining item to sublist', {
+							itemid: itemid,
+							internalid: data.internalid
+						});
 					});
 				} catch (e) {
 					log.error({

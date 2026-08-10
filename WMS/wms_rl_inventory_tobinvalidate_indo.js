@@ -3,7 +3,7 @@
  * @NScriptType Restlet
  * @NModuleScope public
  */
-define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', './wms_inventory_utility_lima'],
+define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', './wms_inventory_utility_indo'],
 	/**
 	 * @param {search} search
 	 */
@@ -62,9 +62,6 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			var toBinInternalId = '';
 			var toBinInternalLoctype = '';
 			var dateReceived = '';
-			var RRnumber = '';
-			var preparedBy = '';
-			var memo = '';
 
 			try {
 				if (utility.isValueValid(requestBody)) {
@@ -100,9 +97,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					isTallyScanRequired = requestParams.isTallyScanRequired;
 					tallyScanBarCodeQty = requestParams.tallyScanBarCodeQty;
 					dateReceived = requestParams.dateReceived;
-					RRnumber = requestParams.RRnumber;
-					preparedBy = requestParams.preparedBy;
-					memo = requestParams.memo;
+
 					log.debug({
 						title: 'requestParams',
 						details: requestParams
@@ -136,7 +131,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 
 						if (utility.isValueValid(binName)) {
 							binSearchFilters.push(search.createFilter({
-								name: 'custrecord_bin_code',
+								name: 'binnumber',
 								operator: search.Operator.IS,
 								values: binName
 							}));
@@ -466,7 +461,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 
 							if (utility.isValueValid(scannedQuantity) && (utility.isValueValid(fromBinName) || utility.isValueValid(fromLocUseBinsFlag)) && utility.isValueValid(binName) &&
 								utility.isValueValid(itemType) && utility.isValueValid(blnMixItem) && utility.isValueValid(blnMixLot) && (utility.isValueValid(fromBinInternalId) ||
-									utility.isValueValid(fromLocUseBinsFlag)) && utility.isValueValid(itemInternalId) && utility.isValueValid(warehouseLocationId)) {
+								utility.isValueValid(fromLocUseBinsFlag)) && utility.isValueValid(itemInternalId) && utility.isValueValid(warehouseLocationId)) {
 
 								var serialarr = [];
 								if (utility.isValueValid(binName)) {
@@ -609,7 +604,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 												tallyScanObj = invtUtility.buildObjectFromTallyLoopObj(isTallyScanRequired, itemType, tallyLoopObj, tallyScanBarCodeQty);
 												log.debug('tallyScanObj', tallyScanObj);
 											}
-											impactRec = fnBinTransfer(itemType, warehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, fromStatusInternalId, statusInternalId, tallyScanObj, processType, dateReceived, RRnumber, preparedBy, memo);
+											impactRec = fnBinTransfer(itemType, warehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, fromStatusInternalId, statusInternalId, tallyScanObj, processType, dateReceived);
 
 											if (utility.isValueValid(impactRec.inventoryCountId)) {
 												binTransferArr.push(impactRec.inventoryCountId);
@@ -742,7 +737,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			return impactRec;
 		}
 
-		function fnBinTransfer(itemType, warehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, fromStatusInternalId, statusInternalId, tallyScanObj, processType, dateReceived, RRnumber, preparedBy, memo) {
+		function fnBinTransfer(itemType, warehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, fromStatusInternalId, statusInternalId, tallyScanObj, processType, dateReceived) {
 			var bintransferObj = {};
 			var impactRec = {};
 
@@ -760,12 +755,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			bintransferObj.processType = processType;
 			if (dateReceived)
 				bintransferObj.dateReceived = dateReceived;
-			if (RRnumber)
-				bintransferObj.RRnumber = RRnumber;
-			if (preparedBy)
-				bintransferObj.preparedBy = preparedBy;
-			if (memo)
-				bintransferObj.memo = memo;
+
 			if (tallyScanObj.isTallyScanRequired) {
 				bintransferObj.isTallyScanRequired = tallyScanObj.isTallyScanRequired;
 				bintransferObj.lotArray = tallyScanObj.lotArray;
@@ -786,191 +776,6 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 				impactRec = invtUtility.inventoryBinTransfer(bintransferObj);
 			}
 			return impactRec;
-		}
-
-		function getItemWiseLotsDetails(ItemInternalId, strLocation, vBinId, fromBinName) {
-			var searchObj = search.load({
-				id: 'customsearch_wmsse_itemwise_lots'
-			});
-
-			if (utility.isValueValid(ItemInternalId)) {
-				log.error({
-					title: 'valid ItemInternalId',
-					details: 'true'
-				})
-				searchObj.filters.push(search.createFilter({
-					name: 'internalid',
-					operator: search.Operator.ANYOF,
-					values: ItemInternalId
-				}));
-			}
-			if (utility.isValueValid(strLocation)) {
-				log.error({
-					title: 'valid strLocation',
-					details: 'true'
-				})
-				searchObj.filters.push(search.createFilter({
-					name: 'location',
-					join: 'inventoryNumberBinOnHand',
-					operator: search.Operator.ANYOF,
-					values: strLocation
-				}));
-			}
-			if (utility.isValueValid(vBinId)) {
-				log.error({
-					title: 'valid vBinId',
-					details: 'true'
-				})
-				searchObj.filters.push(search.createFilter({
-					name: 'binnumber',
-					join: 'inventoryNumberBinOnHand',
-					operator: search.Operator.ANYOF,
-					values: vBinId
-				}));
-			}
-
-			var alltaskresults = utility.getSearchResultInJSON(searchObj);
-
-			// Run the search and get the results
-			var searchResults = searchObj.run().getRange({
-				start: 0,
-				end: 999
-			});
-
-			log.error({
-				title: 'searchResults length: ',
-				details: searchResults.length
-			})
-
-			// Loop through the search results
-			searchResults.forEach(function (result) {
-				// Process each result
-				// Access fields from the result using getValue or getText methods
-				var internalid = result.getValue({
-					name: 'internalid'
-				});
-				var location = result.getValue({
-					name: 'location',
-					join: 'inventoryNumberBinOnHand'
-				});
-				var binNumber = result.getValue({
-					name: 'binnumber',
-					join: 'inventoryNumberBinOnHand'
-				});
-				// Log or process the retrieved values as needed
-				log.error({
-					title: 'Internal Id: ',
-					details: internalid
-				})
-				log.error({
-					title: 'Location: ',
-					details: location
-				})
-				log.error({
-					title: 'Bin Number: ',
-					details: binNumber
-				})
-			});
-
-			for (var i = -1; i <= alltaskresults.length; i++) {
-				var result = alltaskresults[i];
-				// Do something with the result, such as logging it
-				log.error({
-					title: 'Result ' + (i + 1) + ':',
-					details: result
-				});
-			}
-			log.error({
-				title: 'Parameters',
-				details: 'ItemInternalId: ' + ItemInternalId + ', strLocation: ' + strLocation + ', vBinId: ' + vBinId + ', fromBinName: ' + fromBinName
-			});
-
-			var found = false;
-			var ranges = [{
-					prefix: 'A',
-					start: 19,
-					end: 99
-				},
-				{
-					prefix: 'B',
-					start: 81,
-					end: 130
-				},
-				{
-					prefix: 'C',
-					start: 81,
-					end: 130
-				},
-				{
-					prefix: 'D',
-					start: 31,
-					end: 109
-				},
-				{
-					prefix: 'E',
-					start: 31,
-					end: 109
-				},
-				{
-					prefix: 'F',
-					start: 31,
-					end: 109
-				},
-				{
-					prefix: 'H',
-					start: 31,
-					end: 112
-				},
-				{
-					prefix: 'I',
-					start: 31,
-					end: 120
-				},
-				{
-					prefix: 'J',
-					start: 31,
-					end: 120
-				},
-				{
-					prefix: 'K',
-					start: 34,
-					end: 126
-				},
-				{
-					prefix: 'PP',
-					start: 34,
-					end: 126
-				}
-			];
-
-			var a = [];
-
-			// Loop through each range and check if binInternalId matches any pattern
-			for (var j = 0; j < ranges.length; j++) {
-				var range = ranges[j];
-				for (var i = range.start; i <= range.end; i++) {
-					a.push(range.prefix + i);
-					if (fromBinName === range.prefix + i) {
-						found = true;
-						log.error({
-							title: 'For Loop Range',
-							details: 'range[j]: ' + j + ', range[i]: ' + i + ', fromBinName: ' + fromBinName + ', range.prefix: ' + [range.prefix + i]
-						})
-						log.error({
-							title: 'array',
-							details: a
-						})
-						break; // Exit the inner loop early if a match is found
-					}
-				}
-				if (found) break; // Exit the outer loop early if a match is found
-			}
-
-			if (alltaskresults.length >= 0 && found) {
-				alltaskresults = '';
-			}
-
-			return alltaskresults;
 		}
 
 		return {

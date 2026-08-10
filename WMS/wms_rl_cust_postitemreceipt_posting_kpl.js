@@ -5,7 +5,7 @@
  * @NScriptType Restlet
  * @NModuleScope Public
  */
-define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime', 'N/task', './wms_inboundUtility', './wms_inbound_utility', 'N/query'],
+define(['N/search', './wms_utility_kppi', './wms_translator_kppi', 'N/record', 'N/runtime', 'N/task', './wms_inboundUtility_kppi', './wms_inbound_utility_kppi', 'N/query'],
   /**
    * @param {search} search
    */
@@ -39,6 +39,7 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
       var truck_number = '';
       var start_time = '';
       var time_received = '';
+      var selectedRows = [];
 
       try {
         if (utility.isValueValid(requestBody)) {
@@ -54,13 +55,22 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
           drNumber = requestParams.drnumber;
           mrrNumber = requestParams.mrrnumber;
           date = requestParams.date;
-          
+
           preparedBy = requestParams.preparedBy;
           inspectedBy = requestParams.inspectedBy;
           invoiceno = requestParams.invoiceno;
           start_time = requestParams.start_time;
           truck_number = requestParams.truck_number;
           time_received = requestParams.time_received;
+          selectedRows = requestParams.selectedRows;
+
+          if (utility.isValueValid(selectedRows)) {
+            for (var row in selectedRows) {
+              if (selectedRows[row]) {
+                log.debug('selectedRows', selectedRows[row]);
+              }
+            }
+          }
 
           var itemReceiptId = '';
 
@@ -279,7 +289,7 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
                             }
                           } else {
                             inboundLib.consolidatePostItemReceipt(trecord, actQuantity, linenum, itemId, transactionType, batchNo, expiryDate,
-                              warehouseLocationId, enterBin, serialArray, opentaskSearchResults, transactionInternalId, otItr);
+                              warehouseLocationId, enterBin, serialArray, opentaskSearchResults, transactionInternalId, otItr, '', selectedRows);
                             itemIterator++;
                           }
 
@@ -307,7 +317,7 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
 
                         employeeSearchFilters.push(search.createFilter({
                           name: 'entityid',
-                          operator: search.Operator.CONTAINS,
+                          operator: search.Operator.HASKEYWORDS,
                           values: preparedBy
                         }));
 
@@ -317,7 +327,11 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
                           end: 1000
                         });
 
-                        trecord.setValue('custbody1', empSearchResultsvalues[0] ? empSearchResultsvalues[0].id : null);
+                        var employeeDetails = empSearchResultsvalues[0].getValue({
+                          name: 'entityid'
+                        });
+
+                        trecord.setValue('custbody1', employeeDetails ? empSearchResultsvalues[0].id : null);
 
                         // Search for employees with 'entityid' containing 'inspectedBy'
                         employeeSearchResults = search.load({
@@ -338,7 +352,10 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
                           end: 1000
                         });
 
-                        trecord.setValue('custbody2', empSearchResultsvalues[0] ? empSearchResultsvalues[0].id : null);
+                        var inspectedEmployeeDetails = empSearchResultsvalues[0].getValue({
+                          name: 'entityid'
+                        });
+                        trecord.setValue('custbody2', inspectedEmployeeDetails ? empSearchResultsvalues[0].id : null);
 
                         var date_digits = date.value.split('/');
 
@@ -352,9 +369,9 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
                           query: "select id from CUSTOMRECORD178 where custrecord167 like '" + date.value + "'",
                         });
 
-                        var forexId = queryResult.results[0].values[0];
-
                         log.debug('Query Result', queryResult.results[0].values[0]);
+
+                        var forexId = queryResult.results[0].values[0];
 
                         trecord.setValue('custbody104', forexId);
 
@@ -365,13 +382,28 @@ define(['N/search', './wms_utility', './wms_translator', 'N/record', 'N/runtime'
                         postItemReceiptResponse['transactionName'] = transactionName;
 
                       }
+                      var selectedDRnumbers = selectedRows.map(function (row) {
+                        return String(row.drnum);
+                      });
                       if (itemReceiptId != null && itemReceiptId != '') {
                         var opentaskId = '';
                         var isKitComponentFlag = false;
                         for (var j = 0; j < opentaskSearchResults.length; j++) {
                           opentaskId = opentaskSearchResults[j].id;
                           isKitComponentFlag = opentaskSearchResults[j].custrecord_wmsse_kitflag;
-                          if (!isKitComponentFlag) {
+                          var drNum = opentaskSearchResults[j].custrecord_wmsse_drnumber;
+                          log.debug({
+                            title: "drNum and selectedDRnumbers",
+                            details: "drNum: " + drNum + ", selectedDRnumbers: " + JSON.stringify(selectedDRnumbers)
+                          });
+                          var allow = false;
+                          for (var k = 0; k < selectedDRnumbers.length; k++) {
+                            if (selectedDRnumbers[k] === String(drNum)) {
+                              allow = true;
+                              break;
+                            }
+                          }
+                          if (!isKitComponentFlag && allow) {
                             record.submitFields({
                               type: 'customrecord_wmsse_trn_opentask',
                               id: opentaskId,

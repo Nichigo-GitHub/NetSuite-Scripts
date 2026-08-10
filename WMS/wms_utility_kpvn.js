@@ -4,10 +4,10 @@
  * @NApiVersion 2.x
  * @NModuleScope public
  */
-define(['N/search', 'N/runtime', 'N/record', 'N/config', 'N/format', './big', './wms_translator', 'N/url',
+define(['N/search', 'N/file', 'N/runtime', 'N/record', 'N/config', 'N/format', './big_open', './wms_translator_sfli', 'N/url',
 		'N/wms/recommendedBins', 'N/query', 'N/internal/elasticLogger', 'N/ui/serverWidget'
 	],
-	function (search, runtime, record, config, format, Big, translator, url, binApi, query, loggerFactory, serverWidget) {
+	function (search, file, runtime, record, config, format, Big, translator, url, binApi, query, loggerFactory, serverWidget) {
 
 
 
@@ -4221,7 +4221,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/config', 'N/format', './big', '.
 									'sortBySeq': 0
 								};
 								preferBinDetailsObj.push(currentRowValues);
-							} else {}
+							} else { }
 						}
 					}
 				} else {

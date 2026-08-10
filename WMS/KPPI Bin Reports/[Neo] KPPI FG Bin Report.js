@@ -6,7 +6,6 @@ define(['N/search'], function (search) {
 
     function post(context) {
         try {
-            var results = [];
             var savedSearch = search.load({
                 id: 'customsearch5384'
             });
@@ -14,11 +13,40 @@ define(['N/search'], function (search) {
                 pageSize: 1000
             });
 
-            pagedData.pageRanges.forEach(function (pageRange) {
-                var page = pagedData.fetch({ index: pageRange.index });
+            var start = parseInt(context.start, 10) || 0;
+            var pageSize = parseInt(context.pageSize, 10) || pagedData.count;
+            var results = [];
+            var currentIndex = 0;
+            var collected = 0;
 
-                page.data.forEach(function (result) {
-                    var row = {
+            log.debug({
+                title: 'Search Count',
+                details: pagedData.count
+            });
+
+            log.debug({
+                title: 'Page Count',
+                details: pagedData.pageRanges.length
+            });
+
+            outerLoop:
+            for (var p = 0; p < pagedData.pageRanges.length; p++) {
+                var page = pagedData.fetch({
+                    index: pagedData.pageRanges[p].index
+                });
+
+                for (var r = 0; r < page.data.length; r++) {
+                    if (currentIndex < start) {
+                        currentIndex++;
+                        continue;
+                    }
+
+                    if (collected >= pageSize)
+                        break outerLoop;
+
+                    var result = page.data[r];
+
+                    results.push({
                         bin: result.getText({
                             name: 'binnumber',
                             join: 'inventoryNumberBinOnHand',
@@ -46,9 +74,9 @@ define(['N/search'], function (search) {
                             join: 'inventoryNumberBinOnHand',
                             summary: search.Summary.MAX
                         }),
-                        customer: result.getText({
-                            name: 'custitem24',
-                            summary: search.Summary.GROUP
+                        customer: result.getValue({
+                            name: 'formulatext',
+                            summary: search.Summary.MAX
                         }),
                         upc: result.getValue({
                             name: 'upccode',
@@ -57,25 +85,29 @@ define(['N/search'], function (search) {
                         dateReceived: result.getValue({
                             name: 'formuladate',
                             summary: search.Summary.MIN
-                        }),                        
+                        }),
                         age: result.getValue({
                             name: 'formulanumeric',
                             summary: search.Summary.MIN
                         })
-                    };
+                    });
 
-                    results.push(row);
-                });
+                    currentIndex++;
+                    collected++;
+                }
+            }
+
+            log.debug({
+                title: 'Results Returned',
+                details: results.length
             });
-
-            log.debug('Results', results);
 
             return {
                 results: results
             };
 
         } catch (e) {
-            log.error('RESTLET ERROR', e);
+            log.debug('RESTLET ERROR', e);
 
             return {
                 error: e.message

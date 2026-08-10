@@ -317,6 +317,8 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 				log.error({ title: 'errorMessage', details: e.message + " Stack :" + e.stack });
 			}
 
+			log.debug({ title: 'invtTransferPostingObj', details: invtTransferPostingObj });
+
 			return invtTransferPostingObj;
 
 		}

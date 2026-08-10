@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+  <head>
+    <style type="text/css">
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 9pt;
+            color: #000000;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td,
+        th {
+            padding: 2px;
+            vertical-align: top;
+        }
+        .page-layout {
+            width: 100%;
+            border-collapse: collapse;
+        }
+       <!--  .page-header {
+            display: table-header-group;
+        }
+        .page-body {
+            display: table-row-group;
+        } -->
+        .page-header-cell,
+        .page-body-cell {
+            padding: 0;
+        }
+        .doc-code {
+            font-size: 7pt;
+            text-align: right;
+        }
+        .header-layout {
+            margin-top: 2px;
+        }
+        .left-panel {
+            width: 60%;
+            padding-right: 8px;
+        }
+        .right-panel {
+            width: 40%;
+            padding: 8px;
+        }
+        .brand-row {
+            margin-bottom: 6px;
+        }
+        .company {
+            font-size: 8pt;
+            line-height: 12pt;
+            margin-top: 4px;
+        }
+        .customer-box {
+            border: 1px solid #000000;
+            margin-top: 7px;
+            min-height: 70px;
+        }
+        .customer-label {
+            font-size: 8pt;
+            font-weight: bold;
+            padding: 4px 4px 2px 4px;
+        }
+        .customer-name {
+            font-size: 11pt;
+            font-weight: bold;
+            padding: 1px 4px;
+        }
+        .customer-address {
+            font-size: 9pt;
+            padding: 1px 4px 5px 4px;
+            line-height: 13pt;
+        }
+        .side-title {
+            font-size: 11pt;
+            font-weight: bold;
+            font-style: italic;
+            text-decoration: underline;
+            text-align: right;
+            margin-bottom: 12px;
+        }
+        .control-table td {
+            vertical-align: middle;
+        }
+        .control-label {
+            width: 30%;
+            font-size: 9pt;
+            font-weight: bold;
+            text-align: left;
+            padding-right: 2px;
+        }
+        .control-value {
+            width: 70%;
+            border: 1px solid #000000;
+            color: #ff0000;
+            font-size: 15pt;
+            font-weight: bold;
+            text-align: center;
+            padding: 2px;
+        }
+        .bank-box {
+            text-align: left;
+            font-size: 6.7pt;
+            line-height: 9pt;
+            /* margin: 13px 0 15px 0; */
+        }
+        .date-table td {
+            vertical-align: middle;
+        }
+        .side-date-label {
+            width: 30%;
+            font-size: 9pt;
+            font-weight: bold;
+        }
+        .side-date-value {
+            width: 70%;
+            border: 1px solid #000000;
+            font-size: 9pt;
+            font-weight: bold;
+            text-align: center;
+            padding: 8px 4px;
+        }
+        .details-table {
+            margin-top: 4px;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+        .details-table th {
+            border-top: 1px solid #000000;
+            border-left: 1px solid #000000;
+            border-bottom: 1px solid #000000;
+            font-family: Arial, serif;
+            font-size: 9pt;
+            font-weight: bold;
+            text-align: center;
+            padding: 1px;
+            white-space: nowrap;
+        }
+        .details-table th.last-col {
+            border-right: 1px solid #000000;
+        }
+        .details-table td {
+            font-size: 9pt;
+            height: 12px;
+            line-height: 12px;
+            text-align: center;
+            padding: 1px 3px;
+            border-left: 1px solid #000000;
+            border-right: 1px solid #000000;
+            border-bottom: 1px solid #000000;
+            white-space: nowrap;
+        }
+        .details-table td.currency-col {
+            border-right: 0px solid #000000;
+            text-align: left;
+        }
+        .details-table td.amount-col {
+            border-left: 0px solid #000000;
+            text-align: right;
+        }
+        .details-table tr.page-end-row td {
+            border-bottom: 1px solid #000000;
+        }
+        .details-table tr.page-break-row {
+            page-break-after: always;
+        }
+        .date-col { width: 10%; vertical-align: middle; }
+        .invoice-col { width: 10%; vertical-align: middle; }
+        .dr-col { width: 10%; vertical-align: middle; }
+        .currency-col { width: 1%; vertical-align: middle; }
+        .amount-header-col { width: 15%; vertical-align: middle; }
+        .amount-col { width: 25%; vertical-align: middle; }
+        .remarks-col { width: 25%; vertical-align: middle; font-size: 7.5pt; font-weight: bold; overflow:hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .due-col { width: 10%; vertical-align: middle; }
+        .summary-title {
+            font-size: 9pt;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        .summary-table {
+            width: 57%;
+            margin-left: auto;
+            margin-right: 0;
+            margin-top: 1px;
+        }
+        .summary-table td {
+            font-size: 9pt;
+            padding: 1px 3px;
+        }
+        .summary-month { width: 30%; font-weight: bold; }
+        .summary-amount { width: 26%; text-align: right; font-weight: bold; }
+        .summary-note { width: 40%; padding-left: 12px; }
+        .summary-total td {
+            border-top: 1px solid #000000;
+            font-weight: bold;
+        }
+        .balance-table {
+            margin-top: 6px;
+        }
+        .balance-table td {
+            font-size: 9pt;
+            padding: 2px 3px;
+        }
+        .balance-label { width: 21%; }
+        .balance-status { width: 10%; text-align: right; font-weight: bold; }
+        .balance-amount { width: 15%; text-align: right; font-weight: bold; }
+        .balance-note { width: 35.8%; padding-left: 12px; }
+        .closing-section {
+            margin-top: 28mm;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        .message {
+            margin-top: 0;
+            font-size: 8.6pt;
+            line-height: 12pt;
+        }
+        .sign-table {
+            margin-top: 15px;
+            table-layout: fixed;
+        }
+        .sign-table td {
+            text-align: left;
+            font-size: 8.8pt;
+            padding: 1px 4px;
+        }
+        .sign-heading td {
+            text-align: left;
+            padding-bottom: 18px;
+        }
+        .sign-name {
+          font-weight: bold;
+        }
+        .customer-sign {
+            margin-top: 12px;
+        }
+        .customer-sign td {
+            font-size: 8.8pt;
+            padding: 2px 4px;
+        }
+        .page-break-before {
+            break-after: page;
+            page-break-before: always;
+        }
+        .line {
+            border-bottom: 1px solid #000000;
+        }       
+    </style>
+
+  </head>
+  <body size="A4" margin="8mm 8mm 8mm 8mm">
+    <table class="page-layout">
+      <thead class="page-header">
+        <tr>
+          <td class="page-header-cell">
+            <div class="doc-code">PF-MP-046-F02 REV. 00</div>
+            <table class="header-layout">
+              <tr>
+                <td class="left-panel">
+                  <table class="brand-row">
+                    <tr>
+                      <td>
+                        <img style="height: 35px; width: 380px;" src="https://3389427.app.netsuite.com/core/media/media.nl?id=349768&amp;c=3389427&amp;h=jauO9MIdFdseVgWZfS4-Rw2UuAAUuB-GEGtdV_lU9Synwqtm&amp;fcts=20250421171410&amp;whence=" />
+                      </td>
+                    </tr>
+                  </table>
+
+                  <table width="100%">
+                    <tr>
+                      <td style="font-size:8pt;line-height:12pt;">
+                        {address}
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+                <td class="right-panel">
+                  <div class="side-title">Statement of Account [SOA]</div>
+                  <table class="control-table">
+                    <tr>
+                      <td class="control-label">Control No.</td>
+                      <td class="control-value">{controlNo}</td>
+                    </tr>
+                  </table>
+                  <br />
+                  <table class="date-table">
+                    <tr>
+                      <td class="side-date-label">Date:</td>
+                      <td class="side-date-value">{statementDate}</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+            <table style="border:1px solid #000000;">
+              <tr>
+                <td style="border:1px solid #000000;" colspan="3">
+                  <b>Account Name:</b> Kanepackage Philippine Inc.
+                </td>
+              </tr>
+              <tr>
+                <td style="border-right:1px solid #000000;">
+                  <div class="bank-box">
+                    <b>Bank:</b> MUFG Bank, Ltd.<br />
+                    <b>Address:</b> 15th Floor, 6788 Ayala Avenue, Makati
+                    City<br />
+                    <b>USD Account No.: 512-1000-208306</b><br />
+                    <b>Swiftcode:</b> BOTKPHMM<br />
+                  </div>
+                </td>
+                <td style="border-right:1px solid #000000;">
+                  <div class="bank-box">
+                    <b>Bank:</b> RCBC Carmelray 1 Branch<br />
+                    <b>Address:</b> Canlubang, Calamba, Laguna<br />
+                    <b>USD Account No.: 8-322-00338-3</b><br />
+                    <b>PHP Account No.: 1-322-40558-4</b><br />
+                    <b>JPY Account No.: 8-322-00339-1</b><br />
+                    <b>Swiftcode:</b> RCBCPHMM
+                  </div>
+                </td>
+                <td>
+                  <div class="bank-box">
+                    <b>Bank:</b> Mizuho Corporate Bank Ltd. Manila
+                    Branch<br />
+                    <b>Address:</b> 25th Floor, The Zuellig Building,<br />
+                    Makati Avenue cor. Paseo De Roxas, Makati City 1225<br />
+                    <b>USD Account No.: F15-789-101865</b><br />
+                    <b>PHP Account No.: F10-767-101865</b><br />
+                    <b>Swiftcode:</b> MHCBPHMM
+                  </div>
+                </td>
+              </tr>
+            </table>
+            </td>
+          </tr>
+          <tr>
+            <table class="details-table"></table>
+          </tr>
+          <tr>
+            <table width="100%" style="border:1px solid #000000;">
+              <tr>
+                <td>
+                  <table width="100%">
+                    <tr>
+                      <td style="font-size:8pt;font-weight:bold;">
+                        Customer Name &amp; Address:
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="font-size:11pt;font-weight:bold;">
+                        {customer}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="font-size:9pt;">
+                        {customerAddress}
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+                <td style="width: 36.7%; font-size:10pt; border-left: 1px solid #000000; text-align: center; vertical-align: middle; padding: 4px;">
+                  <b>Currency:</b> {currency}<br /><br />
+                  <b>Terms:</b> {terms}
+                </td>
+              </tr>
+            </table>
+          </tr>
+        </thead>
+        <tbody class="page-body">
+          <tr>
+            <td class="page-body-cell">
+              <table class="details-table">
+                <thead>
+                  <tr>
+                    <th class="date-col">DATE</th>
+                    <th class="invoice-col">INVOICE #</th>
+                    <th class="dr-col">D.R. #</th>
+                    <th class="amount-header-col" colspan="2">AMOUNT</th>
+                    <th class="remarks-col">REMARKS</th>
+                    <th class="due-col last-col">DUE DATE</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {body}
+                  {LastPageNumberUnderTable}
+                </tbody>
+              </table>
+
+              <div class="{cutoffSectionClass}">
+                {addHeader}
+                <table width="100%" style="margin-top: 20px;">
+                  <tr>
+                    <td style="font-size:9pt; font-weight:bold;">
+                      Balance Summary
+                    </td>
+                  </tr>
+                </table>
+                <table class="balance-table">
+                  <tr>
+                    <td class="balance-label">Previous Month Balance :</td>
+                    <td class="balance-status">{previousBalanceStatus}</td>
+                    <td class="balance-amount">{previousBalanceAmount}</td>
+                    <td class="balance-note">{previousBalanceLabel}</td>
+                  </tr>
+                  <tr>
+                    <td class="balance-label">Current Transaction
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </td>
+                    <td class="balance-status"></td>
+                    <td class="balance-amount">{currentTransactionAmount}</td>
+                    <td class="balance-note"><!-- {currentTransactionLabel} --></td>
+                  </tr>
+                  <tr>
+                    <td class="balance-label">Total Amount to be Paid
+                      &nbsp;:</td>
+                    <td class="balance-status"></td>
+                    <td class="balance-amount"><span style="text-decoration-line: underline; text-decoration-style: double;">{totalAmountToBePaid}</span></td>
+                    <td class="balance-note"></td>
+                  </tr>
+                </table>
+                <table width="100%" style="margin-top:20px;">
+                  <tr>
+                    <td>
+                      <div class="message">
+                        This is your outstanding balance as per our record due on
+                        <u><b>{soaDueDate}</b></u>. If the amount is correct,
+                        please sign this letter in the space below.<br />
+                        If not correct, please fill-up the column "REMARKS" for any
+                        discrepancy.<br /><br />
+                        Kindly send your reply to <b>KANEPACKAGE PHILIPPINE INC.</b><br />
+                        Contact person : <b>Ms. Josephine Austria</b>, email:
+                        jobdejesus@ph.kane-package.net or
+                        <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <b> Ms. Laarni Vistro</b>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        email: lcvistro@ph.kane-package.net<br />
+                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        with telephone No. (049) 545-7166-69.
+                      </div>
+                      <table class="sign-table">
+                        <tr class="sign-heading">
+                          <td>Prepared by:</td>
+                          <td>Checked by :</td>
+                          <td>Noted by :</td>
+                          <td>Approved by:</td>
+                        </tr>
+                        <tr>
+                          <td class="sign-name">{preparedBy}</td>
+                          <td class="sign-name">{checkedBy}</td>
+                          <td class="sign-name">{notedBy}</td>
+                          <td class="sign-name">{approvedBy}</td>
+                        </tr>
+                        <tr>
+                          <td>{preparedByTitle}</td>
+                          <td>{checkedByTitle}</td>
+                          <td>{notedByTitle}</td>
+                          <td>{approvedByTitle}</td>
+                        </tr>
+                      </table>
+                      <br /><br /><br />
+                      <table class="customer-sign">
+                        <tr>
+                          <td style="width: 17%;">Customer's Signature :</td>
+                          <td class="line" style="width: 25%;"></td>
+                          <td style="width: 9%; text-align: right;">Position:</td>
+                          <td class="line" style="width: 20%;"></td>
+                          <td style="width: 6%; text-align: right;">Date:</td>
+                          <td class="line" style="width: 15%;"></td>
+                        </tr>
+                        {lastPageNumber}
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+              </div>
+            </tbody>
+          </table>
+        </body>
+      </pdf>
