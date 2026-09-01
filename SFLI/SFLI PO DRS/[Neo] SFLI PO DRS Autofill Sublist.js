@@ -347,6 +347,12 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
         var poNumber = result.getValue('tranid');
         var itemName = result.getText('item');
         matchedKeys[poNumber + '-' + itemName] = true;
+        if (poNumber == 'SFLI-PO-000000002994') {
+          log.debug({
+            title: 'Result Details',
+            details: result
+          })
+        }
       });
 
       // Second, iterate through sublist and remove unmatched lines
@@ -422,7 +428,7 @@ define(['N/search', 'N/record', 'N/ui/dialog', 'N/log', 'N/format'], function (s
           fieldId: 'custrecord501'
         });
         var currentMonth = (new Date()).getMonth() + 1;
-        log.debug('Remarks', 'Current Month: ' + currentMonth + ' | Month: ' + month + ' | ' + 'Remove Remarks: ' + removeRemarks);
+        // log.debug('Remarks', 'Current Month: ' + currentMonth + ' | Month: ' + month + ' | ' + 'Remove Remarks: ' + removeRemarks);
         if (month == currentMonth || month < currentMonth) {
           if (removeRemarks) {
             currentRecord.setCurrentSublistValue({

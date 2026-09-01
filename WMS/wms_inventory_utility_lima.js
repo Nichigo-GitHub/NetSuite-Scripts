@@ -373,7 +373,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big_open'
             if (whLocation == "789" || whLocation == 789 || whLocation == "834" || whLocation == 834) {
                 var preparedBy = bintransferObj.preparedBy['value'].toLowerCase();
             } else {
-                var preparedBy = bintransferObj.preparedBy;            
+                var preparedBy = bintransferObj.preparedBy;
             }
             var memo = bintransferObj.memo;
             var inspectedBy = bintransferObj.inspectedBy;
@@ -551,7 +551,7 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big_open'
             }
             if (preparedBy) {
                 preparedBy = preparedBy.toLowerCase();
-              
+
                 var queryResult = query.runSuiteQL({
                     query: "SELECT (select id from employee where lower(entityid) like '" + preparedBy + "') as Employee",
                 });
@@ -1603,14 +1603,41 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big_open'
             if (whLocation == "789" || whLocation == 789 || whLocation == "834" || whLocation == 834) {
                 var employee = invtransferObj.preparedBy['value'].toLowerCase();
             } else {
-                var employee = invtransferObj.preparedBy.toLowerCase();            
+                var employee = invtransferObj.preparedBy.toLowerCase();
             }
             var memo = invtransferObj.memo;
             var inspectedBy = invtransferObj.inspectedBy;
             var invTranID = invtransferObj.invTranID;
             var RMissuance = '';
+            var DRnumber = '';
+            var vendor = '';
             if (invtransferObj.RMissuance)
                 RMissuance = invtransferObj.RMissuance;
+
+            if (invtransferObj.DRnumber) {
+                DRnumber = invtransferObj.DRnumber;
+
+                var ItemReceiptSearch = search.create({
+                    type: search.Type.ITEM_RECEIPT,
+                    filters: [
+                        ['custbody28', 'is', DRnumber]
+                    ],
+                    columns: ['entity']
+                });
+
+                var ItemReceiptResult = ItemReceiptSearch.run().getRange({
+                    start: 0,
+                    end: 1
+                });
+
+                if (ItemReceiptResult && ItemReceiptResult.length > 0) {
+                    log.debug('Item Receipt Found', 'Customer: ' + ItemReceiptResult[0].getValue({ name: 'entity' }));
+
+                    vendor = ItemReceiptResult[0].getValue({
+                        name: 'entity'
+                    });
+                }
+            }
 
             if (invTranID == null || invTranID == '' || invTranID == undefined) {
                 invTranID = itemId + '-RM';
@@ -1655,6 +1682,9 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big_open'
             if (RMissuance == 'T') {
                 nextTranID = invTranID + '-RM-T1';
             }
+            /* if (transferlocation == 922 || transferlocation == "922") {
+                nextTranID = invTranID + '-R1';
+            } */
             var tranidExists = true; // Flag to control the loop
             var suffixNumber = 1; // Start with 1 for "-T1"
 
@@ -1697,6 +1727,16 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big_open'
                 value: invTranID
             });
 
+            invTransfer.setValue({
+                fieldId: 'custbodycust_sfli_vendor',
+                value: vendor
+            });
+
+            invTransfer.setValue({
+                fieldId: 'custbody396',
+                value: DRnumber
+            });
+
             if (itemType == "assemblyitem") {
                 invTransfer.setValue({
                     fieldId: 'custbody491',
@@ -1718,6 +1758,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big_open'
                         var workOrder = record.load({
                             type: record.Type.WORK_ORDER,
                             id: workOrderInternalId
+                        });
+
+                        invTransfer.setValue({
+                            fieldId: 'custbody563',
+                            value: workOrderInternalId
                         });
 
                         /* // Extract Customer, Assembly Item, Subsidiary
@@ -1781,6 +1826,11 @@ define(['N/search', 'N/runtime', 'N/record', 'N/query', 'N/format', './big_open'
                         var workOrder = record.load({
                             type: record.Type.WORK_ORDER,
                             id: workOrderInternalId
+                        });
+
+                        invTransfer.setValue({
+                            fieldId: 'custbody563',
+                            value: workOrderInternalId
                         });
 
                         var FGBKcode = workOrder.getValue({ fieldId: 'custbody383' });

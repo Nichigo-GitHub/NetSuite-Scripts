@@ -63,6 +63,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 				customer = '',
 				preparedBy = '',
 				inspectedBy = '',
+				DRnumber = '',
 				memo = '';
 			var deliveryDate = '';
 			var invTranID = '';
@@ -76,6 +77,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					customer = requestParams.customer;
 					preparedBy = requestParams.preparedBy;
 					inspectedBy = requestParams.inspectedBy;
+					DRnumber = requestParams.DRnumber;
 					memo = requestParams.memo;
 					deliveryDate = requestParams.deliveryDate;
 					scannedQuantity = requestParams.scannedQuantity;
@@ -654,7 +656,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 												log.debug('tallyScanObj for inv transfer', tallyScanObj);
 											}
 											impactRec = fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId,
-												toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID, RMissuance, inspectedBy, memo);
+												toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID, RMissuance, inspectedBy, memo, DRnumber);
 											log.debug('fninvtransfer', impactRec);
 
 
@@ -787,7 +789,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			return impactRec;
 		}
 
-		function fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID, RMissuance, inspectedBy, memo) {
+		function fnInvTransfer(itemType, warehouseLocationId, toWarehouseLocationId, itemInternalId, binTransferQty, fromBinInternalId, toBinInternalId, lotName, actualBeginTime, stockUnitName, stockConversionRate, openTaskQty, tallyScanObj, department, customer, preparedBy, deliveryDate, invTranID, RMissuance, inspectedBy, memo, DRnumber) {
 			var invtransferObj = {};
 			var impactRec = {};
 
@@ -798,7 +800,8 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 					itemType: itemType,
 					binTransferQty: binTransferQty,
 					fromBinInternalId: fromBinInternalId,
-					toBinInternalId: toBinInternalId
+					toBinInternalId: toBinInternalId,
+					DRnumber: DRnumber
 				}
 			});
 
@@ -806,6 +809,7 @@ define(['N/search', 'N/record', './wms_utility', './big', './wms_translator', '.
 			invtransferObj.customer = customer;
 			invtransferObj.preparedBy = preparedBy;
 			invtransferObj.inspectedBy = inspectedBy;
+			invtransferObj.DRnumber = DRnumber;
 			invtransferObj.invTranID = invTranID;
 			invtransferObj.deliveryDate = deliveryDate.value;
 			invtransferObj.itemType = itemType;

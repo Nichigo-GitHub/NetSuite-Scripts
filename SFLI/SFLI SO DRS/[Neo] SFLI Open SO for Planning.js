@@ -433,16 +433,22 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record', 'N/runtime'], function (
             isFieldChangeScriptActive = false;
             // Update Total DRS
             var sumTotal = 0;
+            var breakdown = '';
             for (var k = 0; k < fieldIdsToCheck.length; k++) {
                 var fieldId = fieldIdsToCheck[k];
-                var value = currentRecord.getSublistValue({
+                var value = currentRecord.getCurrentSublistValue({
                     sublistId: sublistId,
-                    fieldId: fieldId,
-                    line: context.line
+                    fieldId: fieldId/* ,
+                    line: context.line */
                 });
                 var numValue = Number(value) || 0;
                 sumTotal += numValue;
+                breakdown += value + ', ';
             }
+            log.debug({
+                title: 'Total DRS Calculation',
+                details: 'Line: ' + context.line + ', Breakdown: ' + breakdown + 'Total: ' + sumTotal
+            });
             // Determine which forecastDRS index to use
             var forecastIndex;
             if (fieldIndex >= 27 && fieldIndex <= 30) {
@@ -675,7 +681,7 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record', 'N/runtime'], function (
                     currentRecord.setCurrentSublistValue({
                         sublistId: sublistId,
                         fieldId: 'custrecord996',
-                        value: /* sumTotal + */ sum
+                        value: sumTotal
                     });
 
                     log.debug({
@@ -1942,33 +1948,34 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record', 'N/runtime'], function (
                                     var replacementSO = results["Sales Orders"].length > 0 ? results["Sales Orders"][0] : null;
                                     var replacementLineNo = results["Line no."].length > 0 ? results["Line no."][0] : null;
 
-                                    log.debug({
-                                        title: 'SO closed',
-                                        details: 'replacement SO: ' + replacementSO
-                                    });
+                                    if (!IPDDRS) {
+                                        log.debug({
+                                            title: 'SO closed',
+                                            details: 'replacement SO: ' + replacementSO
+                                        });
+                                        if (replacementSO) {
+                                            currentRecord.setCurrentSublistValue({
+                                                sublistId: sublistId,
+                                                fieldId: 'custrecord786',
+                                                value: replacementSO
+                                            });
 
-                                    if (replacementSO) {
-                                        currentRecord.setCurrentSublistValue({
-                                            sublistId: sublistId,
-                                            fieldId: 'custrecord786',
-                                            value: replacementSO
+                                            currentRecord.setCurrentSublistValue({
+                                                sublistId: sublistId,
+                                                fieldId: 'custrecord1386',
+                                                value: replacementLineNo
+                                            });
+                                        }
+
+                                        currentRecord.commitLine({
+                                            sublistId: sublistId
                                         });
 
-                                        currentRecord.setCurrentSublistValue({
-                                            sublistId: sublistId,
-                                            fieldId: 'custrecord1386',
-                                            value: replacementLineNo
+                                        log.debug({
+                                            title: 'SO Line Updated with Replacement',
+                                            details: 'Line ' + i + ' updated for item: ' + currentItem + ' with replacement SO'
                                         });
                                     }
-
-                                    currentRecord.commitLine({
-                                        sublistId: sublistId
-                                    });
-
-                                    log.debug({
-                                        title: 'SO Line Updated with Replacement',
-                                        details: 'Line ' + i + ' updated for item: ' + currentItem + ' with replacement SO'
-                                    });
                                 }
 
                                 break;
@@ -2754,6 +2761,9 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record', 'N/runtime'], function (
         });
         var linesToRemove = [];
         var seen = {};
+        var IPDDRS = currentRecord.getValue({
+            fieldId: 'custrecord_ipd'
+        });
 
         log.debug({
             title: 'cleanDeduplicateAndTally',
@@ -2771,6 +2781,11 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record', 'N/runtime'], function (
                 fieldId: 'custrecord786',
                 line: i
             });
+            var soLineNo = currentRecord.getSublistValue({
+                sublistId: sublistId,
+                fieldId: 'custrecord1386',
+                line: i
+            });
 
             /* log.debug({
                 title: 'Line Processing',
@@ -2784,83 +2799,107 @@ define(['N/search', 'N/log', 'N/ui/dialog', 'N/record', 'N/runtime'], function (
             }
 
             // 2. Replace SO if needed, or remove if no replacement
-            var soList = results[itemId]["Sales Orders"] || [];
-            if (!soList.includes(soText)) {
-                var replacementSO = soList.length > 0 ? soList[0] : null;
-                if (replacementSO) {
-                    log.debug({
-                        title: 'Replace SO',
-                        details: 'Replacing SO for line ' + i + ' with ' + replacementSO
-                    });
+            if (!IPDDRS) {
+                var soList = results[itemId]["Sales Orders"] || [];
+                if (!soList.includes(soText)) {
+                    var replacementSO = soList.length > 0 ? soList[0] : null;
+                    if (replacementSO) {
+                        log.debug({
+                            title: 'Replace SO',
+                            details: 'Replacing SO for line ' + i + ' with ' + replacementSO
+                        });
+                        currentRecord.selectLine({
+                            sublistId: sublistId,
+                            line: i
+                        });
+                        currentRecord.setCurrentSublistValue({
+                            sublistId: sublistId,
+                            fieldId: 'custrecord786',
+                            value: replacementSO
+                        });
+                        currentRecord.commitLine({
+                            sublistId: sublistId
+                        });
+                    } else {
+                        log.debug({
+                            title: 'Remove Line',
+                            details: 'No replacement SO, marking line ' + i + ' for removal'
+                        });
+                        linesToRemove.push(i);
+                        continue;
+                    }
+                } else {
                     currentRecord.selectLine({
                         sublistId: sublistId,
                         line: i
                     });
-                    currentRecord.setCurrentSublistValue({
-                        sublistId: sublistId,
-                        fieldId: 'custrecord786',
-                        value: replacementSO
-                    });
                     currentRecord.commitLine({
                         sublistId: sublistId
                     });
-                } else {
-                    log.debug({
-                        title: 'Remove Line',
-                        details: 'No replacement SO, marking line ' + i + ' for removal'
-                    });
-                    linesToRemove.push(i);
-                    continue;
                 }
-            } else {
-                currentRecord.selectLine({
-                    sublistId: sublistId,
-                    line: i
-                });
-                currentRecord.commitLine({
-                    sublistId: sublistId
-                });
             }
 
             // 3. Remove duplicate zero lines (flip logic: check for duplicate first, then check sum)
-            var key = itemId + '|' + soText;
-            if (seen[key]) {
-                // Already seen this key, check if this line is all zeros
-                var sum = 0;
-                for (var j = 0; j < fieldIdsToCheck.length; j++) {
+            // if (!IPDDRS) {
+                var key = itemId + '|' + soText + '|' + soLineNo;
+                if (seen[key]) {
+                    // Already seen this key, check if this line is all zeros
+                    var sum = 0;
+                    for (var j = 0; j < fieldIdsToCheck.length; j++) {
+                        sum += Number(currentRecord.getSublistValue({
+                            sublistId: sublistId,
+                            fieldId: fieldIdsToCheck[j],
+                            line: i
+                        }) || 0);
+                    }
                     sum += Number(currentRecord.getSublistValue({
                         sublistId: sublistId,
-                        fieldId: fieldIdsToCheck[j],
+                        fieldId: 'custrecord835',
                         line: i
                     }) || 0);
-                }
-                sum += Number(currentRecord.getSublistValue({
-                    sublistId: sublistId,
-                    fieldId: 'custrecord835',
-                    line: i
-                }) || 0);
-                sum += Number(currentRecord.getSublistValue({
-                    sublistId: sublistId,
-                    fieldId: 'custrecord845',
-                    line: i
-                }) || 0);
+                    sum += Number(currentRecord.getSublistValue({
+                        sublistId: sublistId,
+                        fieldId: 'custrecord845',
+                        line: i
+                    }) || 0);
 
-                if (sum === 0) {
+                    if (sum === 0) {
+                        log.debug({
+                            title: 'Remove Duplicate Zero Line: ' + key,
+                            details: 'Duplicate zero line found at ' + i + ', marking for removal'
+                        });
+                        linesToRemove.push(i);
+                        continue;
+                    } /* else if (seen[key + '_sum'] === 0) {
+                        log.debug({
+                            title: 'Remove Previous Zero Line: ' + key,
+                            details: 'Previous line at ' + seen[key + '_line'] + ' was zero, removing it instead of current line ' + i
+                        });
+                        linesToRemove.push(seen[key + '_line']);
+                        seen[key + '_sum'] = sum;
+                        seen[key + '_line'] = i;
+                    } */
+                } else {
+                    seen[key] = true;
+
+                    var sum = 0;
+                    for (var j = 0; j < fieldIdsToCheck.length; j++) {
+                        sum += Number(currentRecord.getSublistValue({
+                            sublistId: sublistId,
+                            fieldId: fieldIdsToCheck[j],
+                            line: i
+                        }) || 0);
+                    }
+
+                    seen[key + '_sum'] = sum;
+                    seen[key + '_line'] = i;
+
                     log.debug({
-                        title: 'Remove Duplicate Zero Line: ' + key,
-                        details: 'Duplicate zero line found at ' + i + ', marking for removal'
+                        title: 'seen[key]:',
+                        details: seen[key]
                     });
-                    linesToRemove.push(i);
-                    continue;
                 }
-            } else {
-                seen[key] = true;
-
-                log.debug({
-                    title: 'seen[key]:',
-                    details: seen[key]
-                });
-            }
+            // }
 
             // 4. Tally balances for each line and set custrecord933 (only if not marked for removal)
             // Only tally balances if custrecord846 (Month) matches current month

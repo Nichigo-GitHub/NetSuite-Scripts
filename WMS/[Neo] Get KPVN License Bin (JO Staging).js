@@ -20,6 +20,8 @@ define(['N/log'], function(log) {
             defaultValue = 'A-Branch JO Staging';
         } else if (warehouseLocation === 'KPVN AMATA : AMATA EPE - Main Location : AMATA EPE - RM WH') {
             defaultValue = 'A-EPE JO Staging';
+        } else if (warehouseLocation === 'KPVN HANOI QUANGMINH BRANCH : QUANGMINH - RM WH') {
+            defaultValue = 'QM-Branch JO Staging';
         }
 
         return defaultValue;

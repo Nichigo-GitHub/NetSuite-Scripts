@@ -542,21 +542,6 @@ define(['N/search', 'N/record', 'N/currentRecord', 'N/log', 'N/format'],
             }
         }
 
-        function pageInit(context) {
-            var rec = context.currentRecord;
-
-            if (context.mode === 'edit') {
-                rec.setValue({                    
-                    fieldId: 'custrecord_kppi_soa_revised',
-                    value: true
-                });
-
-                rec.getField({
-                    fieldId: 'custrecord_kppi_soa_revised'
-                }).isDisabled = true;
-            }
-        }
-
         function openKppiSoa() {
             var rec = currentRecord.get();
             var recId = rec.id;
@@ -568,7 +553,6 @@ define(['N/search', 'N/record', 'N/currentRecord', 'N/log', 'N/format'],
         }
 
         return {
-            pageInit: pageInit,
             fieldChanged: fieldChanged,
             openKppiSoa: openKppiSoa
         };

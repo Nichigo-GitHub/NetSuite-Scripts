@@ -24,14 +24,176 @@ define(['N/record', 'N/search', 'N/log'], function (record, search, log) {
     };
 
     function beforeSubmit(context) {
+        var rec = context.newRecord;
+
+        if (context.type === context.UserEventType.EDIT) {
+            var sublistLength = rec.getLineCount({ sublistId: 'recmachcustrecord_kppi_soa_details_link' }) || 0;
+            var dateTo = rec.getValue({ fieldId: 'custrecord_kppi_soa_date_to' });
+            var totalAmount = 0;
+            var currentTransactionAmount = 0;
+            var previousBalanceAmount = 0;
+
+            for (var line = 0; line < sublistLength; line++) {
+                var tranDate = rec.getSublistValue({
+                    sublistId: 'recmachcustrecord_kppi_soa_details_link',
+                    fieldId: 'custrecord_kppi_soa_details_date',
+                    line: line
+                });
+                var amount = rec.getSublistValue({
+                    sublistId: 'recmachcustrecord_kppi_soa_details_link',
+                    fieldId: 'custrecord_kppi_soa_details_orig_amount',
+                    line: line
+                });
+                var remarks = rec.getSublistValue({
+                    sublistId: 'recmachcustrecord_kppi_soa_details_link',
+                    fieldId: 'custrecord_kppi_soa_details_remarks',
+                    line: line
+                }) || '';
+
+                totalAmount += parseFloat(amount) || 0;
+
+                if (isSameMonthYear(tranDate, dateTo)) {
+                    currentTransactionAmount += parseFloat(amount) || 0;
+                }
+
+                var upperRemarks = remarks.toString().toUpperCase().trim();
+                var allowedRemarks = [
+                    /* 'ATTN',
+                    'ATTENTION', */
+                    '45 DAYS',
+                    '60 DAYS',
+                    '75 DAYS',
+                    '90 DAYS',
+                    'CUT OFF',
+                    'CUT-OFF',
+                    'UNPAID'
+                ];
+
+                var keepRemark = false;
+
+                for (var i = 0; i < allowedRemarks.length; i++) {
+                    if (upperRemarks.indexOf(allowedRemarks[i]) !== -1) {
+                        keepRemark = true;
+                        break;
+                    }
+                }
+
+                if (!keepRemark)
+                    remarks = '';
+
+                if (upperRemarks === 'UNPAID' ||
+                    upperRemarks === 'CUT OFF' ||
+                    upperRemarks === 'CUT-OFF' ||
+                    upperRemarks === '45 DAYS' ||
+                    upperRemarks === '60 DAYS' ||
+                    upperRemarks === '75 DAYS' ||
+                    upperRemarks === '90 DAYS') {
+                    previousBalanceAmount += parseFloat(amount) || 0;
+                }
+            }
+
+            rec.setValue({
+                fieldId: 'custrecord_kppi_soa_total',
+                value: totalAmount
+            });
+
+            rec.setValue({
+                fieldId: 'custrecord_kppi_soa_previous_balance',
+                value: previousBalanceAmount
+            });
+
+            rec.setValue({
+                fieldId: 'custrecord_kppi_soa_current_transaction',
+                value: currentTransactionAmount
+            });
+        }
+
         if (context.type !== context.UserEventType.CREATE &&
             context.type !== context.UserEventType.COPY) {
             return;
         }
 
-        var rec = context.newRecord;
-
         try {
+            var sublistLength = rec.getLineCount({ sublistId: 'recmachcustrecord_kppi_soa_details_link' }) || 0;
+            var dateTo = rec.getValue({ fieldId: 'custrecord_kppi_soa_date_to' });
+            var totalAmount = 0;
+            var currentTransactionAmount = 0;
+            var previousBalanceAmount = 0;
+
+            for (var line = 0; line < sublistLength; line++) {
+                var tranDate = rec.getSublistValue({
+                    sublistId: 'recmachcustrecord_kppi_soa_details_link',
+                    fieldId: 'custrecord_kppi_soa_details_date',
+                    line: line
+                });
+                var amount = rec.getSublistValue({
+                    sublistId: 'recmachcustrecord_kppi_soa_details_link',
+                    fieldId: 'custrecord_kppi_soa_details_orig_amount',
+                    line: line
+                });
+                var remarks = rec.getSublistValue({
+                    sublistId: 'recmachcustrecord_kppi_soa_details_link',
+                    fieldId: 'custrecord_kppi_soa_details_remarks',
+                    line: line
+                }) || '';
+
+                totalAmount += parseFloat(amount) || 0;
+
+                if (isSameMonthYear(tranDate, dateTo)) {
+                    currentTransactionAmount += parseFloat(amount) || 0;
+                }
+
+                var upperRemarks = remarks.toString().toUpperCase().trim();
+                var allowedRemarks = [
+                    /* 'ATTN',
+                    'ATTENTION', */
+                    '45 DAYS',
+                    '60 DAYS',
+                    '75 DAYS',
+                    '90 DAYS',
+                    'CUT OFF',
+                    'CUT-OFF',
+                    'UNPAID'
+                ];
+
+                var keepRemark = false;
+
+                for (var i = 0; i < allowedRemarks.length; i++) {
+                    if (upperRemarks.indexOf(allowedRemarks[i]) !== -1) {
+                        keepRemark = true;
+                        break;
+                    }
+                }
+
+                if (!keepRemark)
+                    remarks = '';
+
+                if (upperRemarks === 'UNPAID' ||
+                    upperRemarks === 'CUT OFF' ||
+                    upperRemarks === 'CUT-OFF' ||
+                    upperRemarks === '45 DAYS' ||
+                    upperRemarks === '60 DAYS' ||
+                    upperRemarks === '75 DAYS' ||
+                    upperRemarks === '90 DAYS') {
+                    previousBalanceAmount += parseFloat(amount) || 0;
+                }
+            }
+
+            rec.setValue({
+                fieldId: 'custrecord_kppi_soa_total',
+                value: totalAmount
+            });
+
+            rec.setValue({
+                fieldId: 'custrecord_kppi_soa_previous_balance',
+                value: previousBalanceAmount
+            });
+
+            rec.setValue({
+                fieldId: 'custrecord_kppi_soa_current_transaction',
+                value: currentTransactionAmount
+            });
+
             var branch = rec.getValue({
                 fieldId: 'custrecord_kppi_soa_branch'
             });
@@ -159,6 +321,37 @@ define(['N/record', 'N/search', 'N/log'], function (record, search, log) {
             number = '0' + number;
 
         return number;
+    }
+
+    function normalizeDateValue(value) {
+        if (!value) return null;
+
+        if (Object.prototype.toString.call(value) === '[object Date]' && !isNaN(value.getTime())) {
+            return value;
+        }
+
+        if (typeof value === 'string') {
+            try {
+                return format.parse({
+                    value: value,
+                    type: format.Type.DATE
+                });
+            } catch (e) {
+                log.debug('DATE PARSE ERROR', e);
+            }
+        }
+
+        return null;
+    }
+
+    function isSameMonthYear(value, compareValue) {
+        var dateObj = normalizeDateValue(value);
+        var compareDateObj = normalizeDateValue(compareValue);
+
+        if (!dateObj || !compareDateObj) return false;
+
+        return dateObj.getMonth() === compareDateObj.getMonth() &&
+            dateObj.getFullYear() === compareDateObj.getFullYear();
     }
 
     return {

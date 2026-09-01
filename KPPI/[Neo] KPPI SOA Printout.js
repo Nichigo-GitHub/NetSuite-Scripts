@@ -7,7 +7,6 @@ define(['N/record', 'N/runtime', 'N/format', 'N/log'], function (record, runtime
     var SOA_RECORD_TYPE = 'customrecord_kppi_soa';
     var SOA_SUBLIST_ID = 'recmachcustrecord_kppi_soa_details_link';
     var ROWS_PER_PAGE = 27;
-    var ROWS_PER_PAGE_LAST = 23;
 
     var MONTH_NAMES = [
         'JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
@@ -239,12 +238,13 @@ define(['N/record', 'N/runtime', 'N/format', 'N/log'], function (record, runtime
             html = replaceAll(html, '{LastPageNumberUnderTable}', '');
         }
         if (detailRows.length >= ROWS_PER_PAGE || detailRows.length <= ROWS_PER_PAGE && addLastPageHeader !== '') {
-            if (calculateTotalPages(detailRows.length, rowsPerPage) < 2) {
-                html = replaceAll(html, '{LastPageNumberUnderTable}', addPageNumberRow(calculateTotalPages(detailRows.length, rowsPerPage), calculateTotalPages(detailRows.length, rowsPerPage)));
+            if (calculateActualTotalPages(detailRows.length, rowsPerPage) <= 2) {
+                html = replaceAll(html, '{LastPageNumberUnderTable}', addPageNumberRow(calculateTotalPages(detailRows.length, rowsPerPage), calculateTotalPages(detailRows.length, rowsPerPage) + 1));
+                html = replaceAll(html, '{lastPageNumber}', addLastPageNumberRow(calculateActualTotalPages(detailRows.length, rowsPerPage), calculateActualTotalPages(detailRows.length, rowsPerPage) + 1));
             } else {
                 html = replaceAll(html, '{LastPageNumberUnderTable}', '');
+                html = replaceAll(html, '{lastPageNumber}', addLastPageNumberRow(calculateActualTotalPages(detailRows.length, rowsPerPage), calculateActualTotalPages(detailRows.length, rowsPerPage)));
             }
-            html = replaceAll(html, '{lastPageNumber}', addLastPageNumberRow(calculateActualTotalPages(detailRows.length, rowsPerPage), calculateActualTotalPages(detailRows.length, rowsPerPage)));
         } else {
             html = replaceAll(html, '{lastPageNumber}', '');
         }
@@ -590,7 +590,7 @@ define(['N/record', 'N/runtime', 'N/format', 'N/log'], function (record, runtime
             'LIMA': '<b>Blk 6-B Lot 2 & 3 Phase 3, Lima Technology Center<br />Special Economic Zone Malvar, Batangas 4233<br />Tel. No.: (043) 236-6885 Cel. No.: 0917-836-3028</b><br />VAT REG TIN #: 004-692-418-003 *PEZA REG #: 96-028',
             'FPIP': '<b>Lot 10 635A CSD-04-017299<br />Phase 1A, Bldg. B2, FPIP, Sto. Tomas, Batangas 4234<br />Cel. No.: 0917-538-4655 / 0917-538-6922</b><br />VAT REG TIN #: 004-692-418-004 *PEZA REG #: 96-028',
             'CEBU': '<b>(Warehousing Division)<br />Blk 3, Lot 5 & 6, Ohmori Whse, Cebu Light Industrial Park,<br />Brgy. Basak, Lapu-Lapu City, Cebu 6015<br />Tel. No.: (032) 888-6688</b><br />VAT REG TIN #: 004-692-418-00002 *PEZA REG #: 96-028',
-            'CAVITE': '<b>(Storage Facility of LISP II, Calamba City, Laguna)<br />JPN Bldg. Lot 9, Blk 13-A CEPZ, Rosario, Cavite 4106 <br />Cel. No.: 0917-560-9915 Telefax. No.: (046) 437-1816</b><br />VAT REG TIN #: 004-692-418 *PEZA REG #: 96-028'
+            'CAVITE': '<b>(Storage Facility of LISP II, Calamba City, Laguna)<br />Bldg. 7A,10th St., Lot 6, Block 18, Phase III CEPZ, Rosario, Cavite 4106 <br />Cel. No.: 0917-560-9915 Telefax. No.: (046) 437-1816</b><br />VAT REG TIN #: 004-692-418 *PEZA REG #: 96-028'
         };
 
         return addressMap[branch] || '';
